@@ -1,2 +1,5 @@
 .idea/
-go.mod
+go.mod/
+go.sum/
+fms.exe
+fms

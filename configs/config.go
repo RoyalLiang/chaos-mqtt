@@ -18,20 +18,6 @@ var (
 	Commit    string
 )
 
-func ReadConfig(vp *viper.Viper, path string, cfgObj FMSConfig) (*FMSConfig, error) {
-
-	vp.SetConfigFile(path)
-	if err := vp.ReadInConfig(); err != nil {
-		zap.S().Error("[ Viper Read Error ] ", err)
-		return nil, err
-	}
-	if err := vp.Unmarshal(&cfgObj); err != nil {
-		zap.S().Error("[ Viper Parse Error ] ", err)
-		return nil, err
-	}
-	return &cfgObj, nil
-}
-
 func WriteConfig(vp *viper.Viper, key string, value interface{}) {
 	vp.Set(key, value)
 	err := vp.WriteConfig()

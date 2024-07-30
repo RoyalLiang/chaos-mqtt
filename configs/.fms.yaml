@@ -1,4 +1,9 @@
 mqtt:
-    - 127.0.0.1:8080
-    - 127.0.0.3:8082
-readconfig: false
+    address: 10.3.1.199:1883
+    password: public
+    user: admin
+product:
+    description: awesome fms daemon CLI program.
+    name: fms-awesome-tools
+    uuid: 93a25ee9-0f08-4398-a0e4-72aa28ee1ebf
+    version: 1.0.0
