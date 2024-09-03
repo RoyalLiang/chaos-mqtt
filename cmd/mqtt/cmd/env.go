@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"fms-awesome-tools/configs"
-	tools "fms-awesome-tools/utils"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"fms-awesome-tools/configs"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -68,7 +69,7 @@ func parseConfig() (key, value string) {
 func listConfig() {
 
 	vp := viper.GetViper()
-	cp := filepath.Join(tools.GetRootDir(), configs.ConfigDir, configs.ConfigFile)
+	cp := filepath.Join(configs.ConfigDir, configs.ConfigFile)
 	vp.SetConfigFile(cp)
 	if err := vp.ReadInConfig(); err != nil {
 		fmt.Println("配置读取失败: ", err)

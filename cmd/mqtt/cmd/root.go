@@ -6,7 +6,7 @@ import (
 
 var rootCmd = &cobra.Command{
 
-	Use:     "fms-mqtt",
+	Use:     "fms-tool",
 	Short:   "A simple CLI daemon program for MQTT with FMS.",
 	Long:    `A simple CLI daemon program for MQTT with FMS.`,
 	Version: Version(),
@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 
 func Run(cmd *cobra.Command, args []string) {
 
-	if cmd.Name() == "fms-mqtt" {
+	if cmd.Name() == "fms-tool" {
 		cmd.Help()
 	}
 }

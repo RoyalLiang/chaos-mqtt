@@ -1,8 +1,10 @@
 package cmd
 
 import (
-	"fms-awesome-tools/cmd/mqtt/service"
 	"fmt"
+
+	"fms-awesome-tools/cmd/mqtt/service"
+
 	"github.com/spf13/cobra"
 )
 

@@ -3,8 +3,11 @@ package configs
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/viper"
+
 	"os"
+	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
 var (
@@ -46,8 +49,20 @@ func WriteFMSConfig(key string, value interface{}) error {
 func init() {
 
 	FMSConfig = &fmsConfig{}
-	//cp := filepath.Join(tools.GetRootDir(), ConfigDir, ConfigFile)
-	vp.SetConfigFile("C:\\Users\\westwell\\projects\\go\\fms-awesome-tools\\configs\\.fms.yaml")
+	cp := filepath.Join(ConfigDir, ConfigFile)
+	_, err := os.Stat(cp)
+	if os.IsNotExist(err) {
+		if err = os.MkdirAll(ConfigDir, 0755); err != nil {
+			fmt.Println("配置文件创建失败: ", err)
+			os.Exit(1)
+		}
+		if _, err := os.Create(cp); err != nil {
+			fmt.Println("配置文件创建失败: ", err)
+			os.Exit(1)
+		}
+	}
+	vp.SetConfigFile(cp)
+	//vp.SetConfigFile("C:\\Users\\westwell\\projects\\go\\fms-awesome-tools\\configs\\.fms.yaml")
 
 	if err := vp.ReadInConfig(); err != nil {
 		fmt.Println("配置文件读取失败: ", err)

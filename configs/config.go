@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	ConfigDir  = "configs"
-	ConfigFile = ".fms.yaml"
+	ConfigDir  = "C:\\Program Files\\fms-tool\\configs"
+	ConfigFile = "fms-tool.yaml"
 	LogDir     = "logs"
 	LogFile    = ".log"
 )

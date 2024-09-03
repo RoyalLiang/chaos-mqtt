@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -57,17 +58,17 @@ func WriteFile(path, content string) {
 	}
 
 	if err != nil {
-		zap.S().Warnf("[ File Write Error ] fail to create %v, error: %v\n", path, err)
-		return
+		fmt.Sprintf("fail to create %s, error: %s\n", path, err)
+		os.Exit(1)
 	}
 
 	defer file.Close()
 	_, err = file.WriteString(content)
 	if err != nil {
-		zap.S().Warn("[ File Write Error ] fail to write ", path, ": ", content)
-		return
+		fmt.Println("[ File Write Error ] fail to write ", path, ": ", content)
+		os.Exit(1)
 	}
-	zap.S().Warnf("[ File Write Success ] write to %v success", path)
+	fmt.Sprintf("[ File Write Success ] write to %v success\n", path)
 }
 
 // ReadFile read assigned file content

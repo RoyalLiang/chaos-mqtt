@@ -2,4 +2,4 @@
 go.mod/
 go.sum/
 fms.exe
-fms
+fms*.exe
