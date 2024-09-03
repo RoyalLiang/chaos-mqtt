@@ -2,11 +2,9 @@ package configs
 
 import (
 	"encoding/json"
-	tools "fms-awesome-tools/utils"
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
-	"path/filepath"
 )
 
 var (
@@ -48,8 +46,8 @@ func WriteFMSConfig(key string, value interface{}) error {
 func init() {
 
 	FMSConfig = &fmsConfig{}
-	cp := filepath.Join(tools.GetRootDir(), ConfigDir, ConfigFile)
-	vp.SetConfigFile(cp)
+	//cp := filepath.Join(tools.GetRootDir(), ConfigDir, ConfigFile)
+	vp.SetConfigFile("C:\\Users\\westwell\\projects\\go\\fms-awesome-tools\\configs\\.fms.yaml")
 
 	if err := vp.ReadInConfig(); err != nil {
 		fmt.Println("配置文件读取失败: ", err)

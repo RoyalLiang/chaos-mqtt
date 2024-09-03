@@ -62,11 +62,16 @@ func (mc *mqttClient) Subscribe(wg *sync.WaitGroup, topic string, qos byte, call
 	if mc.server == nil {
 		mc.Init()
 	}
-	for {
-		if token := mc.server.Subscribe(topic, qos, callback); token.Wait() && token.Error() != nil {
-			fmt.Println("subscribe error: ", token.Error())
-			os.Exit(1)
-		}
+
+	if token := mc.server.Subscribe(topic, qos, callback); token.Wait() && token.Error() != nil {
+		fmt.Println("subscribe error: ", token.Error())
+		os.Exit(1)
+	}
+
+	select {
+	case <-mc.ctx.Done():
+		fmt.Println("mqtt server disconnected...")
+		return
 	}
 
 }
