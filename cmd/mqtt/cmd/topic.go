@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+
 	"fms-awesome-tools/cmd/mqtt/cmd/topics"
 	"fms-awesome-tools/constants"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -45,5 +46,12 @@ func init() {
 	topicCmd.AddCommand(topics.CAllCmd)
 	topicCmd.AddCommand(topics.RouteJobCmd)
 	topicCmd.AddCommand(topics.JobInstructionCmd)
+	topicCmd.AddCommand(topics.SwitchCmd)
+	topicCmd.AddCommand(topics.DockPositionCmd)
+	topicCmd.AddCommand(topics.IngressToCallInCmd)
+	topicCmd.AddCommand(topics.MoveToQCCmd)
+	topicCmd.AddCommand(topics.VesselBerthCmd)
+	topicCmd.AddCommand(topics.VesselDepartCmd)
+	topicCmd.AddCommand(topics.RouteRequestCmd)
 	rootCmd.AddCommand(topicCmd)
 }

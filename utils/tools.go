@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/Masterminds/semver"
 
@@ -139,4 +140,11 @@ func VersionCompare(cv, nv string) bool {
 		return true
 	}
 	return false
+}
+
+func GetVehicleTaskID(vehicleID string) string {
+	now := time.Now()
+
+	formattedTime := now.Format("200601021504051")
+	return "FAKE" + vehicleID + formattedTime
 }

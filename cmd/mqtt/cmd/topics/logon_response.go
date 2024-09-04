@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var JobInstructionCmd = &cobra.Command{
-	Use:   "job_instruction",
-	Short: "发送 job_instruction",
+var LogonResponseCmd = &cobra.Command{
+	Use:   "switch_mode",
+	Short: "发送 switch_mode",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("job_instruction", constants.JobInstruction, generateTemplateParam()); err != nil {
+		if err := service.PublishAssignedTopic("switch_mode", constants.SwitchMode, generateSwitchModeParam()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")

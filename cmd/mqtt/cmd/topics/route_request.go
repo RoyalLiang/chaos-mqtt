@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var JobInstructionCmd = &cobra.Command{
-	Use:   "job_instruction",
-	Short: "发送 job_instruction",
+var RouteRequestCmd = &cobra.Command{
+	Use:   "route_request",
+	Short: "发送 route_request",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("job_instruction", constants.JobInstruction, generateTemplateParam()); err != nil {
+		if err := service.PublishAssignedTopic("route_request", constants.SwitchMode, generateSwitchModeParam()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")

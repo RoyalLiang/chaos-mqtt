@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
-	"fms-awesome-tools/configs"
 	"fmt"
-	"github.com/eclipse/paho.mqtt.golang"
 	"os"
 	"sync"
+
+	"fms-awesome-tools/configs"
+
+	"github.com/eclipse/paho.mqtt.golang"
 )
 
 var (
@@ -88,7 +90,6 @@ func (mc *mqttClient) Init() {
 		fmt.Println("can not connect to mqtt server...")
 		os.Exit(1)
 	}
-	fmt.Println("connect success")
 }
 
 func init() {

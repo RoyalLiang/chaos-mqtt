@@ -1,39 +1,27 @@
 package service
 
 import (
-	"fms-awesome-tools/constants"
+	"bytes"
 	"fmt"
-	"os"
 	"text/template"
 )
 
-func getTemplateMessage(content string, param interface{}) string {
+func getTemplateMessage(content string, param interface{}) (string, error) {
 	t, _ := template.New("").Parse(content)
-	_ = t.Execute(os.Stdout, &param)
-	a := fmt.Sprintf("%v", t)
-	fmt.Println("==========")
-	fmt.Println(a)
-	return a
-}
 
-func PublishAssignedTopic(topic, vehicleID string, activity int64, args ...string) error {
-
-	fmt.Println("Publishing assigned topic:", topic)
-	fmt.Println("Vehicle ID:", vehicleID)
-	fmt.Println("Activity:", activity)
-	return nil
-}
-
-func PublishRouteRequestJobInstruction(topic, vehicleID, destination string, lane, activity int64) error {
-	param := constants.VehicleParam{
-		ID:               "001",
-		VehicleID:        vehicleID,
-		Activity:         activity,
-		NextLocationLane: lane,
-		NextLocation:     destination,
+	var buf bytes.Buffer
+	if err := t.Execute(&buf, &param); err != nil {
+		fmt.Println("parse template error: ", err)
+		return "", err
 	}
-	message := getTemplateMessage(topic, param)
-	fmt.Println("message: ", message)
+	return buf.String(), nil
+}
+
+func PublishAssignedTopic(topic, template string, param interface{}) error {
+	message, err := getTemplateMessage(template, param)
+	if err != nil {
+		return err
+	}
 	return MQTTClient.Publish(topic, message)
 }
 

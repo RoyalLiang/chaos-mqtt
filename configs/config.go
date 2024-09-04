@@ -5,12 +5,12 @@ import (
 	"go.uber.org/zap"
 )
 
-//const (
-//	ConfigDir  = "C:\\Program Files\\fms-tool\\configs"
-//	ConfigFile = "fms-tool.yaml"
-//	LogDir     = "logs"
-//	LogFile    = ".log"
-//)
+const (
+	ConfigDir  = "C:\\Program Files\\fms-tool\\configs"
+	ConfigFile = "fms-tool.yaml"
+	LogDir     = "logs"
+	LogFile    = ".log"
+)
 
 var (
 	Version   string
