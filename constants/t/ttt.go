@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"text/template"
 
@@ -9,9 +11,9 @@ import (
 
 func main() {
 	t, _ := template.New("").Parse(constants.RouteRequestJobInstruction)
-	t.
-		_ = t.Execute(os.Stdout, constants.VehicleParam{
+	_ = t.Execute(os.Stdout, constants.VehicleParam{
 		ID: "010101", VehicleID: "AT001", NextLocation: "P,PQC9234", NextLocationLane: 2, LiftType: 1, TargetDockPosition: 5,
 	})
-	//fmt.Sprintf(constants.RouteRequestJobInstruction, "AT001")
+	a := fmt.Sprintf("%v", t)
+	fmt.Println(json.Marshal(a))
 }

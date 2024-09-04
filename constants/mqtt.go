@@ -1,9 +1,52 @@
 package constants
 
 type (
-	TopicFromFMS  string
-	TopicFromAVCS string
+	TopicFromFMS string
 )
+
+var TopicFromAVCS = map[string]string{
+	"LOGON_RESPONSE":                        "logon_response",
+	"CANCEL_JOB":                            "cancel_job",
+	"SWITCH_MODE":                           "switch_mode",
+	"MAP_WGS84":                             "/map/wgs84/",
+	"BLOCK":                                 "block",
+	"MAP_BLOCK":                             "/map/blocks/",
+	"PARKING_ACTION":                        "parking_action",
+	"MAINTENANCE":                           "maintenance",
+	"PARKING":                               "parking",
+	"RESUME":                                "resume",
+	"STOP":                                  "stop",
+	"ROUTE_REQUEST_JOB_INSTRUCTION":         "route_request_job_instruction",
+	"ROUTE_REQUEST":                         "route_request",
+	"JOB_INSTRUCTION":                       "job_instruction",
+	"DOCK_POSITION":                         "dock_position",
+	"MOUNT_INSTRUCTION":                     "mount_instruction",
+	"OFFLOAD_INSTRUCTION":                   "offload_instruction",
+	"WHARF_DOCK_POSITION_RESPONSE":          "wharf_dock_position_response",
+	"INGRESS_TO_CALL_IN":                    "ingress_to_call_in",
+	"MOVE_TO_QC":                            "move_to_qc",
+	"ARMG_REQUEST":                          "armg_request",
+	"VESSEL_BERTH":                          "vessel_berth",
+	"VESSEL_UNBERTH":                        "vessel_unberth",
+	"DERIVED_VESSEL_CONFIGURATION_RESPONSE": "derived_vessel_configuration_response",
+	"CALL_IN_STATUS":                        "call_in_status",
+	"HATCH_COVER_OPS":                       "hatch_cover_ops",
+	"QC_POSITION_INFO_RESPONSE":             "qc_position_info_response",
+	"PATH_UPDATE_AVAILABLE_RESPONSE":        "path_update_available_response",
+	"PATH_UPDATE_REQUEST":                   "path_update_request",
+	"READY_FOR_INGRESS_TO_CALL_IN_RESPONSE": "ready_for_ingress_to_call_in_response",
+	"READY_FOR_MOVE_TO_QC_RESPONSE":         "ready_for_move_to_qc_response",
+	"READY_FOR_INGRESS_TO_QC_RESPONSE":      "ready_for_ingress_to_qc_response",
+	"INGRESS_TO_QC":                         "ingress_to_qc",
+	"APM_HEARTBEAT":                         "/apm/heartbeat",
+	"CALL_IN_REQUEST":                       "call_in_request",
+	"CONING_DECONING_COMPLETION":            "coning_deconing_completion",
+	"PM_ACTIVITY_INFO":                      "pm_activity_info",
+	"PM_NAVIGATION_INFO":                    "pm_navigation_info",
+	"MANUAL_EXCEPTION_HANDLING":             "manual_exception_handling",
+	"APM_ARRIVED_REQUEST":                   "/apm/apm_arrived_request",
+	"APM_ACCEPTANCE_UPDATE":                 "apm_acceptance_update",
+}
 
 const (
 	POWER_ON_REQUEST                    TopicFromFMS = "power_on_request"
@@ -55,48 +98,4 @@ const (
 	MANUAL_EXCEPTION_HANDLING_RESPONSE  TopicFromFMS = "manual_exception_handling_response"
 	APM_ARRIVED_RESPONSE                TopicFromFMS = "apm_arrived_response"
 	APM_ACCEPTANCE_UPDATE_RESPONSE      TopicFromFMS = "apm_acceptance_update_response"
-)
-
-const (
-	LOGON_RESPONSE                        TopicFromAVCS = "logon_response"
-	CANCEL_JOB                            TopicFromAVCS = "cancel_job"
-	SWITCH_MODE                           TopicFromAVCS = "switch_mode"
-	MAP_WGS84                             TopicFromAVCS = "/map/wgs84/"
-	BLOCK                                 TopicFromAVCS = "block"
-	MAP_BLOCK                             TopicFromAVCS = "/map/blocks/"
-	PARKING_ACTION                        TopicFromAVCS = "parking_action"
-	MAINTENANCE                           TopicFromAVCS = "maintenance"
-	PARKING                               TopicFromAVCS = "parking"
-	RESUME                                TopicFromAVCS = "resume"
-	STOP                                  TopicFromAVCS = "stop"
-	ROUTE_REQUEST_JOB_INSTRUCTION         TopicFromAVCS = "route_request_job_instruction"
-	ROUTE_REQUEST                         TopicFromAVCS = "route_request"
-	JOB_INSTRUCTION                       TopicFromAVCS = "job_instruction"
-	DOCK_POSITION                         TopicFromAVCS = "dock_position"
-	MOUNT_INSTRUCTION                     TopicFromAVCS = "mount_instruction"
-	OFFLOAD_INSTRUCTION                   TopicFromAVCS = "offload_instruction"
-	WHARF_DOCK_POSITION_RESPONSE          TopicFromAVCS = "wharf_dock_position_response"
-	INGRESS_TO_CALL_IN                    TopicFromAVCS = "ingress_to_call_in"
-	MOVE_TO_QC                            TopicFromAVCS = "move_to_qc"
-	ARMG_REQUEST                          TopicFromAVCS = "armg_request"
-	VESSEL_BERTH                          TopicFromAVCS = "vessel_berth"
-	VESSEL_UNBERTH                        TopicFromAVCS = "vessel_unberth"
-	DERIVED_VESSEL_CONFIGURATION_RESPONSE TopicFromAVCS = "derived_vessel_configuration_response"
-	CALL_IN_STATUS                        TopicFromAVCS = "call_in_status"
-	HATCH_COVER_OPS                       TopicFromAVCS = "hatch_cover_ops"
-	QC_POSITION_INFO_RESPONSE             TopicFromAVCS = "qc_position_info_response"
-	PATH_UPDATE_AVAILABLE_RESPONSE        TopicFromAVCS = "path_update_available_response"
-	PATH_UPDATE_REQUEST                   TopicFromAVCS = "path_update_request"
-	READY_FOR_INGRESS_TO_CALL_IN_RESPONSE TopicFromAVCS = "ready_for_ingress_to_call_in_response"
-	READY_FOR_MOVE_TO_QC_RESPONSE         TopicFromAVCS = "ready_for_move_to_qc_response"
-	READY_FOR_INGRESS_TO_QC_RESPONSE      TopicFromAVCS = "ready_for_ingress_to_qc_response"
-	INGRESS_TO_QC                         TopicFromAVCS = "ingress_to_qc"
-	APM_HEARTBEAT                         TopicFromAVCS = "/apm/heartbeat"
-	CALL_IN_REQUEST                       TopicFromAVCS = "call_in_request"
-	CONING_DECONING_COMPLETION            TopicFromAVCS = "coning_deconing_completion"
-	PM_ACTIVITY_INFO                      TopicFromAVCS = "pm_activity_info"
-	PM_NAVIGATION_INFO                    TopicFromAVCS = "pm_navigation_info"
-	MANUAL_EXCEPTION_HANDLING             TopicFromAVCS = "manual_exception_handling"
-	APM_ARRIVED_REQUEST                   TopicFromAVCS = "/apm/apm_arrived_request"
-	APM_ACCEPTANCE_UPDATE                 TopicFromAVCS = "apm_acceptance_update"
 )

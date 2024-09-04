@@ -88,6 +88,7 @@ func (mc *mqttClient) Init() {
 		fmt.Println("can not connect to mqtt server...")
 		os.Exit(1)
 	}
+	fmt.Println("connect success")
 }
 
 func init() {
