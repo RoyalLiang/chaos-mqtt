@@ -246,3 +246,55 @@ type VesselUnberthParam struct {
 const VesselUnberth = `
 {"id":"{{.VesselID}}","timestamp":12345678901123}
 `
+
+type LogonResponseParam struct {
+	VehicleID string
+	Success   int64
+	Trailers  []string
+}
+
+const LogonResponse = `
+{
+        "apm_id": "{{.VehicleID}}",
+        "data": {
+            "trailer_seq_numbers": [
+                1
+            ],
+            "trailer_unladen_weights": [
+                11
+            ],
+            "success": {{.Success}},
+            "trailer_lengths": [
+                20
+            ],
+            "trailer_widths": [],
+            "trailer_heights": [],
+            "trailer_types": [
+                "CST"
+            ],
+            "trailer_payloads": [
+                200
+            ],
+            "trailer_numbers": {{.Trailers}},
+            "message": "",
+            "num_trailers": 1,
+            "timestamp": 1703041442268
+        }
+    }
+`
+
+type StopParam struct {
+	VehicleID string
+	Action    int64
+}
+
+const Stop = `
+{
+        "apm_id": "{{.VehicleID}}",
+        "data": {
+            "action": {{.Action}},
+            "id": "SPAPM833013032023135400",
+            "timestamp": 1710298337517
+        }
+    }
+`
