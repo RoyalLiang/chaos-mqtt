@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fms-awesome-tools/configs"
+	tools "fms-awesome-tools/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -9,8 +10,8 @@ import (
 var rootCmd = &cobra.Command{
 
 	Use:     "chaos",
-	Short:   "***************************************************\nA simple MQTT CLI daemon program for FMS with AVCS.\n***************************************************",
-	Long:    "***************************************************\nA simple MQTT CLI daemon program for FMS with AVCS.\n***************************************************",
+	Short:   tools.CustomTitle("A simple MQTT CLI daemon program for FMS with AVCS."),
+	Long:    tools.CustomTitle("A simple MQTT CLI daemon program for FMS with AVCS."),
 	Version: Version(),
 	Run: func(cmd *cobra.Command, args []string) {
 		if cmd.Name() == "chaos" {

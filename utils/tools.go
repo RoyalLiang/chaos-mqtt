@@ -1,12 +1,14 @@
 package tools
 
 import (
-	"github.com/google/uuid"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/Masterminds/semver"
 
@@ -170,4 +172,9 @@ func ParseDestination(destination string) string {
 	}
 
 	return dest
+}
+
+func CustomTitle(title string) string {
+	c := strings.Repeat("*", len(title))
+	return fmt.Sprintf("%s\n%s\n%s", c, title, c)
 }
