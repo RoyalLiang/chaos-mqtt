@@ -26,17 +26,17 @@ func (mc *mqttClient) parseMQTTOptions() *mqtt.ClientOptions {
 	options := mqtt.NewClientOptions()
 	options.ProtocolVersion = 5
 	options.SetAutoReconnect(true)
-	options.SetClientID("6dd337e1-f0a1-44d8-810f-9485bfde8f4f")
+	options.SetClientID(configs.Chaos.Product.Name)
 	//options.OnConnect = mc.OnConnect
-	if configs.FMSConfig.MQTT.Address != "" {
-		mc.address = configs.FMSConfig.MQTT.Address
-		options.AddBroker(configs.FMSConfig.MQTT.Address)
+	if &configs.Chaos.MQTT != nil {
+		mc.address = configs.Chaos.MQTT.Address
+		options.AddBroker(configs.Chaos.MQTT.Address)
 
-		if configs.FMSConfig.MQTT.User != "" {
-			options.SetUsername(configs.FMSConfig.MQTT.User)
+		if configs.Chaos.MQTT.User != "" {
+			options.SetUsername(configs.Chaos.MQTT.User)
 		}
-		if configs.FMSConfig.MQTT.Password != "" {
-			options.SetPassword(configs.FMSConfig.MQTT.Password)
+		if configs.Chaos.MQTT.Password != "" {
+			options.SetPassword(configs.Chaos.MQTT.Password)
 		}
 		return options
 	} else {

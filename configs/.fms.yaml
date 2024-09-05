@@ -4,6 +4,6 @@ mqtt:
     user: admin
 product:
     description: awesome fms daemon CLI program.
-    name: fms-awesome-tools
+    name: chaos
     uuid: 93a25ee9-0f08-4398-a0e4-72aa28ee1ebf
     version: 1.0.0

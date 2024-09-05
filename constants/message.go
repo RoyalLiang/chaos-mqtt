@@ -238,3 +238,11 @@ const VesselBerth = `
         "timestamp": 12345678901123
     }
 `
+
+type VesselUnberthParam struct {
+	VesselID string
+}
+
+const VesselUnberth = `
+{"id":"{{.VesselID}}","timestamp":12345678901123}
+`

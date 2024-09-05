@@ -82,7 +82,7 @@ func listConfig() {
 }
 
 func init() {
-	envCmd.PersistentFlags().StringVarP(&config, "write", "w", "", "写入配置")
-	envCmd.PersistentFlags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
+	envCmd.PersistentFlags().StringVarP(&config, "write", "w", "", "写入配置; 格式: key=value")
+	envCmd.PersistentFlags().BoolVarP(&list, "list", "l", false, "列出当前配置列表;")
 	rootCmd.AddCommand(envCmd)
 }

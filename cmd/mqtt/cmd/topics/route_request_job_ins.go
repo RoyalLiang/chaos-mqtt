@@ -15,7 +15,6 @@ import (
 const activities = "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n"
 
 var (
-	activity      int64
 	destination   string
 	container     string
 	lane          int64
@@ -43,7 +42,7 @@ func generateTemplateParam() interface{} {
 	routeParam := constants.JobParam{
 		ID:                 tools.GetVehicleTaskID(constants.VehicleID),
 		VehicleID:          constants.VehicleID,
-		Activity:           activity,
+		Activity:           constants.Activity,
 		Lane:               lane,
 		Destination:        dest,
 		LiftType:           liftSize,
@@ -53,7 +52,7 @@ func generateTemplateParam() interface{} {
 }
 
 func init() {
-	RouteJobCmd.Flags().Int64VarP(&activity, "activity", "a", 1, activities)
+	RouteJobCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, activities)
 	RouteJobCmd.Flags().StringVarP(&destination, "destination", "d", "PQC921", "任务的目的地; QC: PQC921, Block: TB03_lane_2_slot_34")
 	RouteJobCmd.Flags().StringVarP(&container, "container-size", "c", "40", "箱尺寸")
 	RouteJobCmd.Flags().Int64VarP(&lane, "lane", "l", 2, "任务目的地车道")

@@ -9,14 +9,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	id string
+)
+
 var VesselDepartCmd = &cobra.Command{
-	Use:   "switch_mode",
-	Short: "发送 switch_mode",
+	Use:   "vessel_unberth",
+	Short: "发送 vessel_unberth",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("switch_mode", constants.SwitchMode, generateSwitchModeParam()); err != nil {
+		if id == "" {
+			fmt.Println("船舶ID不允许为空")
+			_ = cmd.Help()
+			return
+		}
+		if err := service.PublishAssignedTopic("vessel_unberth", constants.VesselUnberth, constants.VesselUnberthParam{VesselID: id}); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
 		}
 	},
+}
+
+func init() {
+	VesselDepartCmd.Flags().StringVarP(&id, "id", "i", "", "vessel info ID")
+	_ = VesselBerthCmd.MarkFlagRequired("id")
 }

@@ -1,10 +1,11 @@
 package tools
 
 import (
-	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/semver"
@@ -46,7 +47,7 @@ func Execute(w string, args ...string) ([]byte, error) {
 //
 //	path	string - file path
 //	content	string - file content
-func WriteFile(path, content string) {
+func WriteFile(path, content string) error {
 
 	var file *os.File
 	var err error
@@ -59,17 +60,15 @@ func WriteFile(path, content string) {
 	}
 
 	if err != nil {
-		fmt.Sprintf("fail to create %s, error: %s\n", path, err)
-		os.Exit(1)
+		return err
 	}
 
 	defer file.Close()
 	_, err = file.WriteString(content)
 	if err != nil {
-		fmt.Println("[ File Write Error ] fail to write ", path, ": ", content)
-		os.Exit(1)
+		return err
 	}
-	fmt.Sprintf("[ File Write Success ] write to %v success\n", path)
+	return nil
 }
 
 // ReadFile read assigned file content
@@ -147,4 +146,28 @@ func GetVehicleTaskID(vehicleID string) string {
 
 	formattedTime := now.Format("200601021504051")
 	return "FAKE" + vehicleID + formattedTime
+}
+
+func GenerateUUID() string {
+	text, err := uuid.NewUUID()
+	if err != nil {
+		return ""
+	}
+	return text.String()
+}
+
+func ParseDestination(destination string) string {
+	// destination: PQC921, TB03_lane_11_slot_5 etc...
+	var dest string
+	if strings.HasPrefix(destination, "PQC") {
+		dest = "P," + destination + "          "
+	} else if strings.HasPrefix(destination, "T") && strings.Contains(destination, "_") {
+		//t := strings.Split(destination, "_")
+		//if len(t) == 5 {
+		//	block, lane, slot := t[0], t[1], t[2]
+		//}
+		dest = destination
+	}
+
+	return dest
 }

@@ -26,7 +26,6 @@ var topics = []string{
 type Workflow struct {
 	UUID     string
 	Truck    string
-	Flow     string
 	Activity int64
 	ctx      context.Context
 	wg       sync.WaitGroup

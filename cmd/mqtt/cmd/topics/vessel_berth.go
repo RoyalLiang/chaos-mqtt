@@ -45,10 +45,11 @@ func genVesselBerth() interface{} {
 }
 
 func init() {
-	VesselBerthCmd.Flags().StringVarP(&vesselID, "id", "i", "", "vessel ID")
-	VesselBerthCmd.Flags().StringVarP(&direction, "direction", "d", "P", "vessel direction; support S/P")
-	VesselBerthCmd.Flags().StringVarP(&cranes, "cranes", "c", "", "vessel bind cranes; split by <,> between cranes")
-	VesselBerthCmd.Flags().Int64VarP(&start, "start", "s", 0, "vessel start wharf mark")
-	VesselBerthCmd.Flags().Int64VarP(&end, "end", "e", 0, "vessel end wharf mark")
+	VesselBerthCmd.Flags().StringVarP(&vesselID, "id", "i", "", "船舶ID")
+	VesselBerthCmd.Flags().StringVarP(&direction, "direction", "d", "P", "船舶停靠方向 S(右舷)/P(左舷)")
+	VesselBerthCmd.Flags().StringVarP(&cranes, "cranes", "c", "", "船舶作业岸桥列表(使用,号分隔)")
+	//VesselBerthCmd.Flags().StringP("cranes", "c", "", "船舶作业岸桥列表()")
+	VesselBerthCmd.Flags().Int64VarP(&start, "start", "s", 0, "船舶起始wharf mark")
+	VesselBerthCmd.Flags().Int64VarP(&end, "end", "e", 0, "船舶终止wharf mark")
 	VesselBerthCmd.MarkFlagsRequiredTogether("id", "cranes", "start", "end")
 }

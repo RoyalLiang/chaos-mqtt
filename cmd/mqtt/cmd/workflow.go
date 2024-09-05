@@ -1,45 +1,52 @@
 package cmd
 
-//var (
-//	truck string
-//	flow  string
-//	//activity int64
-//)
-//
-//var workflowCmd = &cobra.Command{
-//	Use:   "workflow",
-//	Short: "Start workflow testing",
-//	Run: func(cmd *cobra.Command, args []string) {
-//		if truck == "" && flow == "" {
-//			cmd.Help()
-//			return
-//		}
-//		fmt.Println("truck:", truck)
-//		fmt.Println("flow:", flow)
-//		fmt.Println("activity:", activity)
-//
-//		startWorkflow()
-//	},
-//}
-//
-//func startWorkflow() {
-//	workflow := service.Workflow{
-//		UUID:     uuid.NewString(),
-//		Truck:    truck,
-//		Flow:     flow,
-//		Activity: activity,
-//	}
-//	fmt.Println("workflow object:", workflow)
-//	if err := workflow.StartWorkflow(); err != nil {
-//		fmt.Println("Failed to start workflow:", err)
-//		os.Exit(1)
-//	}
-//}
-//
-//func init() {
-//	workflowCmd.PersistentFlags().StringVarP(&truck, "truck", "t", "", "which truck used to testing")
-//	workflowCmd.PersistentFlags().StringVarP(&flow, "flow", "f", "", "QC\nYARD\nSTANDBY\n")
-//	workflowCmd.PersistentFlags().Int64VarP(&activity, "activity", "a", 0, activities)
-//	workflowCmd.MarkFlagsRequiredTogether("truck", "flow", "activity")
-//	rootCmd.AddCommand(workflowCmd)
-//}
+import (
+	"fms-awesome-tools/constants"
+	"fmt"
+	"github.com/spf13/cobra"
+)
+
+var (
+	start     bool
+	vehicleID string
+	dest      string
+	lane      int64
+)
+
+var workflowCmd = &cobra.Command{
+	Use:   "workflow",
+	Short: "运行指定的workflow",
+	Run: func(cmd *cobra.Command, args []string) {
+		if start {
+			startWorkflow()
+		} else {
+			_ = cmd.Help()
+		}
+	},
+}
+
+func startWorkflow() {
+	if constants.Activity != 1 && constants.Activity != 2 && constants.Activity != 5 && constants.Activity != 6 {
+		fmt.Printf("activity <%d> 不在可选范围内\n", constants.Activity)
+	}
+	if (constants.Activity == 2 || constants.Activity == 6) && (dest == "" || lane == 0) {
+		fmt.Printf("activity 为 <%d> 时, destination与lane不可为空 \n", constants.Activity)
+	}
+
+	//dest := tools.ParseDestination(dest)
+	//workflow := service.Workflow{
+	//	UUID:     tools.GenerateUUID(),
+	//	Truck:    vehicleID,
+	//	Activity: constants.Activity,
+	//}
+}
+
+func init() {
+	workflowCmd.Flags().BoolVarP(&start, "start", "", false, "start workflow")
+	workflowCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n")
+	workflowCmd.Flags().StringVarP(&vehicleID, "truck", "v", "APM9001", "集卡号")
+	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "目的地")
+	workflowCmd.Flags().Int64VarP(&lane, "lane", "l", 0, "车道号")
+	workflowCmd.MarkFlagsRequiredTogether("truck", "activity")
+	rootCmd.AddCommand(workflowCmd)
+}
