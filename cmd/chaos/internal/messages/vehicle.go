@@ -1,0 +1,26 @@
+package messages
+
+type SwitchModeResponse struct {
+	APMID string                 `json:"apm_id"`
+	Data  SwitchModeResponseData `json:"data"`
+}
+
+type SwitchModeResponseData struct {
+	Timestamp     int64  `json:"timestamp"`
+	ID            string `json:"id"`
+	Success       int    `json:"success"`
+	RejectionCode string `json:"rejection_code"`
+	SetMode       string `json:"set_mode"`
+}
+
+type LogonRequest struct {
+	APMID string           `json:"apmid"`
+	Data  LogonRequestData `json:"data"`
+}
+
+type LogonRequestData struct {
+	Timestamp         int64    `json:"timestamp"`
+	NumTrailers       int      `json:"num_trailers"`
+	TrailerNumbers    []string `json:"trailer_numbers"`
+	TrailerSeqNumbers []int    `json:"trailer_seq_numbers"`
+}
