@@ -23,7 +23,7 @@ else
 endif
 
 chaos: build
-	CGO_ENABLED=0 $(GO) build -o $(PRODUCT)$(EXTENSION) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/mqtt
+	CGO_ENABLED=0 $(GO) build -o $(PRODUCT)$(EXTENSION) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 build: clean
 	@echo "Building $(PRODUCT), Version $(VERSION)"

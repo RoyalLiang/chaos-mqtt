@@ -131,6 +131,25 @@ const SwitchMode = `
     }
 `
 
+type RouteRequestParam struct {
+	VehicleID   string
+	Type        string
+	Destination string
+}
+
+const RouteRequest = `
+{
+        "apm_id": "{{.VehicleID}}",
+        "data": {
+            "timestamp": 1725350535178,
+            "id": "MAAPM839103092024160215",
+            "map_version": "PPT-456-20220620-20240112",
+            "type": "{{.Type}}",
+            "data": "{\"timestamp\":1725350535153,\"id\":\"MAAPM839103092024160215\",\"map_version\":\"PPT-456-20220620-20240112\",\"dest_location\":\"{{.Destination}}\"}"
+        }
+    }
+`
+
 type CallInRequestParam struct {
 	VehicleID string
 	Mode      int64

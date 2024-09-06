@@ -1,9 +1,5 @@
 package constants
 
-type (
-	TopicFromFMS string
-)
-
 var TopicFromAVCS = map[string]string{
 	"LOGON_RESPONSE":                        "logon_response",
 	"CANCEL_JOB":                            "cancel_job",
@@ -48,54 +44,54 @@ var TopicFromAVCS = map[string]string{
 	"APM_ACCEPTANCE_UPDATE":                 "apm_acceptance_update",
 }
 
-const (
-	POWER_ON_REQUEST                    TopicFromFMS = "power_on_request"
-	HEARTBEAT                           TopicFromFMS = "heartbeat"
-	UPDATE_TRAILER                      TopicFromFMS = "update_trailer"
-	LOGOFF_REQUEST                      TopicFromFMS = "logoff_request"
-	POWER_OFF_REQUEST                   TopicFromFMS = "power_off_request"
-	REQUEST_JOB                         TopicFromFMS = "request_job"
-	CANCEL_JOB_RESPONSE                 TopicFromFMS = "cancel_job_response"
-	SWITCH_MODE_RESPONSE                TopicFromFMS = "switch_mode_response"
-	MODE_CHANGE_UPDATE                  TopicFromFMS = "mode_change_update"
-	BLOCK_RESPONSE                      TopicFromFMS = "block_response"
-	BLOCKS_RESPONSE                     TopicFromFMS = "blocks_response"
-	PARKING_STATE                       TopicFromFMS = "parking_state"
-	MAINTENANCE_RESPONSE                TopicFromFMS = "maintenance_response"
-	PARKING_RESPONSE                    TopicFromFMS = "parking_response"
-	RESUME_RESPONSE                     TopicFromFMS = "resume_response"
-	STOP_RESPONSE                       TopicFromFMS = "stop_response"
-	ROUTE_RESPONSE_JOB_INSTRUCTION      TopicFromFMS = "route_response_job_instruction"
-	ROUTE_RESPONSE                      TopicFromFMS = "route_response"
-	JOB_INSTRUCTION_RESPONSE            TopicFromFMS = "job_instruction_response"
-	APM_MOVE_REQUEST                    TopicFromFMS = "apm_move_request"
-	QTRUCK_ARRIVED_REQUEST              TopicFromFMS = "apm_arrived_request"
-	DOCK_POSITION_RESPONSE              TopicFromFMS = "dock_position_response"
-	MOUNT_INSTRUCTION_RESPONSE          TopicFromFMS = "mount_instruction_response"
-	OFFLOAD_INSTRUCTION_RESPONSE        TopicFromFMS = "offload_instruction_response"
-	WHARF_DOCK_POSITION                 TopicFromFMS = "wharf_dock_position"
-	INTERMEDIATE_LOCATION               TopicFromFMS = "intermediate_location"
-	INGRESS_READY_RESPONSE              TopicFromFMS = "ingress_ready_response"
-	INGRESS_TO_CALL_IN_RESPONSE         TopicFromFMS = "ingress_to_call_in_response"
-	MOVE_TO_QC_RESPONSE                 TopicFromFMS = "move_to_qc_response"
-	ARMG_REQUEST_RESPONSE               TopicFromFMS = "armg_request_response"
-	VESSEL_BERTH_RESPONSE               TopicFromFMS = "vessel_berth_response"
-	VESSEL_UNBERTH_RESPONSE             TopicFromFMS = "vessel_unberth_response"
-	DERIVED_VESSEL_CONFIGURATION        TopicFromFMS = "derived_vessel_configuration"
-	CALL_IN_STATUS_RESPONSE             TopicFromFMS = "call_in_status_response"
-	HATCH_COVER_OPS_RESPONSE            TopicFromFMS = "hatch_cover_ops_response"
-	QC_POSITION_INFO                    TopicFromFMS = "qc_position_info"
-	PATH_UPDATE_AVAILABLE               TopicFromFMS = "path_update_available"
-	PATH_UPDATE_RESPONSE                TopicFromFMS = "path_update_response"
-	READY_FOR_INGRESS_TO_CALL_IN        TopicFromFMS = "ready_for_ingress_to_call_in"
-	READY_FOR_MOVE_TO_QC                TopicFromFMS = "ready_for_move_to_qc"
-	READY_FOR_INGRESS_TO_QC             TopicFromFMS = "ready_for_ingress_to_qc"
-	INGRESS_TO_QC_RESPONSE              TopicFromFMS = "ingress_to_qc_response"
-	CALL_IN_RESPONSE                    TopicFromFMS = "call_in_response"
-	CONING_DECONING_COMPLETION_RESPONSE TopicFromFMS = "coning_deconing_completion_response"
-	PM_ACTIVITY_INFO_RESPONSE           TopicFromFMS = "pm_activity_info_response"
-	PM_NAVIGATION_INFO_RESPONSE         TopicFromFMS = "pm_navigation_info_response"
-	MANUAL_EXCEPTION_HANDLING_RESPONSE  TopicFromFMS = "manual_exception_handling_response"
-	APM_ARRIVED_RESPONSE                TopicFromFMS = "apm_arrived_response"
-	APM_ACCEPTANCE_UPDATE_RESPONSE      TopicFromFMS = "apm_acceptance_update_response"
-)
+var TopicFromFMS = map[string]string{
+	"POWER_ON_REQUEST":                    "power_on_request",
+	"HEARTBEAT":                           "heartbeat",
+	"UPDATE_TRAILER":                      "update_trailer",
+	"LOGOFF_REQUEST":                      "logoff_request",
+	"POWER_OFF_REQUEST":                   "power_off_request",
+	"REQUEST_JOB":                         "request_job",
+	"CANCEL_JOB_RESPONSE":                 "cancel_job_response",
+	"SWITCH_MODE_RESPONSE":                "switch_mode_response",
+	"MODE_CHANGE_UPDATE":                  "mode_change_update",
+	"BLOCK_RESPONSE":                      "block_response",
+	"BLOCKS_RESPONSE":                     "blocks_response",
+	"PARKING_STATE":                       "parking_state",
+	"MAINTENANCE_RESPONSE":                "maintenance_response",
+	"PARKING_RESPONSE":                    "parking_response",
+	"RESUME_RESPONSE":                     "resume_response",
+	"STOP_RESPONSE":                       "stop_response",
+	"ROUTE_RESPONSE_JOB_INSTRUCTION":      "route_response_job_instruction",
+	"ROUTE_RESPONSE":                      "route_response",
+	"JOB_INSTRUCTION_RESPONSE":            "job_instruction_response",
+	"APM_MOVE_REQUEST":                    "apm_move_request",
+	"QTRUCK_ARRIVED_REQUEST":              "apm_arrived_request",
+	"DOCK_POSITION_RESPONSE":              "dock_position_response",
+	"MOUNT_INSTRUCTION_RESPONSE":          "mount_instruction_response",
+	"OFFLOAD_INSTRUCTION_RESPONSE":        "offload_instruction_response",
+	"WHARF_DOCK_POSITION":                 "wharf_dock_position",
+	"INTERMEDIATE_LOCATION":               "intermediate_location",
+	"INGRESS_READY_RESPONSE":              "ingress_ready_response",
+	"INGRESS_TO_CALL_IN_RESPONSE":         "ingress_to_call_in_response",
+	"MOVE_TO_QC_RESPONSE":                 "move_to_qc_response",
+	"ARMG_REQUEST_RESPONSE":               "armg_request_response",
+	"VESSEL_BERTH_RESPONSE":               "vessel_berth_response",
+	"VESSEL_UNBERTH_RESPONSE":             "vessel_unberth_response",
+	"DERIVED_VESSEL_CONFIGURATION":        "derived_vessel_configuration",
+	"CALL_IN_STATUS_RESPONSE":             "call_in_status_response",
+	"HATCH_COVER_OPS_RESPONSE":            "hatch_cover_ops_response",
+	"QC_POSITION_INFO":                    "qc_position_info",
+	"PATH_UPDATE_AVAILABLE":               "path_update_available",
+	"PATH_UPDATE_RESPONSE":                "path_update_response",
+	"READY_FOR_INGRESS_TO_CALL_IN":        "ready_for_ingress_to_call_in",
+	"READY_FOR_MOVE_TO_QC":                "ready_for_move_to_qc",
+	"READY_FOR_INGRESS_TO_QC":             "ready_for_ingress_to_qc",
+	"INGRESS_TO_QC_RESPONSE":              "ingress_to_qc_response",
+	"CALL_IN_RESPONSE":                    "call_in_response",
+	"CONING_DECONING_COMPLETION_RESPONSE": "coning_deconing_completion_response",
+	"PM_ACTIVITY_INFO_RESPONSE":           "pm_activity_info_response",
+	"PM_NAVIGATION_INFO_RESPONSE":         "pm_navigation_info_response",
+	"MANUAL_EXCEPTION_HANDLING_RESPONSE":  "manual_exception_handling_response",
+	"APM_ARRIVED_RESPONSE":                "apm_arrived_response",
+	"APM_ACCEPTANCE_UPDATE_RESPONSE":      "apm_acceptance_update_response",
+}

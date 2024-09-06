@@ -28,6 +28,11 @@ type mqtt struct {
 	Address  string `json:"address"`
 }
 
+func (m mqtt) String() string {
+	v, _ := json.Marshal(m)
+	return string(v)
+}
+
 func (c *chaosConfig) String() string {
 	s, _ := json.Marshal(c)
 	return string(s)
@@ -58,4 +63,5 @@ func defaultConfig() chaosConfig {
 
 func init() {
 	Chaos = &chaosConfig{}
+	Init()
 }

@@ -68,6 +68,5 @@ func init() {
 		fmt.Println("获取用户目录失败, ", err)
 		os.Exit(1)
 	}
-
 	ConfigDir = filepath.Join(path, ".chaos", "config")
 }
