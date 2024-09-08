@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
-	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -38,17 +40,10 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.StartWorkflow(); err != nil {
+	if err := service.NewWorkflow().StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
-
-	//dest := tools.ParseDestination(dest)
-	//workflow := service.Workflow{
-	//	UUID:     tools.GenerateUUID(),
-	//	Truck:    vehicleID,
-	//	Activity: constants.Activity,
-	//}
 }
 
 func init() {

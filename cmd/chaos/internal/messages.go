@@ -2,8 +2,9 @@ package internal
 
 import (
 	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"reflect"
+
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 )
 
 func parse(object interface{}, content []byte) interface{} {
@@ -36,6 +37,36 @@ func ParseToReadyForMoveToQC(content []byte) messages.ReadyForMoveToQC {
 func ParseToLogonRequest(content []byte) messages.LogonRequest {
 	obj := parse(&messages.LogonRequest{}, content)
 	return reflect.ValueOf(obj).Elem().Interface().(messages.LogonRequest)
+}
+
+func ParseToApmArrivedRequest(content []byte) messages.APMArrivedRequest {
+	obj := parse(&messages.APMArrivedRequest{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.APMArrivedRequest)
+}
+
+func ParseToDockPositionResponse(content []byte) messages.DockPositionResponse {
+	obj := parse(&messages.DockPositionResponse{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.DockPositionResponse)
+}
+
+func ParseToPathUpdateAvailable(content []byte) messages.PathUpdateAvailable {
+	obj := parse(&messages.PathUpdateAvailable{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.PathUpdateAvailable)
+}
+
+func ParseToMountInstructionResponse(content []byte) messages.MountInstructionResponse {
+	obj := parse(&messages.MountInstructionResponse{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.MountInstructionResponse)
+}
+
+func ParseToOffloadInstructionResponse(content []byte) messages.OffloadInstructionResponse {
+	obj := parse(&messages.OffloadInstructionResponse{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.OffloadInstructionResponse)
+}
+
+func ParseToWharfDockPositionRequest(content []byte) messages.WharfDockPositionRequest {
+	obj := parse(&messages.WharfDockPositionRequest{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.WharfDockPositionRequest)
 }
 
 func GenerateToLogonResponse(data messages.LogonRequest) messages.LogonResponse {

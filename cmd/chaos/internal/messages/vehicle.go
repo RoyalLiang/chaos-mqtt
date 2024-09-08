@@ -24,3 +24,16 @@ type LogonRequestData struct {
 	TrailerNumbers    []string `json:"trailer_numbers"`
 	TrailerSeqNumbers []int    `json:"trailer_seq_numbers"`
 }
+
+type APMArrivedRequest struct {
+	APMID string                `json:"apm_id"`
+	Data  APMArrivedRequestData `json:"data"`
+}
+
+type APMArrivedRequestData struct {
+	Timestamp          int64  `json:"timestamp"`
+	AlternateLaneDock  string `json:"alternate_lane_dock"`
+	Location           string `json:"location"`
+	ID                 string `json:"id"`
+	TargetDockPosition string `json:"target_dock_position"`
+}

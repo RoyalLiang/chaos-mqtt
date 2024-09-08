@@ -123,3 +123,68 @@ type ReadyForIngressToCallInData struct {
 	LaneAvailability    []string   `json:"lane_availability"`
 	DestinationName     string     `json:"destination_name"`
 }
+
+type DockPositionResponse struct {
+	APMID string                   `json:"apm_id"`
+	Data  DockPositionResponseData `json:"data"`
+}
+
+type DockPositionResponseData struct {
+	Timestamp     int64  `json:"timestamp"`
+	ID            string `json:"id"`
+	Success       int    `json:"success"`
+	RejectionCode string `json:"rejection_code"`
+}
+
+type PathUpdateAvailable struct {
+	APMID string                  `json:"apm_id"`
+	Data  PathUpdateAvailableData `json:"data"`
+}
+
+type PathUpdateAvailableData struct {
+	Timestamp           int64      `json:"timestamp"`
+	ID                  string     `json:"id"`
+	DestinationWaypoint string     `json:"destination_waypoint"`
+	TargetDockPosition  string     `json:"target_dock_position"`
+	RouteType           string     `json:"route_type"`
+	DestinationLane     string     `json:"destination_lane"`
+	DestinationName     string     `json:"destination_name"`
+	RouteDag            []RouteDag `json:"route_dag"`
+}
+
+type MountInstructionResponse struct {
+	APMID string                       `json:"apm_id"`
+	Data  MountInstructionResponseData `json:"data"`
+}
+
+type MountInstructionResponseData struct {
+	Timestamp     int64  `json:"timestamp"`
+	ID            string `json:"id"`
+	Success       int    `json:"success"`
+	RejectionCode string `json:"rejection_code"`
+}
+
+type OffloadInstructionResponse struct {
+	APMID string                         `json:"apm_id"`
+	Data  OffloadInstructionResponseData `json:"data"`
+}
+
+type OffloadInstructionResponseData struct {
+	Timestamp     int64  `json:"timestamp"`
+	ID            string `json:"id"`
+	Success       int    `json:"success"`
+	RejectionCode string `json:"rejection_code"`
+}
+
+type WharfDockPositionRequest struct {
+	APMID string                       `json:"apm_id"`
+	Data  WharfDockPositionRequestData `json:"data"`
+}
+
+type WharfDockPositionRequestData struct {
+	Timestamp          int64  `json:"timestamp"`
+	ID                 string `json:"id"`
+	TargetDockPosition string `json:"target_dock_position"`
+	DestinationLane    string `json:"destination_lane"`
+	DestinationName    string `json:"destination_name"`
+}

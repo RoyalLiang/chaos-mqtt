@@ -1,25 +1,36 @@
 package service
 
 import (
-	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal"
-	"fms-awesome-tools/cmd/chaos/internal/messages"
-	"fms-awesome-tools/constants"
 	"fmt"
+	"os"
+	"sync"
+
+	"fms-awesome-tools/cmd/chaos/internal"
+	"fms-awesome-tools/constants"
+
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
-	"sync"
 )
 
-var wf *workflow
-
-type workflow struct {
+type Workflow struct {
 	UUID   string
 	client *MqttClient
 	wg     sync.WaitGroup
 }
 
-func StartWorkflow() error {
+func NewWorkflow() *Workflow {
+	w := &Workflow{
+		UUID: uuid.NewString(),
+		wg:   sync.WaitGroup{},
+	}
+	if err := w.connect(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	return w
+}
+
+func (wf *Workflow) StartWorkflow() error {
 
 	topics := map[string]byte{}
 	for _, v := range constants.TopicFromFMS {
@@ -30,9 +41,9 @@ func StartWorkflow() error {
 	return nil
 }
 
-func (w *workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
+func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	if message.Topic() != "heartbeat" {
-		fmt.Printf("接收到 <%s> 数据 ==> %s\n", message.Topic(), string(message.Payload()))
+		fmt.Printf("%s <== %s\n", message.Topic(), string(message.Payload()))
 	}
 	switch message.Topic() {
 	case "heartbeat":
@@ -40,13 +51,7 @@ func (w *workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	case "power_on_request":
 		fmt.Println("power_on_request")
 	case "update_trailer":
-		data := internal.ParseToLogonRequest(message.Payload())
-		resp := internal.GenerateToLogonResponse(data)
-		if err := w.client.Publish("logon_response", resp.String()); err != nil {
-			fmt.Println("publish error, ", err)
-		} else {
-			fmt.Printf("发送到 <%s> 数据 ==> %s\n", message.Topic(), resp.String())
-		}
+		wf.logonHandler(message.Payload())
 	case "logoff_request":
 		fmt.Println("logoff_request")
 	case "power_off_request":
@@ -57,18 +62,7 @@ func (w *workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	case "mode_change_update":
 		fmt.Println("mode_change_update")
 	case "route_response_job_instruction":
-		data := internal.ParseToRouteResponseJobInstruction(message.Payload())
-		if len(data.Data.RouteDAG) != 0 {
-			job := &messages.JobInstruction{}
-			if err := json.Unmarshal(message.Payload(), job); err != nil {
-				fmt.Println("job unmarshal error, ", err)
-			}
-			if err := w.client.Publish("job_instruction", job.String()); err != nil {
-				fmt.Println("publish job error, ", err)
-			}
-		} else {
-			fmt.Println("route response no route dag, ignore")
-		}
+		wf.routeJobResponseHandler(message.Payload())
 	case "apm_arrived_request":
 		fmt.Println("apm_arrived_request")
 	case "dock_position_response":
@@ -93,26 +87,15 @@ func (w *workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 
 }
 
-func Close() {
-	wf.client.Close()
-}
-
-func (w *workflow) connect() error {
+func (wf *Workflow) connect() error {
 	var err error
-	w.client, err = NewMQTTClientWithConfig("workflow")
+	wf.client, err = NewMQTTClientWithConfig("workflow")
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func init() {
-	wf = &workflow{
-		UUID: uuid.NewString(),
-		wg:   sync.WaitGroup{},
-	}
-
-	if err := wf.connect(); err != nil {
-		panic(err)
-	}
+func (wf *Workflow) Close() {
+	wf.client.Close()
 }

@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
-	"fms-awesome-tools/configs"
 	"fmt"
-	"github.com/google/uuid"
 	"os"
+
+	"fms-awesome-tools/configs"
+
+	"github.com/google/uuid"
 
 	"github.com/eclipse/paho.mqtt.golang"
 )
@@ -35,7 +37,7 @@ func (mc *MqttClient) connectToServer(prefix, user, password string) error {
 
 func NewMQTTClient(prefix, address, user, password string) (*MqttClient, error) {
 	if address == "" {
-		return nil, fmt.Errorf("address is empty")
+		return nil, fmt.Errorf("未配置MQTT服务地址, 请先使用env命令进行配置")
 	}
 
 	c := &MqttClient{

@@ -82,3 +82,90 @@ func (job JobInstruction) String() string {
 	v, _ := json.Marshal(job)
 	return string(v)
 }
+
+type MountInstruction struct {
+	APMID string               `json:"apm_id"`
+	Data  MountInstructionData `json:"data"`
+}
+
+type MountInstructionData struct {
+	ID                     string `json:"id"`
+	Timestamp              int64  `json:"timestamp"`
+	OperationalType        string `json:"operational_type"`
+	JobType                string `json:"job_type"`
+	OperationalGroup       string `json:"operational_group"`
+	CntrNumber             string `json:"cntr_number"`
+	CntrSize               string `json:"cntr_size"`
+	CntrWeight             int    `json:"cntr_weight"`
+	CntrCategory           string `json:"cntr_category"`
+	CntrType               string `json:"cntr_type"`
+	CntrStatus             string `json:"cntr_status"`
+	DGGroup                string `json:"dg_group"`
+	IMOClass               string `json:"imo_class"`
+	ReeferTemperature      string `json:"reefer_temperature"`
+	CntrLocationOnAPM      int    `json:"cntr_location_on_apm"`
+	SourceLocation         string `json:"source_location"`
+	DestLocation           string `json:"dest_location"`
+	OffloadSequence        string `json:"offload_sequence"`
+	Cone                   int    `json:"cone"`
+	OperationalQCSequence  int    `json:"operational_qc_sequence"`
+	OperationalJobSequence int    `json:"operational_job_sequence"`
+	TrailerPosition        string `json:"trailer_position"`
+	WeightClass            string `json:"weight_class"`
+	Urgent                 string `json:"urgent"`
+	DG                     string `json:"dg"`
+	PlugRequired           string `json:"plug_required"`
+	LiftType               int    `json:"lift_type"`
+	Message                string `json:"message"`
+}
+
+func (m MountInstruction) String() string {
+	v, _ := json.Marshal(m)
+	return string(v)
+}
+
+type PathUpdateRequest struct {
+	APMID string                `json:"apm_id"`
+	Data  PathUpdateRequestData `json:"data"`
+}
+
+type PathUpdateRequestData struct {
+	ID                  string     `json:"id"`
+	DestinationName     string     `json:"destination_name"`
+	TargetDockPosition  string     `json:"target_dock_position"`
+	DestinationLane     string     `json:"destination_lane"`
+	DestinationWaypoint string     `json:"destination_waypoint"`
+	RouteDag            []RouteDag `json:"route_dag"`
+	RouteType           string     `json:"route_type"`
+	Timestamp           int64      `json:"timestamp"`
+}
+
+func (p PathUpdateRequest) String() string {
+	v, _ := json.Marshal(p)
+	return string(v)
+}
+
+type OffloadInstruction struct {
+	APMID string                 `json:"apm_id"`
+	Data  OffloadInstructionData `json:"data"`
+}
+
+type OffloadInstructionData struct {
+	ID         string `json:"id"`
+	Timestamp  int64  `json:"timestamp"`
+	CntrNumber string `json:"cntr_number"`
+	Message    string `json:"message"`
+}
+
+type WharfDockPositionResponse struct {
+	APMID string                        `json:"apm_id"`
+	Data  WharfDockPositionResponseData `json:"data"`
+}
+
+type WharfDockPositionResponseData struct {
+	APMID         string `json:"apm_id"`
+	Success       int    `json:"success"`
+	RejectionCode string `json:"rejection_code"`
+	ID            string `json:"id"`
+	Timestamp     int64  `json:"timestamp"`
+}
