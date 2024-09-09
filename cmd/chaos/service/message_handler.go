@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"fms-awesome-tools/cmd/chaos/internal"
 	"fms-awesome-tools/cmd/chaos/internal/messages"
@@ -25,7 +24,6 @@ func (wf *Workflow) callInRequest() {
 			CallInMode: 0, Crane: wf.task.Data.NextLocation,
 		},
 	}
-	time.Sleep(5 * time.Second)
 	wf.response("call_in_request", call.String())
 }
 
@@ -34,7 +32,6 @@ func (wf *Workflow) mount() {
 		APMID: wf.task.APMID,
 		Data:  messages.MountInstructionData{},
 	}
-	time.Sleep(2 * time.Second)
 	wf.response("mount_instruction", mount.String())
 }
 
@@ -45,7 +42,6 @@ func (wf *Workflow) offload() {
 			CntrNumber: "FFFF0000000",
 		},
 	}
-	time.Sleep(2 * time.Second)
 	wf.response("offload_instruction", offload.String())
 }
 
@@ -72,7 +68,15 @@ func (wf *Workflow) routeJobResponseHandler(message []byte) {
 			return
 		}
 		wf.response("job_instruction", job.String())
+
 		wf.task = &data
+		if strings.HasPrefix(data.Data.NextLocation, "P") {
+			wf.taskType = "QC"
+			wf.destination = strings.Replace(strings.Replace(data.Data.NextLocation, "P", "", 1), "_Pre-Ingress", "", 1)
+		} else {
+			wf.taskType = "YARD"
+			wf.destination = data.Data.NextLocation
+		}
 		return
 	}
 	fmt.Println("job_instruction == > route dag为空, 任务下发失败")
@@ -112,7 +116,7 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 		return
 	}
 
-	if strings.HasSuffix(wf.task.Data.NextLocation, data.Data.Location) {
+	if data.Data.Location == wf.destination {
 		switch wf.task.Data.Activity {
 		case 2:
 			wf.mount()

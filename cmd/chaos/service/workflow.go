@@ -1,10 +1,11 @@
 package service
 
 import (
-	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fmt"
 	"os"
 	"sync"
+
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 
 	"fms-awesome-tools/cmd/chaos/internal"
 	"fms-awesome-tools/constants"
@@ -18,9 +19,11 @@ type Workflow struct {
 	client *MqttClient
 	wg     sync.WaitGroup
 
-	task       *messages.RouteResponseJobInstruction
-	vehicleID  string
-	autoCallIn bool
+	task        *messages.RouteResponseJobInstruction
+	vehicleID   string
+	destination string
+	taskType    string
+	autoCallIn  bool
 }
 
 func NewWorkflow(autoCallIn bool) *Workflow {

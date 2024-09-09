@@ -1,10 +1,11 @@
 package topics
 
 import (
-	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 
 	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
@@ -57,8 +58,12 @@ var RouteJobCmd = &cobra.Command{
 
 func generateRouteRequestJob() string {
 	var dest = ""
-	if strings.HasPrefix(destination, "PQC") {
-		dest = "P," + destination + "          "
+	if constants.Activity == 2 || constants.Activity == 6 {
+		if strings.HasPrefix(destination, "PQC") {
+			dest = "P," + destination + "          "
+		} else {
+			dest = destination
+		}
 	}
 
 	routeJob := &messages.RouteRequestJobInstructionRequest{
@@ -79,6 +84,7 @@ func generateRouteRequestJob() string {
 		},
 	}
 
+	routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
 	switch constants.Activity {
 	case 2:
 		routeJob.Data.AssignedCntrSize = strconv.FormatInt(container, 10)
