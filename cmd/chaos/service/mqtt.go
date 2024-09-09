@@ -73,14 +73,6 @@ func (mc *MqttClient) Subscribe(topic string, qos byte, callback mqtt.MessageHan
 		fmt.Println("subscribe error: ", token.Error())
 		os.Exit(1)
 	}
-
-	//select {
-	//case <-mc.ctx.Done():
-	//	fmt.Println("mqtt server disconnected...")
-	//	return
-	//case <-mc.exit:
-	//	fmt.Println("mqtt client closed...")
-	//}
 	<-mc.exit
 }
 
@@ -91,13 +83,4 @@ func (mc *MqttClient) SubscribeMultiple(topics map[string]byte, callback mqtt.Me
 	}
 
 	<-mc.exit
-	//select {
-	//case <-mc.ctx.Done():
-	//	mc.server.Disconnect(200)
-	//	fmt.Println("mqtt server disconnected...")
-	//	return
-	//case <-mc.exit:
-	//	mc.server.Disconnect(200)
-	//	fmt.Println("mqtt client closed...")
-	//}
 }

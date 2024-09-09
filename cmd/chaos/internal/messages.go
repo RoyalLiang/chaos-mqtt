@@ -14,6 +14,11 @@ func parse(object interface{}, content []byte) interface{} {
 	return object
 }
 
+func ParseToTask(content []byte) messages.Task {
+	obj := parse(&messages.Task{}, content)
+	return reflect.ValueOf(obj).Elem().Interface().(messages.Task)
+}
+
 func ParseToRouteResponseJobInstruction(content []byte) messages.RouteResponseJobInstruction {
 	obj := parse(&messages.RouteResponseJobInstruction{}, content)
 	return reflect.ValueOf(obj).Elem().Interface().(messages.RouteResponseJobInstruction)

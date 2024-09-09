@@ -15,6 +15,7 @@ var (
 	vehicleID string
 	dest      string
 	lane      int64
+	auto      bool
 )
 
 var workflowCmd = &cobra.Command{
@@ -40,18 +41,19 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.NewWorkflow().StartWorkflow(); err != nil {
+	if err := service.NewWorkflow(auto).StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
 }
 
 func init() {
-	workflowCmd.Flags().BoolVarP(&start, "start", "s", false, "start workflow")
+	workflowCmd.Flags().BoolVarP(&start, "start", "s", false, "start workflow;")
 	workflowCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n")
-	workflowCmd.Flags().StringVarP(&vehicleID, "truck", "v", "APM9001", "集卡号")
-	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "目的地")
-	workflowCmd.Flags().Int64VarP(&lane, "lane", "l", 0, "车道号")
+	workflowCmd.Flags().StringVarP(&vehicleID, "truck", "v", "APM9001", "集卡号;")
+	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "目的地;")
+	workflowCmd.Flags().Int64VarP(&lane, "lane", "l", 0, "车道号;")
+	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "是否自动发送call-in request(5s);")
 	workflowCmd.MarkFlagsRequiredTogether("truck", "activity")
 	rootCmd.AddCommand(workflowCmd)
 }

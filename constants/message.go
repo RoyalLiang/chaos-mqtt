@@ -5,9 +5,9 @@ type JobParam struct {
 	VehicleID          string
 	Activity           int64
 	Destination        string
-	Lane               int64
+	Lane               string
 	LiftType           int64
-	TargetDockPosition int64
+	TargetDockPosition string
 	ContainerSize      string
 }
 

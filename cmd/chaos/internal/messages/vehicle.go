@@ -1,5 +1,7 @@
 package messages
 
+import "encoding/json"
+
 type SwitchModeResponse struct {
 	APMID string                 `json:"apm_id"`
 	Data  SwitchModeResponseData `json:"data"`
@@ -14,7 +16,7 @@ type SwitchModeResponseData struct {
 }
 
 type LogonRequest struct {
-	APMID string           `json:"apmid"`
+	APMID string           `json:"apm_id"`
 	Data  LogonRequestData `json:"data"`
 }
 
@@ -23,6 +25,11 @@ type LogonRequestData struct {
 	NumTrailers       int      `json:"num_trailers"`
 	TrailerNumbers    []string `json:"trailer_numbers"`
 	TrailerSeqNumbers []int    `json:"trailer_seq_numbers"`
+}
+
+func (lr LogonRequest) String() string {
+	v, _ := json.Marshal(lr)
+	return string(v)
 }
 
 type APMArrivedRequest struct {

@@ -56,6 +56,7 @@ func init() {
 	topicCmd.AddCommand(topics.VesselDepartCmd)
 	topicCmd.AddCommand(topics.RouteRequestCmd)
 	topicCmd.AddCommand(topics.LogonResponseCmd)
+	topicCmd.AddCommand(topics.LogonRequestCmd)
 	topicCmd.AddCommand(topics.StopCmd)
 	rootCmd.AddCommand(topicCmd)
 }

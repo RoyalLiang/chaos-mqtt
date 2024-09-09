@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"text/template"
 )
 
@@ -18,12 +19,19 @@ func getTemplateMessage(content string, param interface{}) (string, error) {
 }
 
 func PublishAssignedTopic(topic, template string, param interface{}) error {
-	message, err := getTemplateMessage(template, param)
-	if err != nil {
-		return err
+
+	var message string
+	var err error
+	if template == "" {
+		message = reflect.ValueOf(param).String()
+	} else {
+		message, err = getTemplateMessage(template, param)
+		if err != nil {
+			return err
+		}
 	}
 
-	c, err := NewMQTTClientWithConfig("test")
+	c, err := NewMQTTClientWithConfig("assigned")
 	if err != nil {
 		return err
 	}

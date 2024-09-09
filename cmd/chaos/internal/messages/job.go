@@ -1,5 +1,10 @@
 package messages
 
+type Task struct {
+	APMID string      `json:"apm_id"`
+	Data  interface{} `json:"data"`
+}
+
 type RouteResponseJobInstruction struct {
 	APMID string    `json:"apm_id"`
 	Data  RouteData `json:"data"`

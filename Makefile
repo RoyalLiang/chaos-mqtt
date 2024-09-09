@@ -5,6 +5,7 @@ GO?=go
 GORELEASER?=goreleaser
 
 ARCH:=$(shell uname -s)
+DIST:=$(MAKEFILE_DIR)/dist
 
 PRODUCT=chaos
 
@@ -22,8 +23,11 @@ else
 	EXTENSION=
 endif
 
-chaos: build
-	CGO_ENABLED=0 $(GO) build -o $(PRODUCT)$(EXTENSION) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
+chaos: build windows
+	CGO_ENABLED=0 $(GO) build -a -o $(DIST)/$(PRODUCT)$(EXTENSION) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
+
+windows:
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -a -o $(DIST)/$(PRODUCT).exe -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 build: clean
 	@echo "Building $(PRODUCT), Version $(VERSION)"
