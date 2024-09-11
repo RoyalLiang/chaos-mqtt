@@ -23,11 +23,14 @@ else
 	PKG=$(DIST)/$(PRODUCT).exe
 endif
 
-chaos: build windows
+chaos: build windows darwin
 	GOOS=linux CGO_ENABLED=0 $(GO) build -a -o $(DIST)/$(PRODUCT) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 windows:
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -a -o $(PKG) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
+
+darwin:
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 $(GO) build -a -o $(DIST)/$(PRODUCT)_darwin -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 build: clean
 	@echo "Building $(PRODUCT), Version $(VERSION)"
