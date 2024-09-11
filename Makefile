@@ -17,17 +17,17 @@ VERSION_PATCH:=0
 VERSION_SUFFIX:=$(shell git rev-list --count $(BASE_COMMIT)..HEAD)
 VERSION:=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)-$(VERSION_SUFFIX)
 
-#ifeq ($(OS),Windows_NT)
-#	EXTENSION=.exe
-#else
-#	EXTENSION=
-#endif
+ifeq ($(OS),Windows_NT)
+	PKG=$(PRODUCT).exe
+else
+	PKG=$(DIST)/$(PRODUCT).exe
+endif
 
 chaos: build windows
 	GOOS=linux CGO_ENABLED=0 $(GO) build -a -o $(DIST)/$(PRODUCT) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 windows:
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -a -o $(PRODUCT).exe -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -a -o $(PKG) -ldflags "-s -w -X main.Version=$(VERSION)" ./cmd/chaos
 
 build: clean
 	@echo "Building $(PRODUCT), Version $(VERSION)"
