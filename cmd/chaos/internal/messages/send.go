@@ -239,7 +239,7 @@ type CallInRequest struct {
 type CallInRequestData struct {
 	ID         string `json:"id"`
 	Crane      string `json:"qc_number"`
-	CallInMode int    `json:"call_in_mode"`
+	CallInMode int64  `json:"call_in_mode"`
 }
 
 func (c CallInRequest) String() string {
