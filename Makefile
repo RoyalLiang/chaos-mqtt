@@ -36,6 +36,6 @@ build: clean
 	@echo "Building $(PRODUCT), Version $(VERSION)"
 
 clean:
-	@for item in $(find $(MAKEFILE_DIR)/ -name "chaos.exe"); do	\
+	@for item in $(find $(DIST)/ -name "chaos*"); do	\
 		$(RM) $$item; \
 	done

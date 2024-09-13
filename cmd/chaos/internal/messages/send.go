@@ -61,7 +61,7 @@ func (r *RouteRequestJobInstructionRequest) String() string {
 type LogonResponseData struct {
 	TrailerSeqNumbers     []int    `json:"trailer_seq_numbers"`
 	TrailerUnladenWeights []int    `json:"trailer_unladen_weights"`
-	Success               int      `json:"success"`
+	Success               int64    `json:"success"`
 	TrailerLengths        []int    `json:"trailer_lengths"`
 	TrailerWidths         []int    `json:"trailer_widths"`
 	TrailerHeights        []int    `json:"trailer_heights"`
