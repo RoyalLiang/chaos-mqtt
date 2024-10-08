@@ -1,6 +1,7 @@
 package service
 
 import (
+	tools "fms-awesome-tools/utils"
 	"fmt"
 	"os"
 	"sync"
@@ -46,6 +47,7 @@ func (wf *Workflow) StartWorkflow() error {
 		topics[v] = 1
 	}
 
+	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start Listen...          \n"))
 	wf.client.SubscribeMultiple(topics, wf.messageHandler)
 	return nil
 }
