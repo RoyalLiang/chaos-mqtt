@@ -294,3 +294,22 @@ func (m IngressToCallIn) String() string {
 	v, _ := json.Marshal(m)
 	return string(v)
 }
+
+type FunctionalJobData struct {
+	Id           string     `json:"id"`
+	Timestamp    int64      `json:"timestamp"`
+	MapVersion   string     `json:"map_version"`
+	RouteDag     []RouteDag `json:"pose"`
+	RouteType    string     `json:"route_type"`
+	DestLocation string     `json:"dest_location"`
+}
+
+type FunctionalJob struct {
+	APMID string            `json:"apm_id"`
+	Data  FunctionalJobData `json:"data"`
+}
+
+func (f FunctionalJob) String() string {
+	v, _ := json.Marshal(f)
+	return string(v)
+}
