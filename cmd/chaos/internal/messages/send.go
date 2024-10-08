@@ -299,7 +299,7 @@ type FunctionalJobData struct {
 	Id           string     `json:"id"`
 	Timestamp    int64      `json:"timestamp"`
 	MapVersion   string     `json:"map_version"`
-	RouteDag     []RouteDag `json:"pose"`
+	RouteDag     []RouteDag `json:"route_dag"`
 	RouteType    string     `json:"route_type"`
 	DestLocation string     `json:"dest_location"`
 }
