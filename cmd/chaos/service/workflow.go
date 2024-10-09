@@ -69,6 +69,8 @@ func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 		fmt.Println("power_on_request")
 	case "update_trailer":
 		wf.logonHandler(message.Payload())
+	case "route_response":
+		wf.routeHandler(message.Payload())
 	//case "logoff_request":
 	//	fmt.Println("logoff_request")
 	//case "power_off_request":

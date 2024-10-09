@@ -313,3 +313,19 @@ func (f FunctionalJob) String() string {
 	v, _ := json.Marshal(f)
 	return string(v)
 }
+
+type SwitchModeRequestData struct {
+	ID        string `json:"id"`
+	SetMode   string `json:"set_mode"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+type SwitchModeRequest struct {
+	ApmId string                `json:"apm_id"`
+	Data  SwitchModeRequestData `json:"data"`
+}
+
+func (s SwitchModeRequest) String() string {
+	v, _ := json.Marshal(s)
+	return string(v)
+}

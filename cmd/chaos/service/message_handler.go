@@ -59,6 +59,10 @@ func (wf *Workflow) logonHandler(message []byte) {
 	wf.response("logon_response", resp.String())
 }
 
+func (wf *Workflow) routeHandler(message []byte) {
+	
+}
+
 func (wf *Workflow) routeJobResponseHandler(message []byte) {
 	data := internal.ParseToRouteResponseJobInstruction(message)
 	if len(data.Data.RouteDAG) != 0 {

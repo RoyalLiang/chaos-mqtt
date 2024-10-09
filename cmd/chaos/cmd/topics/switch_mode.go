@@ -1,6 +1,7 @@
 package topics
 
 import (
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fmt"
 
 	"fms-awesome-tools/cmd/chaos/service"
@@ -17,7 +18,7 @@ var SwitchCmd = &cobra.Command{
 	Use:   "switch_mode",
 	Short: "发送 switch_mode",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("switch_mode", constants.SwitchMode, generateSwitchModeParam()); err != nil {
+		if err := service.PublishAssignedTopic("switch_mode", "", generateSwitchModeParam()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
@@ -26,10 +27,12 @@ var SwitchCmd = &cobra.Command{
 }
 
 func generateSwitchModeParam() interface{} {
-	return constants.SwitchModeParam{
-		VehicleID: constants.VehicleID,
-		Mode:      mode,
-	}
+	return messages.SwitchModeRequest{
+		ApmId: constants.VehicleID,
+		Data: messages.SwitchModeRequestData{
+			SetMode: mode,
+		},
+	}.String()
 }
 
 func init() {
