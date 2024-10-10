@@ -29,7 +29,7 @@ var LogonResponseCmd = &cobra.Command{
 	},
 }
 
-func genLogonResponse() messages.LogonResponse {
+func genLogonResponse() string {
 	return messages.LogonResponse{
 		APMID: constants.VehicleID,
 		Data: messages.LogonResponseData{
@@ -37,7 +37,7 @@ func genLogonResponse() messages.LogonResponse {
 			TrailerTypes: strings.Split(tp, ","), TrailerPayloads: []int{200}, TrailerWidths: make([]int, 0),
 			TrailerHeights: make([]int, 0), TrailerNumbers: strings.Split(trailers, ","),
 		},
-	}
+	}.String()
 }
 
 func init() {

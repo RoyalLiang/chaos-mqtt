@@ -27,14 +27,14 @@ var CAllCmd = &cobra.Command{
 	},
 }
 
-func genCallInRequest() messages.CallInRequest {
+func genCallInRequest() string {
 	return messages.CallInRequest{
 		APMID: constants.VehicleID,
 		Data: messages.CallInRequestData{
 			Crane:      crane,
 			CallInMode: manual,
 		},
-	}
+	}.String()
 }
 
 func init() {

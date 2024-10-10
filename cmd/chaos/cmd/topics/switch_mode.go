@@ -26,7 +26,7 @@ var SwitchCmd = &cobra.Command{
 	},
 }
 
-func generateSwitchModeParam() interface{} {
+func generateSwitchModeParam() string {
 	return messages.SwitchModeRequest{
 		ApmId: constants.VehicleID,
 		Data: messages.SwitchModeRequestData{
