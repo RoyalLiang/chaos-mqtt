@@ -96,10 +96,10 @@ type JobInstructionData struct {
 	RouteDAG                []RouteDag `json:"route_dag"`
 	RouteMandate            string     `json:"route_mandate"`
 	OperationalGroup        string     `json:"operational_group"`
-	LiftType                int        `json:"lift_type"`
+	LiftType                int64      `json:"lift_type"`
 	APMDirection            string     `json:"apm_direction"`
 	DualCycle               string     `json:"dual_cycle"`
-	Activity                int        `json:"activity"`
+	Activity                int64      `json:"activity"`
 	NextLocation            string     `json:"next_location"`
 	NextLocationLane        string     `json:"next_location_lane"`
 	AssignedCntrSize        string     `json:"assigned_cntr_size"`
@@ -327,5 +327,23 @@ type SwitchModeRequest struct {
 
 func (s SwitchModeRequest) String() string {
 	v, _ := json.Marshal(s)
+	return string(v)
+}
+
+type RouteRequestData struct {
+	Timestamp  int64  `json:"timestamp"`
+	Id         string `json:"id"`
+	MapVersion string `json:"map_version"`
+	Type       string `json:"type"`
+	Data       string `json:"data"`
+}
+
+type RouteRequest struct {
+	ApmId string           `json:"apm_id"`
+	Data  RouteRequestData `json:"data"`
+}
+
+func (r RouteRequest) String() string {
+	v, _ := json.Marshal(r)
 	return string(v)
 }

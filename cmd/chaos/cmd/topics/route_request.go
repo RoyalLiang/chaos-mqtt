@@ -1,6 +1,7 @@
 package topics
 
 import (
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 	tools "fms-awesome-tools/utils"
 	"fmt"
 
@@ -20,7 +21,7 @@ var RouteRequestCmd = &cobra.Command{
 	Short: "发送 route_request",
 	Long:  tools.CustomTitle("发送 route_request"),
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("route_request", constants.RouteRequest, generateRouteRequestParam()); err != nil {
+		if err := service.PublishAssignedTopic("route_request", "", generateRouteRequestParam()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
@@ -28,12 +29,14 @@ var RouteRequestCmd = &cobra.Command{
 	},
 }
 
-func generateRouteRequestParam() interface{} {
-	return constants.RouteRequestParam{
-		VehicleID:   constants.VehicleID,
-		Type:        dType,
-		Destination: dest,
-	}
+func generateRouteRequestParam() string {
+	return messages.RouteRequest{
+		ApmId: constants.VehicleID,
+		Data: messages.RouteRequestData{
+			Type: dType,
+			Data: fmt.Sprintf("{\"timestamp\":1725350535153,\"id\":\"MAAPM839103092024160215\",\"map_version\":\"PPT-456-20220620-20240112\",\"dest_location\":\"%s\"}", dest),
+		},
+	}.String()
 }
 
 func init() {
