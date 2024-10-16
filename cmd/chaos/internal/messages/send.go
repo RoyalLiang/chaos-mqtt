@@ -1,6 +1,12 @@
 package messages
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fms-awesome-tools/constants"
+	tools "fms-awesome-tools/utils"
+	"strconv"
+	"strings"
+)
 
 type RouteRequestJobInstructionRequest struct {
 	APMID string                                `json:"apm_id"`
@@ -346,4 +352,51 @@ type RouteRequest struct {
 func (r RouteRequest) String() string {
 	v, _ := json.Marshal(r)
 	return string(v)
+}
+
+func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, container, quantity int64) string {
+	var dest = ""
+	if constants.Activity == 2 || constants.Activity == 6 {
+		if strings.HasPrefix(destination, "PQC") {
+			dest = "P," + destination + "          "
+		} else {
+			dest = destination
+		}
+	}
+
+	routeJob := RouteRequestJobInstructionRequest{
+		APMID: constants.VehicleID,
+		Data: RouteRequestJobInstructionRequestData{
+			APMID: constants.VehicleID, RouteDAG: make([]RouteDag, 0), Activity: constants.Activity,
+			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, constants.Activity), NextLocation: dest, NextLocationLane: lane,
+			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0),
+			CntrCategorys: make([]string, 0), CntrStatus: make([]string, 0), CntrWeights: make([]string, 0),
+			CntrNumbers: make([]string, 0), CntrSizes: make([]string, 0), CntrTypes: make([]string, 0),
+			Cones: make([]string, 0), CntrLocationsOnAPM: make([]int, 0), OperationalJobSequences: make([]string, 0),
+			OperationalGroups: make([]string, 0), OperationalQCSequences: make([]string, 0), JobTypes: make([]string, 0),
+			UrGents: make([]string, 0), DestLocations: make([]string, 0), DGGroups: make([]string, 0),
+			DGs: make([]string, 0), ReferTemperatures: make([]string, 0), IMOClass: make([]string, 0),
+			OffloadSequences: make([]string, 0), TrailerPositions: make([]string, 0), WeightClass: make([]string, 0),
+			PlugRequireds: make([]string, 0), SourceLocations: make([]string, 0), MotorDirections: make([]string, 0),
+			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N",
+		},
+	}
+
+	routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
+	switch constants.Activity {
+	case 2:
+		routeJob.Data.AssignedCntrSize = strconv.FormatInt(container, 10)
+	case 6:
+		if container >= 40 {
+			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "FFFF0000000")
+			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, 5)
+			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(5, 64))
+		}
+		for c := range quantity {
+			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "FFFF0000000")
+			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, int(c))
+			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(c, 64))
+		}
+	}
+	return routeJob.String()
 }

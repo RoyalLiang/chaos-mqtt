@@ -60,7 +60,7 @@ func (wf *Workflow) logonHandler(message []byte) {
 }
 
 func (wf *Workflow) routeHandler(message []byte) {
-	
+
 }
 
 func (wf *Workflow) routeJobResponseHandler(message []byte) {
@@ -71,6 +71,7 @@ func (wf *Workflow) routeJobResponseHandler(message []byte) {
 			fmt.Println("job_instruction == > route_response_job_instruction解析失败")
 			return
 		}
+		job.Data.RouteMandate = "Y"
 		wf.response("job_instruction", job.String())
 
 		wf.task = &data

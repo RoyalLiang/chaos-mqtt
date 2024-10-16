@@ -33,7 +33,7 @@ func generateTemplateParam() string {
 	return messages.JobInstruction{
 		APMID: constants.VehicleID,
 		Data: messages.JobInstructionData{
-			ID: tools.GetVehicleTaskID(constants.VehicleID), RouteType: "G", RouteDAG: make([]messages.RouteDag, 0),
+			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, constants.Activity), RouteType: "G", RouteDAG: make([]messages.RouteDag, 0),
 			Activity: constants.Activity, NextLocation: dest, NextLocationLane: lane, LiftType: liftSize, TargetDockPosition: targetDockPos,
 			OperationalTypes: make([]string, 0),
 			CNTRCategorys:    make([]string, 0), CNTRStatus: make([]string, 0), CNTRWeights: make([]float64, 0),

@@ -24,6 +24,8 @@ var (
 	targetDockPos string
 	liftSize      int64
 	quantity      int64
+
+	slot int64
 )
 
 var RouteJobCmd = &cobra.Command{
@@ -48,7 +50,7 @@ var RouteJobCmd = &cobra.Command{
 			return
 		}
 
-		if err := service.PublishAssignedTopic("route_request_job_instruction", "", generateRouteRequestJob()); err != nil {
+		if err := service.PublishAssignedTopic("route_request_job_instruction", "", messages.GenerateRouteRequestJob(dest, lane, targetDockPos, liftSize, container, quantity)); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
@@ -70,7 +72,7 @@ func generateRouteRequestJob() string {
 		APMID: constants.VehicleID,
 		Data: messages.RouteRequestJobInstructionRequestData{
 			APMID: constants.VehicleID, RouteDAG: make([]messages.RouteDag, 0), Activity: constants.Activity,
-			ID: tools.GetVehicleTaskID(constants.VehicleID), NextLocation: dest, NextLocationLane: lane,
+			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, constants.Activity), NextLocation: dest, NextLocationLane: lane,
 			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0),
 			CntrCategorys: make([]string, 0), CntrStatus: make([]string, 0), CntrWeights: make([]string, 0),
 			CntrNumbers: make([]string, 0), CntrSizes: make([]string, 0), CntrTypes: make([]string, 0),
@@ -105,10 +107,11 @@ func generateRouteRequestJob() string {
 
 func init() {
 	RouteJobCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, activities)
-	RouteJobCmd.Flags().StringVarP(&destination, "destination", "d", "PQC921", "任务的目的地; QC: PQC921, Block: TB03_lane_2_slot_34")
+	RouteJobCmd.Flags().StringVarP(&destination, "destination", "d", "PQC921", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ")
 	RouteJobCmd.Flags().Int64VarP(&container, "container-size", "c", 40, "箱尺寸")
 	RouteJobCmd.Flags().StringVarP(&lane, "lane", "l", "2", "任务目的地车道")
-	RouteJobCmd.Flags().StringVarP(&targetDockPos, "dock-position", "x", "1", "任务目的点位; 1: 前箱, 3: 后箱, 5: 双20/单40")
+	RouteJobCmd.Flags().StringVarP(&targetDockPos, "dock-position", "x", "5", "任务目的点位; 1: 前箱, 3: 后箱, 5: 双20/单40")
 	RouteJobCmd.Flags().Int64VarP(&liftSize, "lift-size", "s", 1, "吊具尺寸; 1: 单20, 2: 双20, 3: 单40/45")
 	RouteJobCmd.Flags().Int64VarP(&quantity, "container-quantity", "n", 1, "集装箱数量;")
+	//RouteJobCmd.Flags().Int64VarP(&slot, "slot", "s", 35, "贝位号")
 }

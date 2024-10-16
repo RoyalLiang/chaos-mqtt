@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"fms-awesome-tools/cmd/chaos/internal/messages"
 
@@ -23,15 +24,21 @@ type Workflow struct {
 	task        *messages.RouteResponseJobInstruction
 	vehicleID   string
 	destination string
+	lane        string
+	activity    int64
 	taskType    string
 	autoCallIn  bool
 }
 
-func NewWorkflow(autoCallIn bool) *Workflow {
+func NewWorkflow(activity int64, lane, vehicleID, dest string, autoCallIn bool) *Workflow {
 	w := &Workflow{
-		UUID:       uuid.NewString(),
-		wg:         sync.WaitGroup{},
-		autoCallIn: autoCallIn,
+		UUID:        uuid.NewString(),
+		wg:          sync.WaitGroup{},
+		autoCallIn:  autoCallIn,
+		activity:    activity,
+		lane:        lane,
+		vehicleID:   vehicleID,
+		destination: dest,
 	}
 	if err := w.connect(); err != nil {
 		fmt.Println(err)
@@ -46,6 +53,16 @@ func (wf *Workflow) StartWorkflow() error {
 	for _, v := range constants.TopicFromFMS {
 		topics[v] = 1
 	}
+
+	go func() {
+		time.Sleep(time.Second * 3)
+		message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "5", 1, 40, 1)
+		if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+			fmt.Println("error to publish: ", err)
+		} else {
+			fmt.Println("route_request_job_instruction ==> ", message)
+		}
+	}()
 
 	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start Listen...          \n"))
 	wf.client.SubscribeMultiple(topics, wf.messageHandler)

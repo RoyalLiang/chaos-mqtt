@@ -30,6 +30,10 @@ var VesselDepartCmd = &cobra.Command{
 	},
 }
 
+//func genVesselDepartParam() string {
+//	return messages
+//}
+
 func init() {
 	VesselDepartCmd.Flags().StringVarP(&id, "id", "i", "", "vessel info ID")
 	_ = VesselBerthCmd.MarkFlagRequired("id")

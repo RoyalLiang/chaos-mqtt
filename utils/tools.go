@@ -143,11 +143,22 @@ func VersionCompare(cv, nv string) bool {
 	return false
 }
 
-func GetVehicleTaskID(vehicleID string) string {
-	now := time.Now()
+func GetVehicleTaskID(vehicleID, dest string, activity int64) string {
 
+	var prefix string
+	if strings.HasPrefix(dest, "Y") {
+		if activity == 1 || activity == 5 {
+			prefix = "ST"
+		} else {
+			prefix = "MO"
+		}
+	} else if strings.HasPrefix(dest, "P") {
+		prefix = "WFMO"
+	}
+
+	now := time.Now()
 	formattedTime := now.Format("200601021504051")
-	return "FAKE" + vehicleID + formattedTime
+	return prefix + vehicleID + formattedTime
 }
 
 func GenerateUUID() string {
