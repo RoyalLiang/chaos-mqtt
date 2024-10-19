@@ -2,10 +2,11 @@ package messages
 
 import (
 	"encoding/json"
-	"fms-awesome-tools/constants"
-	tools "fms-awesome-tools/utils"
 	"strconv"
 	"strings"
+
+	"fms-awesome-tools/constants"
+	tools "fms-awesome-tools/utils"
 )
 
 type RouteRequestJobInstructionRequest struct {
@@ -378,7 +379,7 @@ func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, 
 			DGs: make([]string, 0), ReferTemperatures: make([]string, 0), IMOClass: make([]string, 0),
 			OffloadSequences: make([]string, 0), TrailerPositions: make([]string, 0), WeightClass: make([]string, 0),
 			PlugRequireds: make([]string, 0), SourceLocations: make([]string, 0), MotorDirections: make([]string, 0),
-			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N",
+			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N", RouteMandate: "Y", APMDirection: "S",
 		},
 	}
 
