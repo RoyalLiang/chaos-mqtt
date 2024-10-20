@@ -41,7 +41,7 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.NewWorkflow(constants.Activity, lane, dest, constants.VehicleID, auto).StartWorkflow(); err != nil {
+	if err := service.NewWorkflow(constants.Activity, lane, constants.VehicleID, dest, auto).StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
