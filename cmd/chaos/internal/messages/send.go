@@ -410,7 +410,7 @@ type ArmgRequest struct {
 type ArmgRequestData struct {
 	Valid       int64   `json:"valid"`
 	Timestamp   int64   `json:"timestamp"`
-	DistRemain  float64 `json:"dist_remain"`
+	DistRemain  float64 `json:"dist_remaining"`
 	CraneNumber string  `json:"crane_number"`
 }
 

@@ -14,10 +14,10 @@ var (
 )
 
 var ArmgCmd = &cobra.Command{
-	Use:   "call_in_request",
-	Short: "发送 call_in_request",
+	Use:   "armg_request",
+	Short: "发送 armg_request",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("call_in_request", "", genArmgRequest()); err != nil {
+		if err := service.PublishAssignedTopic("armg_request", "", genArmgRequest()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
