@@ -401,3 +401,20 @@ func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, 
 	}
 	return routeJob.String()
 }
+
+type ArmgRequest struct {
+	APMID string          `json:"apm_id"`
+	Data  ArmgRequestData `json:"data"`
+}
+
+type ArmgRequestData struct {
+	Valid       int64   `json:"valid"`
+	Timestamp   int64   `json:"timestamp"`
+	DistRemain  float64 `json:"dist_remain"`
+	CraneNumber string  `json:"crane_number"`
+}
+
+func (r ArmgRequest) String() string {
+	v, _ := json.Marshal(r)
+	return string(v)
+}

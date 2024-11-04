@@ -59,5 +59,6 @@ func init() {
 	topicCmd.AddCommand(topics.LogonRequestCmd)
 	topicCmd.AddCommand(topics.StopCmd)
 	topicCmd.AddCommand(topics.FunctionalCmd)
+	topicCmd.AddCommand(topics.ArmgCmd)
 	rootCmd.AddCommand(topicCmd)
 }
