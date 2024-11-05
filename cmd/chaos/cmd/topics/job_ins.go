@@ -4,6 +4,7 @@ import (
 	"fms-awesome-tools/cmd/chaos/internal/messages"
 	tools "fms-awesome-tools/utils"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"fms-awesome-tools/cmd/chaos/service"
@@ -30,7 +31,7 @@ func generateTemplateParam() string {
 		dest = "P," + destination + "          "
 	}
 
-	return messages.JobInstruction{
+	job := messages.JobInstruction{
 		APMID: constants.VehicleID,
 		Data: messages.JobInstructionData{
 			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, constants.Activity), RouteType: "G", RouteDAG: make([]messages.RouteDag, 0),
@@ -44,9 +45,26 @@ func generateTemplateParam() string {
 			DGS: make([]string, 0), ReferTemperatures: make([]float64, 0), IMOClass: make([]string, 0),
 			OffloadSequences: make([]string, 0), TrailerPositions: make([]string, 0), WeightClass: make([]string, 0),
 			PlugRequireds: make([]string, 0), SourceLocations: make([]string, 0), MotorDirections: make([]string, 0),
-			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N",
+			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N", AssignedCntrSize: "",
 		},
-	}.String()
+	}
+	switch constants.Activity {
+	case 2, 3, 4:
+		job.Data.AssignedCntrSize = strconv.FormatInt(container, 64)
+	case 6, 7, 8:
+		if liftSize == 1 || liftSize == 3 {
+			job.Data.CNTRSizes = append(job.Data.CNTRSizes, strconv.FormatInt(container, 64))
+		} else {
+			job.Data.CNTRSizes = []string{"20", "20"}
+		}
+
+		if len(job.Data.CNTRSizes) == 1 {
+			job.Data.CNTRLocationsOnAPM = []string{"1"}
+		} else {
+			job.Data.CNTRLocationsOnAPM = []string{"1", "3"}
+		}
+	}
+	return job.String()
 }
 
 func init() {
