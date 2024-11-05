@@ -50,10 +50,10 @@ func generateTemplateParam() string {
 	}
 	switch constants.Activity {
 	case 2, 3, 4:
-		job.Data.AssignedCntrSize = strconv.FormatInt(container, 64)
+		job.Data.AssignedCntrSize = strconv.FormatInt(container, 10)
 	case 6, 7, 8:
 		if liftSize == 1 || liftSize == 3 {
-			job.Data.CNTRSizes = append(job.Data.CNTRSizes, strconv.FormatInt(container, 64))
+			job.Data.CNTRSizes = append(job.Data.CNTRSizes, strconv.FormatInt(container, 10))
 		} else {
 			job.Data.CNTRSizes = []string{"20", "20"}
 		}
