@@ -26,7 +26,7 @@ var JobInstructionCmd = &cobra.Command{
 }
 
 func generateTemplateParam() string {
-	var dest = ""
+	dest := destination
 	if strings.HasPrefix(destination, "PQC") {
 		dest = "P," + destination + "          "
 	}
