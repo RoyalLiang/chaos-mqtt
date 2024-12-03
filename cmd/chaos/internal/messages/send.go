@@ -418,3 +418,20 @@ func (r ArmgRequest) String() string {
 	v, _ := json.Marshal(r)
 	return string(v)
 }
+
+type VesselBerthRequest struct {
+	ID                 string `json:"id"`
+	VesselName         string `json:"vessel_name"`
+	WharfSideIndicator string `json:"wharf_side_indicator"`
+	Terminal           string `json:"terminal"`
+	Berth              string `json:"berth"`
+	PositionFrom       int64  `json:"position_from"`
+	PositionTo         int64  `json:"position_to"`
+	AssignedQc         string `json:"assigned_qc"`
+	Timestamp          int64  `json:"timestamp"`
+}
+
+func (r VesselBerthRequest) String() string {
+	v, _ := json.Marshal(r)
+	return string(v)
+}
