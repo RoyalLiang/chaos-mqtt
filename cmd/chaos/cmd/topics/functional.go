@@ -21,7 +21,7 @@ var FunctionalCmd = &cobra.Command{
 
 		topic := ""
 		switch name {
-		case "refuel", "parking", "maintenance":
+		case "refuel", "parking", "maintenance", "callback":
 			topic = name
 		default:
 			fmt.Printf("Unknown job type: %s\n", name)
