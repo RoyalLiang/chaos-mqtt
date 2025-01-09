@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fms-awesome-tools/cmd/chaos/service"
-	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +12,7 @@ var subCmd = &cobra.Command{
 	Short: "订阅指定主题消息",
 	Run: func(cmd *cobra.Command, args []string) {
 		if name == "" {
-			fmt.Print("未指定topic名称, 订阅失败...")
+			cmd.Help()
 		} else {
 			service.StartSubscribe(name)
 		}
