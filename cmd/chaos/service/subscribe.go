@@ -19,7 +19,7 @@ func (s subscriber) msgHandler(client mqtt.Client, message mqtt.Message) {
 	topic := message.Topic()
 	msg := string(message.Payload())
 	now := time.Now().Format("2006-01-02 15:04:051")
-	fmt.Printf("[%s] receive msg from %s ==> %s", now, topic, msg)
+	fmt.Printf("[%s] receive msg from %s ==> %s \n", now, topic, msg)
 }
 
 func StartSubscribe(topic string) {
