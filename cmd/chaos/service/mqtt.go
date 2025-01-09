@@ -71,7 +71,7 @@ func (mc *MqttClient) Publish(topic string, message interface{}) error {
 func (mc *MqttClient) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) {
 	if token := mc.client.Subscribe(topic, qos, callback); token.Wait() && token.Error() != nil {
 		fmt.Println("subscribe error: ", token.Error())
-		os.Exit(1)
+		//os.Exit(1)
 	}
 	<-mc.exit
 }
@@ -81,6 +81,5 @@ func (mc *MqttClient) SubscribeMultiple(topics map[string]byte, callback mqtt.Me
 		fmt.Println("multiple subscribe error: ", token.Error())
 		os.Exit(1)
 	}
-
 	<-mc.exit
 }
