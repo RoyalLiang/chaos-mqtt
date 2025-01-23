@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	assignedTopic string
-	listTopics    bool
+	listTopics bool
 )
 
 var topicCmd = &cobra.Command{
@@ -22,10 +21,8 @@ var topicCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if listTopics {
 			listAvcsTopics()
-		} else if assignedTopic != "" {
-			fmt.Println("assigned topic message to ", assignedTopic)
 		} else {
-			cmd.Help()
+			_ = cmd.Help()
 		}
 	},
 }
@@ -41,9 +38,7 @@ func listAvcsTopics() {
 func init() {
 	topicCmd.PersistentFlags().StringVarP(&constants.VehicleID, "vehicle", "v", "APM9001", "集卡号")
 
-	topicCmd.Flags().StringVarP(&assignedTopic, "topic", "t", "", "指定的消息topic")
 	topicCmd.Flags().BoolVarP(&listTopics, "list", "l", false, "列出AVCS的 topic 列表")
-	topicCmd.MarkFlagsMutuallyExclusive("topic", "list")
 
 	topicCmd.AddCommand(topics.CAllCmd)
 	topicCmd.AddCommand(topics.RouteJobCmd)

@@ -16,6 +16,7 @@ var (
 	dest      string
 	lane      string
 	auto      bool
+	vehicles  []string
 )
 
 var workflowCmd = &cobra.Command{
@@ -54,6 +55,7 @@ func init() {
 	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ;")
 	workflowCmd.Flags().StringVarP(&lane, "lane", "l", "2", "车道号;")
 	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "是否自动发送call-in request(5s);")
+	workflowCmd.Flags().StringSliceVarP(&vehicles, "vehicles", "", make([]string, 0), "")
 	//workflowCmd.MarkFlagsRequiredTogether("truck", "activity")
 	rootCmd.AddCommand(workflowCmd)
 }

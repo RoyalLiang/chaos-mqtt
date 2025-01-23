@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	tools "fms-awesome-tools/utils"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"fms-awesome-tools/cmd/chaos/cmd/envs"
 	"fms-awesome-tools/configs"
+	tools "fms-awesome-tools/utils"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -20,41 +21,39 @@ var (
 )
 var envCmd = &cobra.Command{
 
-	Use:   "env",
+	Use:   "mqtt",
 	Short: "读取/写入相关配置",
 	Long:  tools.CustomTitle("读取/写入相关配置"),
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if config == "" && list == false {
-			cmd.Help()
-			return
-		}
 
-		if list == true {
+		if !list {
+			_ = cmd.Help()
+		} else {
 			listConfig()
 			return
 		}
 
-		if config != "" {
-			key, value := parseConfig()
-			if allow := func() bool {
-				for _, v := range configOptions {
-					if v == key {
-						return true
-					}
-				}
-				return false
-			}(); allow == false {
-				fmt.Println("only support options blew: ")
-				for _, v := range configOptions {
-					fmt.Println(v)
-				}
-				return
-			}
-			if err := configs.WriteFMSConfig("mqtt."+key, value); err != nil {
-				fmt.Println("write config error:", err)
-			}
-		}
+		//if config != "" {
+		//	key, value := parseConfig()
+		//	if allow := func() bool {
+		//		for _, v := range configOptions {
+		//			if v == key {
+		//				return true
+		//			}
+		//		}
+		//		return false
+		//	}(); allow == false {
+		//		fmt.Println("only support options blew: ")
+		//		for _, v := range configOptions {
+		//			fmt.Println(v)
+		//		}
+		//		return
+		//	}
+		//	if err := configs.WriteFMSConfig("mqtt."+key, value); err != nil {
+		//		fmt.Println("write config error:", err)
+		//	}
+		//}
 	},
 }
 
@@ -83,7 +82,8 @@ func listConfig() {
 }
 
 func init() {
-	envCmd.PersistentFlags().StringVarP(&config, "write", "w", "", "写入配置; 格式: key=value")
-	envCmd.PersistentFlags().BoolVarP(&list, "list", "l", false, "列出当前配置列表;")
+	envCmd.AddCommand(envs.MQTTCmd)
+	envCmd.AddCommand(envs.FMSCmd)
+	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
 	rootCmd.AddCommand(envCmd)
 }
