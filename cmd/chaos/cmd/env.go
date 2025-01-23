@@ -21,18 +21,22 @@ var (
 )
 var envCmd = &cobra.Command{
 
-	Use:   "mqtt",
+	Use:   "env",
 	Short: "读取/写入相关配置",
 	Long:  tools.CustomTitle("读取/写入相关配置"),
-	Args:  cobra.MaximumNArgs(1),
+	//Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if !list {
-			_ = cmd.Help()
-		} else {
+		if list {
 			listConfig()
 			return
 		}
+		//if !list {
+		//	_ = cmd.Help()
+		//} else {
+		//	listConfig()
+		//	return
+		//}
 
 		//if config != "" {
 		//	key, value := parseConfig()
@@ -84,6 +88,8 @@ func listConfig() {
 func init() {
 	envCmd.AddCommand(envs.MQTTCmd)
 	envCmd.AddCommand(envs.FMSCmd)
+
 	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
+
 	rootCmd.AddCommand(envCmd)
 }
