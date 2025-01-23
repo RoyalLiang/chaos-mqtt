@@ -32,7 +32,7 @@ type RouteData struct {
 	RouteMandate            string     `json:"route_mandate"`
 	RouteType               string     `json:"route_type"`
 	RouteDAG                []RouteDag `json:"route_dag"`
-	Cones                   []string   `json:"cones"`
+	Cones                   []int64    `json:"cones"`
 	NextLocationLane        string     `json:"next_location_lane"`
 	ID                      string     `json:"id"`
 	PlugRequireds           []string   `json:"plug_requireds"`
