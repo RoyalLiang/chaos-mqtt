@@ -27,16 +27,12 @@ var envCmd = &cobra.Command{
 	//Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if list {
+		if !list {
+			_ = cmd.Help()
+		} else {
 			listConfig()
 			return
 		}
-		//if !list {
-		//	_ = cmd.Help()
-		//} else {
-		//	listConfig()
-		//	return
-		//}
 
 		//if config != "" {
 		//	key, value := parseConfig()
