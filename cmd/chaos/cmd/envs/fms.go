@@ -7,6 +7,7 @@ import (
 var (
 	url    string
 	module string
+	port   string
 )
 
 var FMSCmd = &cobra.Command{
@@ -18,6 +19,7 @@ var FMSCmd = &cobra.Command{
 }
 
 func init() {
-	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "HOST地址")
+	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "模块HOST地址")
 	FMSCmd.Flags().StringVarP(&module, "module", "m", "", "模块名称")
+	FMSCmd.Flags().StringVarP(&port, "port", "p", "", "模块启动端口")
 }

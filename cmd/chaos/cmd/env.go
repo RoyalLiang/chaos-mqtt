@@ -1,23 +1,18 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"fms-awesome-tools/cmd/chaos/cmd/envs"
 	"fms-awesome-tools/configs"
 	tools "fms-awesome-tools/utils"
+	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	configOptions = []string{"user", "password", "address"}
-	config        string
-	list          bool
+	list bool
 )
 var envCmd = &cobra.Command{
 
@@ -57,14 +52,14 @@ var envCmd = &cobra.Command{
 	},
 }
 
-func parseConfig() (key, value string) {
-	array := strings.Split(config, "=")
-	if len(array) != 2 {
-		fmt.Printf("can not parse config option: <%s>\n", config)
-		os.Exit(1)
-	}
-	return array[0], array[1]
-}
+//func parseConfig() (key, value string) {
+//	array := strings.Split(config, "=")
+//	if len(array) != 2 {
+//		fmt.Printf("can not parse config option: <%s>\n", config)
+//		os.Exit(1)
+//	}
+//	return array[0], array[1]
+//}
 
 func listConfig() {
 

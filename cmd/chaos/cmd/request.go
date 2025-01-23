@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"fms-awesome-tools/cmd/chaos/cmd/requests"
+	"fms-awesome-tools/cmd/chaos/cmd/http/area"
 	tools "fms-awesome-tools/utils"
 	"github.com/spf13/cobra"
 )
 
 var (
-	server string
+	ip string
 )
 
 var requestCmd = &cobra.Command{
@@ -20,10 +20,9 @@ var requestCmd = &cobra.Command{
 }
 
 func init() {
-	requestCmd.PersistentFlags().StringVarP(&server, "server", "s", "", "指定的service")
-	requestCmd.MarkFlagsRequiredTogether("server")
+	requestCmd.PersistentFlags().StringVarP(&ip, "server", "s", "127.0.0.1", "服务地址")
 
-	requestCmd.AddCommand(requests.QCPosCmd)
-
+	requestCmd.AddCommand(area.SetBlockCmd)
+	requestCmd.AddCommand(area.ManualModeCmd)
 	rootCmd.AddCommand(requestCmd)
 }
