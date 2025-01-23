@@ -20,7 +20,7 @@ var requestCmd = &cobra.Command{
 }
 
 func init() {
-	requestCmd.PersistentFlags().StringVarP(&ip, "server", "s", "127.0.0.1", "服务地址")
+	requestCmd.PersistentFlags().StringVarP(&ip, "ip", "", "127.0.0.1", "服务地址")
 
 	requestCmd.AddCommand(area.SetBlockCmd)
 	requestCmd.AddCommand(area.ManualModeCmd)
