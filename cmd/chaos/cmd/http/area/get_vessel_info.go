@@ -11,8 +11,10 @@ import (
 )
 
 var (
-	keep bool
-	vid  string
+	keep       bool
+	vid        string
+	firstPrint = true
+	tableRows  = 0
 )
 
 var GetVesselCmd = &cobra.Command{
@@ -74,7 +76,6 @@ func parseVesselInfo(vessels []http.VesselInfo) {
 }
 
 func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
-
 	// 计算每列的最大宽度
 	colWidths := make([]int, 7)
 	// 设置表头宽度作为初始值
@@ -95,6 +96,14 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	h := strings.Split(header, "|")
+
+	// 如果不是首次打印，移动光标到表格开始位置并清除表格区域
+	if !firstPrint {
+		// 移动光标到表格开始位置（上移tableRows行）
+		fmt.Printf("\033[%dA", tableRows)
+	}
+
+	// 打印表格
 	fmt.Println(border + "=================")
 	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
 	fmt.Println(border + "=================")
@@ -121,6 +130,10 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 			colWidths[6], "")
 	}
 	fmt.Println(border + "=================")
+
+	// 更新表格行数和首次打印标志
+	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行
+	firstPrint = false
 }
 
 func init() {
