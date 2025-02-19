@@ -1,4 +1,4 @@
-package requests
+package area
 
 import (
 	"testing"
