@@ -99,8 +99,6 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 
 	// 如果不是首次打印，移动光标到表格开始位置并清除表格区域
 	if !firstPrint {
-		// 保存当前光标位置
-		fmt.Print("\033[s")
 		// 移动光标到表格开始位置（上移tableRows行）
 		fmt.Printf("\033[%dA", tableRows)
 		// 清除从光标到屏幕底部的内容
@@ -108,9 +106,9 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	// 打印表格
-	fmt.Println(border + "=================")
-	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
-	fmt.Println(border + "=================")
+	fmt.Print(border + "=================\n")
+	fmt.Print(strings.Join(h[0:len(h)-1], "|") + "\n")
+	fmt.Print(border + "=================\n")
 
 	// 打印数据行
 	for _, ca := range cas {
@@ -133,7 +131,7 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 			colWidths[5]+1, strings.Join(ca.Vehicles, ","),
 			colWidths[6], "")
 	}
-	fmt.Println(border + "=================")
+	fmt.Print(border + "=================\n")
 
 	// 更新表格行数和首次打印标志
 	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行
