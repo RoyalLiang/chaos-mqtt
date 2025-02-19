@@ -18,7 +18,7 @@ var (
 )
 
 var GetVesselCmd = &cobra.Command{
-	Use:   "get_vessel_info",
+	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
 		if keep {
@@ -99,8 +99,12 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 
 	// 如果不是首次打印，移动光标到表格开始位置并清除表格区域
 	if !firstPrint {
+		// 保存当前光标位置
+		fmt.Print("\033[s")
 		// 移动光标到表格开始位置（上移tableRows行）
 		fmt.Printf("\033[%dA", tableRows)
+		// 清除从光标到屏幕底部的内容
+		fmt.Print("\033[J")
 	}
 
 	// 打印表格
