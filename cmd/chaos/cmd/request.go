@@ -24,5 +24,6 @@ func init() {
 
 	requestCmd.AddCommand(area.SetBlockCmd)
 	requestCmd.AddCommand(area.ManualModeCmd)
+	requestCmd.AddCommand(area.GetVesselCmd)
 	rootCmd.AddCommand(requestCmd)
 }

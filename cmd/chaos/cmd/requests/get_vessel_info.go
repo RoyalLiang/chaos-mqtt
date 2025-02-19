@@ -15,7 +15,7 @@ var (
 	vid  string
 )
 
-var GetVesselCMD = &cobra.Command{
+var GetVesselCmd = &cobra.Command{
 	Use:   "get_vessel_info",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -124,6 +124,6 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 }
 
 func init() {
-	GetVesselCMD.Flags().BoolVarP(&keep, "keepalive", "k", false, "是否保持刷新(refresh every 5s)")
-	GetVesselCMD.Flags().StringVarP(&vid, "vessel-id", "v", "", "船舶ID")
+	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "是否保持刷新(refresh every 5s)")
+	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "v", "", "船舶ID")
 }
