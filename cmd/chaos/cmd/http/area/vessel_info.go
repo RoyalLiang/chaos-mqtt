@@ -21,27 +21,18 @@ var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		colWidths := make([]int, 7)
-		// 设置表头宽度作为初始值
-		colWidths[0] = 8
-		colWidths[1] = 12
-		colWidths[2] = 6
-		colWidths[3] = 6
-		colWidths[4] = 6
-		colWidths[5] = 32
-		colWidths[6] = 40
+		printTable()
 
-		printTable(colWidths)
 		if keep {
 			for {
 				if vessels := getVessels(); vessels != nil {
-					parseVesselInfo(colWidths, vessels.Data.Values)
+					parseVesselInfo(vessels.Data.Values)
 				}
 				time.Sleep(5 * time.Second)
 			}
 		} else {
 			if vessels := getVessels(); vessels != nil {
-				parseVesselInfo(colWidths, vessels.Data.Values)
+				parseVesselInfo(vessels.Data.Values)
 			}
 		}
 	},
@@ -70,7 +61,7 @@ func getVessels() *http.GetVesselsResponse {
 	return vesselInfo
 }
 
-func parseVesselInfo(colWidths []int, vessels []http.VesselInfo) {
+func parseVesselInfo(vessels []http.VesselInfo) {
 	cas := make([]http.VesselCAInfo, 0)
 
 	for _, vessel := range vessels {
@@ -83,14 +74,28 @@ func parseVesselInfo(colWidths []int, vessels []http.VesselInfo) {
 		}
 
 	}
-	printResult(colWidths, vessels, cas)
+	printResult(vessels, cas)
 }
 
-func printTable(cols []int) {
+func printTable() {
+
+}
+
+func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
+	// 计算每列的最大宽度
+	colWidths := make([]int, 7)
+	// 设置表头宽度作为初始值
+	colWidths[0] = 8
+	colWidths[1] = 12
+	colWidths[2] = 6
+	colWidths[3] = 6
+	colWidths[4] = 6
+	colWidths[5] = 32
+	colWidths[6] = 40
 
 	border := "="
 	header := ""
-	for i, width := range cols {
+	for i, width := range colWidths {
 		border += strings.Repeat("=", width) + "="
 		headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "集卡队列", "等待队列"}[i]
 		header += fmt.Sprintf(" %-*s ", width-1, headerText) + "|"
@@ -107,12 +112,9 @@ func printTable(cols []int) {
 	}
 
 	// 打印表格
-	fmt.Print(border + "=================\n")
+	fmt.Print(border + "=\n")
 	fmt.Print(strings.Join(h[0:len(h)-1], "|") + "\n")
-	fmt.Print(border + "=================\n")
-}
-
-func printResult(colWidths []int, _ []http.VesselInfo, cas []http.VesselCAInfo) {
+	fmt.Print(border + "=\n")
 
 	// 打印数据行
 	for _, ca := range cas {
@@ -121,12 +123,9 @@ func printResult(colWidths []int, _ []http.VesselInfo, cas []http.VesselCAInfo) 
 			lockStatus = "已锁定"
 		}
 
-		//waitingList := fmt.Sprintf("%d-%d", ca.WharfMarkStart, ca.WharfMarkEnd)
-
 		// 使用ANSI颜色代码设置背景色
 		fmt.Printf("\033[%dm| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s |\033[0m\n",
 			0,
-			//colorMap[ca.VesselId],
 			colWidths[0]-1, ca.VesselId,
 			colWidths[1]-1, ca.Name,
 			colWidths[2]+1, ca.Capacity,
@@ -135,7 +134,7 @@ func printResult(colWidths []int, _ []http.VesselInfo, cas []http.VesselCAInfo) 
 			colWidths[5]+1, strings.Join(ca.Vehicles, ","),
 			colWidths[6], "")
 	}
-	//fmt.Print(border + "=================\n")
+	fmt.Print(border + "=\n")
 
 	// 更新表格行数和首次打印标志
 	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行
