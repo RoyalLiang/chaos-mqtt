@@ -12,7 +12,7 @@ import (
 	"fms-awesome-tools/cmd/chaos/service"
 )
 
-const activities = "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n"
+const activities = "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\nOFFLOAD = 7\nOFFLOAD = 8\n"
 
 var (
 	destination   string
@@ -37,7 +37,7 @@ var RouteJobCmd = &cobra.Command{
 		switch constants.Activity {
 		case 1, 5:
 			break
-		case 2, 6:
+		case 2, 3, 4, 6, 7, 8:
 			if container >= 40 && quantity > 1 {
 				fmt.Printf("箱尺寸 %d 与箱数量 %d 不匹配\n", container, quantity)
 				return

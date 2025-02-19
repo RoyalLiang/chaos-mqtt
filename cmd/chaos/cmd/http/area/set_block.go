@@ -1,6 +1,7 @@
 package area
 
 import (
+	"fms-awesome-tools/configs"
 	"fmt"
 	"github.com/spf13/cobra"
 )
@@ -12,13 +13,18 @@ var (
 )
 
 var SetBlockCmd = &cobra.Command{
-	Use:   "set_wharf_block",
-	Short: "设置QC后大梁block",
+	Use:   "op_wharf_block",
+	Short: "添加/删除QC后大梁block",
 	Run: func(cmd *cobra.Command, args []string) {
 		if op == "" && start <= 0 && end <= 0 {
 			_ = cmd.Help()
 		} else {
-			fmt.Println("h")
+			config := configs.Chaos.FMS
+			if config.Host == "" {
+				fmt.Println("configuration FMS service HOST first...")
+				return
+			}
+
 		}
 	},
 }

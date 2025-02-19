@@ -357,12 +357,13 @@ func (r RouteRequest) String() string {
 
 func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, container, quantity int64) string {
 	var dest = ""
-	if constants.Activity == 2 || constants.Activity == 6 {
-		if strings.HasPrefix(destination, "PQC") {
-			dest = "P," + destination + "          "
-		} else {
-			dest = destination
-		}
+	//if constants.Activity == 2 || constants.Activity == 6 {
+	//
+	//}
+	if strings.HasPrefix(destination, "PQC") {
+		dest = "P," + destination + "          "
+	} else {
+		dest = destination
 	}
 
 	routeJob := RouteRequestJobInstructionRequest{

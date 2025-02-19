@@ -11,12 +11,11 @@ import (
 )
 
 var (
-	start     bool
-	vehicleID string
-	dest      string
-	lane      string
-	auto      bool
-	vehicles  []string
+	start    bool
+	dest     string
+	lane     string
+	auto     bool
+	vehicles []string
 )
 
 var workflowCmd = &cobra.Command{

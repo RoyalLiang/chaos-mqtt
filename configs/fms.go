@@ -13,6 +13,7 @@ var (
 type chaosConfig struct {
 	Product product `json:"product"`
 	MQTT    mqtt    `json:"mqtt"`
+	FMS     fms     `json:"fms"`
 }
 
 type product struct {
@@ -20,6 +21,27 @@ type product struct {
 	Name        string `json:"name"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
+}
+
+type fms struct {
+	Host     string       `json:"host"`
+	Services []fmsService `json:"services"`
+}
+
+type fmsService struct {
+	Name    string `json:"name"`
+	BaseUrl string `json:"baseUrl"`
+	//Port string `json:"port"`
+}
+
+func (f fms) String() string {
+	v, _ := json.Marshal(f)
+	return string(v)
+}
+
+func (s fmsService) String() string {
+	v, _ := json.Marshal(s)
+	return string(v)
 }
 
 type mqtt struct {
@@ -47,7 +69,9 @@ func WriteFMSConfig(key string, value interface{}) error {
 }
 
 func defaultConfig() chaosConfig {
-	config := chaosConfig{}
+	config := chaosConfig{
+		FMS: fms{},
+	}
 	config.Product = product{
 		UUID:    "93a25ee9-0f08-4398-a0e4-72aa28ee1ebf",
 		Version: "1.0.0",
@@ -58,6 +82,12 @@ func defaultConfig() chaosConfig {
 		User:     "",
 		Password: "",
 	}
+
+	config.FMS.Services = []fmsService{}
+	config.FMS.Services = append(config.FMS.Services, fmsService{
+		Name:    "area",
+		BaseUrl: "http://127.0.0.1:8888",
+	})
 	return config
 }
 
