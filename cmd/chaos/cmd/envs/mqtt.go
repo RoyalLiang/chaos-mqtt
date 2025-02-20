@@ -1,6 +1,7 @@
 package envs
 
 import (
+	"fms-awesome-tools/constants"
 	"fmt"
 
 	"fms-awesome-tools/configs"
@@ -8,22 +9,21 @@ import (
 )
 
 var (
-	user    string
-	pwd     string
-	address string
+	user string
+	pwd  string
 )
 
 var MQTTCmd = &cobra.Command{
 	Use:   "mqtt",
 	Short: "写入MQTT相关配置",
 	Run: func(cmd *cobra.Command, args []string) {
-		if address == "" && pwd == "" && user == "" {
+		if constants.Address == "" && pwd == "" && user == "" {
 			_ = cmd.Help()
 			return
 		}
 
-		if address != "" {
-			if err := configs.WriteFMSConfig("mqtt.address", address); err != nil {
+		if constants.Address != "" {
+			if err := configs.WriteFMSConfig("mqtt.address", constants.Address); err != nil {
 				fmt.Println("MQTT地址配置失败:", err)
 			}
 		}
@@ -45,5 +45,4 @@ var MQTTCmd = &cobra.Command{
 func init() {
 	MQTTCmd.Flags().StringVarP(&user, "user", "u", "", "用户名")
 	MQTTCmd.Flags().StringVarP(&pwd, "password", "p", "", "密码")
-	MQTTCmd.Flags().StringVarP(&address, "address", "a", "", "服务端地址(host:port)")
 }

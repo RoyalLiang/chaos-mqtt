@@ -3,6 +3,7 @@ package cmd
 import (
 	"fms-awesome-tools/cmd/chaos/cmd/envs"
 	"fms-awesome-tools/configs"
+	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
 	"fmt"
 	"path/filepath"
@@ -19,7 +20,6 @@ var envCmd = &cobra.Command{
 	Use:   "env",
 	Short: "读取/写入相关配置",
 	Long:  tools.CustomTitle("读取/写入相关配置"),
-	//Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if !list {
@@ -28,27 +28,6 @@ var envCmd = &cobra.Command{
 			listConfig()
 			return
 		}
-
-		//if config != "" {
-		//	key, value := parseConfig()
-		//	if allow := func() bool {
-		//		for _, v := range configOptions {
-		//			if v == key {
-		//				return true
-		//			}
-		//		}
-		//		return false
-		//	}(); allow == false {
-		//		fmt.Println("only support options blew: ")
-		//		for _, v := range configOptions {
-		//			fmt.Println(v)
-		//		}
-		//		return
-		//	}
-		//	if err := configs.WriteFMSConfig("mqtt."+key, value); err != nil {
-		//		fmt.Println("write config error:", err)
-		//	}
-		//}
 	},
 }
 
@@ -81,6 +60,7 @@ func init() {
 	envCmd.AddCommand(envs.FMSCmd)
 
 	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
+	topicCmd.PersistentFlags().StringVarP(&constants.Address, "address", "a", "", "服务base url")
 
 	rootCmd.AddCommand(envCmd)
 }
