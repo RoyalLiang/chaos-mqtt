@@ -27,7 +27,7 @@ var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "Ca Queues", "QC Status", "QC Assigned", "QC Queues", "DWA Queues"}
+		header := table.Row{"VesselID", "CA", "Working lane", "Capacity", "CA Status", "Ca Queues", "QC Status", "QC Assigned", "QC Queues", "DWA Queues"}
 		t.AppendHeader(header)
 
 		if keep {
@@ -133,7 +133,7 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 		}
 
 		row := table.Row{
-			ca.VesselId, ca.Name, ca.Capacity, getLockedStatus(ca.Locked), bindLane, strings.Join(ca.Vehicles, ","),
+			ca.VesselId, ca.Name, bindLane, ca.Capacity, getLockedStatus(ca.Locked), strings.Join(ca.Vehicles, ","),
 			getLockedStatus(crane.Locked), crane.VehicleID, "", "",
 		}
 
