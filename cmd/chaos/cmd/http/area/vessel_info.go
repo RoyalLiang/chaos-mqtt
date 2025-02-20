@@ -18,8 +18,7 @@ var (
 )
 
 const (
-	clearScreen = "\033[H\033[2J"
-	moveCursor  = "\033[H"
+	moveCursor = "\033[H"
 )
 
 var GetVesselCmd = &cobra.Command{
@@ -28,9 +27,6 @@ var GetVesselCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
 		t.AppendHeader(header)
-
-		// 首次清屏
-		fmt.Print(clearScreen)
 
 		if keep {
 			for {
