@@ -100,23 +100,32 @@ func getAssignedQCData(vessels []http.VesselInfo, craneNo string) http.VesselCra
 	return http.VesselCraneInfo{}
 }
 
+func getLockedStatus(status int) string {
+	if status == 1 {
+		return "Locked"
+	}
+	return ""
+}
+
 func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	// 计算每列的最大宽度
-	colWidths := make([]int, 7)
+	colWidths := make([]int, 9)
 	// 设置表头宽度作为初始值
 	colWidths[0] = 8
 	colWidths[1] = 12
 	colWidths[2] = 6
 	colWidths[3] = 6
 	colWidths[4] = 6
-	colWidths[5] = 32
-	colWidths[6] = 40
+	colWidths[5] = 6
+	colWidths[5] = 7
+	colWidths[7] = 32
+	colWidths[8] = 40
 
 	border := "="
 	header := ""
 	for i, width := range colWidths {
 		border += strings.Repeat("=", width) + "="
-		headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "集卡队列", "等待队列"}[i]
+		headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "QC状态", "QC队列", "集卡队列", "等待队列"}[i]
 		header += fmt.Sprintf(" %-*s ", width-1, headerText) + "|"
 	}
 
@@ -131,18 +140,13 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	// 打印表格
-	fmt.Println(border + "==============")
+	fmt.Println(border + "=========================")
 	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
-	fmt.Println(border + "==============")
+	fmt.Println(border + "=========================")
 
 	for _, ca := range cas {
 		var bindLane int
-		lockStatus := "未锁定"
-		//crane := getAssignedQCData(vessels, ca.Crane)
-
-		if ca.Locked == 1 {
-			lockStatus = "已锁定"
-		}
+		crane := getAssignedQCData(vessels, ca.Crane)
 
 		if ca.FixedWorkLane != nil {
 			bindLane = *ca.FixedWorkLane
@@ -151,17 +155,19 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 		}
 
 		// 使用ANSI颜色代码设置背景色
-		fmt.Printf("\033[%dm| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s |\033[0m\n",
+		fmt.Printf("\033[%dm| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s | %-*s | %-*s |\033[0m\n",
 			0,
 			colWidths[0]-1, ca.VesselId,
 			colWidths[1]-1, ca.Name,
 			colWidths[2]+1, ca.Capacity,
-			colWidths[3]-1, lockStatus,
+			colWidths[3]+1, getLockedStatus(ca.Locked),
 			colWidths[4]+2, bindLane,
-			colWidths[5]+1, strings.Join(ca.Vehicles, ","),
-			colWidths[6]-3, "")
+			colWidths[5], getLockedStatus(crane.Locked),
+			colWidths[6]+5, crane.VehicleID,
+			colWidths[7]+3, strings.Join(ca.Vehicles, ","),
+			colWidths[8]-3, "")
 	}
-	fmt.Println(border + "==============")
+	fmt.Println(border + "=========================")
 
 	// 更新表格行数和首次打印标志
 	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行

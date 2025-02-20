@@ -79,6 +79,7 @@ type VesselCAInfo struct {
 type VesselCraneInfo struct {
 	Locked            int        `json:"locked"`
 	Type              string     `json:"type"`
+	VehicleID         string     `json:"vehicle_id"`
 	Name              string     `json:"name"`
 	Pos               Coordinate `json:"pos"`
 	WharfMark         int        `json:"wharf_mark"`
