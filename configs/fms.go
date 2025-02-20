@@ -11,9 +11,9 @@ var (
 )
 
 type chaosConfig struct {
-	Product product `json:"product"`
-	MQTT    mqtt    `json:"mqtt"`
-	FMS     fms     `json:"fms"`
+	Product *product `json:"product"`
+	MQTT    *mqtt    `json:"mqtt"`
+	FMS     *fms     `json:"fms"`
 }
 
 type product struct {
@@ -25,10 +25,10 @@ type product struct {
 
 type fms struct {
 	Host     string       `json:"host"`
-	Services []fmsService `json:"services"`
+	Services []FmsService `json:"services"`
 }
 
-type fmsService struct {
+type FmsService struct {
 	Name    string `json:"name"`
 	BaseUrl string `json:"baseUrl"`
 	//Port string `json:"port"`
@@ -39,7 +39,7 @@ func (f fms) String() string {
 	return string(v)
 }
 
-func (s fmsService) String() string {
+func (s FmsService) String() string {
 	v, _ := json.Marshal(s)
 	return string(v)
 }
@@ -70,21 +70,21 @@ func WriteFMSConfig(key string, value interface{}) error {
 
 func defaultConfig() chaosConfig {
 	config := chaosConfig{
-		FMS: fms{},
+		FMS: &fms{},
 	}
-	config.Product = product{
+	config.Product = &product{
 		UUID:    "93a25ee9-0f08-4398-a0e4-72aa28ee1ebf",
 		Version: "1.0.0",
 		Name:    "chaos",
 	}
-	config.MQTT = mqtt{
+	config.MQTT = &mqtt{
 		Address:  "",
 		User:     "",
 		Password: "",
 	}
 
-	config.FMS.Services = []fmsService{}
-	config.FMS.Services = append(config.FMS.Services, fmsService{
+	config.FMS.Services = []FmsService{}
+	config.FMS.Services = append(config.FMS.Services, FmsService{
 		Name:    "area",
 		BaseUrl: "http://127.0.0.1:8888",
 	})

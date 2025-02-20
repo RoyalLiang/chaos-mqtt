@@ -21,8 +21,6 @@ var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		printTable()
-
 		if keep {
 			for {
 				if vessels := getVessels(); vessels != nil {
@@ -47,6 +45,9 @@ func getVessels() *http.GetVesselsResponse {
 		}
 	}
 
+	if baseUrl == "" {
+		baseUrl = "http://10.1.205.3:8888"
+	}
 	resp, err := http.Get(baseUrl + http.GetVesselsURL)
 	if err != nil {
 		fmt.Println("获取船舶信息失败: ", err.Error())
@@ -75,10 +76,6 @@ func parseVesselInfo(vessels []http.VesselInfo) {
 
 	}
 	printResult(vessels, cas)
-}
-
-func printTable() {
-
 }
 
 func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
@@ -112,9 +109,9 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	// 打印表格
-	fmt.Print(border + "=\n")
-	fmt.Print(strings.Join(h[0:len(h)-1], "|") + "\n")
-	fmt.Print(border + "=\n")
+	fmt.Println(border + "==============")
+	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
+	fmt.Println(border + "==============")
 
 	// 打印数据行
 	for _, ca := range cas {
@@ -132,9 +129,9 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 			colWidths[3]-1, lockStatus,
 			colWidths[4]+2, ca.BindLane,
 			colWidths[5]+1, strings.Join(ca.Vehicles, ","),
-			colWidths[6], "")
+			colWidths[6]-3, "")
 	}
-	fmt.Print(border + "=\n")
+	fmt.Println(border + "==============")
 
 	// 更新表格行数和首次打印标志
 	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行

@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	url    string
-	module string
-	port   string
+	url       string
+	module    string
+	port      string
+	moduleUrl string
 )
 
 var FMSCmd = &cobra.Command{
@@ -17,7 +18,7 @@ var FMSCmd = &cobra.Command{
 	Short: "FMS模块配置",
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
-		if url == "" && module == "" && port == "" {
+		if url == "" && module == "" && moduleUrl == "" {
 			_ = cmd.Help()
 			return
 		}
@@ -28,8 +29,16 @@ var FMSCmd = &cobra.Command{
 			}
 		}
 
-		if module != "" && port != "" {
-			if err := configs.WriteFMSConfig(fmt.Sprintf("fms.services.%s.%s", module, port), port); err != nil {
+		if module != "" && moduleUrl != "" {
+			cfg := &configs.FmsService{
+				Name:    module,
+				BaseUrl: moduleUrl,
+			}
+
+			services := configs.Chaos.FMS.Services
+			services = append(services, *cfg)
+			configs.Chaos.FMS.Services = services
+			if err := configs.WriteFMSConfig("fms", configs.Chaos.FMS); err != nil {
 				fmt.Println("FMS HOST配置失败:", err)
 			}
 		}
@@ -37,8 +46,9 @@ var FMSCmd = &cobra.Command{
 }
 
 func init() {
-	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "模块HOST地址")
+	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "FMS HOST地址")
 	FMSCmd.Flags().StringVarP(&module, "module", "m", "", "模块名称")
 	FMSCmd.Flags().StringVarP(&port, "port", "p", "", "模块启动端口")
-	FMSCmd.MarkFlagsRequiredTogether("module", "port")
+	FMSCmd.Flags().StringVarP(&moduleUrl, "base-url", "u", "", "模块base地址")
+	FMSCmd.MarkFlagsRequiredTogether("module", "moduleUrl")
 }
