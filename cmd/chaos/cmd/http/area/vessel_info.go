@@ -111,15 +111,15 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	// 计算每列的最大宽度
 	colWidths := make([]int, 9)
 	// 设置表头宽度作为初始值
-	colWidths[0] = 8
-	colWidths[1] = 12
-	colWidths[2] = 6
-	colWidths[3] = 6
-	colWidths[4] = 6
-	colWidths[5] = 6
-	colWidths[5] = 7
-	colWidths[7] = 32
-	colWidths[8] = 40
+	colWidths[0] = 8  // 船舶ID
+	colWidths[1] = 12 // CA
+	colWidths[2] = 2  // 容量
+	colWidths[3] = 6  // 锁定状态
+	colWidths[4] = 2  // 绑定车道
+	colWidths[5] = 6  // QC状态
+	colWidths[6] = 10 // QC队列
+	colWidths[7] = 32 // 集卡队列
+	colWidths[8] = 40 // 等待队列
 
 	border := "="
 	header := ""
@@ -140,10 +140,11 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	// 打印表格
-	fmt.Println(border + "=========================")
+	fmt.Println(border + "==========================")
 	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
-	fmt.Println(border + "=========================")
+	fmt.Println(border + "==========================")
 
+	// 打印数据行
 	for _, ca := range cas {
 		var bindLane int
 		crane := getAssignedQCData(vessels, ca.Crane)
@@ -154,23 +155,21 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 			bindLane = ca.BindLane
 		}
 
-		// 使用ANSI颜色代码设置背景色
-		fmt.Printf("\033[%dm| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s | %-*s | %-*s |\033[0m\n",
-			0,
+		fmt.Printf("| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s | %-*s | %-*s |\n",
 			colWidths[0]-1, ca.VesselId,
 			colWidths[1]-1, ca.Name,
 			colWidths[2]+1, ca.Capacity,
-			colWidths[3]+1, getLockedStatus(ca.Locked),
-			colWidths[4]+2, bindLane,
+			colWidths[3]+2, getLockedStatus(ca.Locked),
+			colWidths[4]+5, bindLane,
 			colWidths[5], getLockedStatus(crane.Locked),
-			colWidths[6]+5, crane.VehicleID,
-			colWidths[7]+3, strings.Join(ca.Vehicles, ","),
-			colWidths[8]-3, "")
+			colWidths[6], crane.VehicleID,
+			colWidths[7]+2, strings.Join(ca.Vehicles, ","),
+			colWidths[8], "")
 	}
-	fmt.Println(border + "=========================")
+	fmt.Println(border + "==========================")
 
 	// 更新表格行数和首次打印标志
-	tableRows = len(cas) + 4 // 表头3行 + 数据行 + 底部边框1行
+	tableRows = len(cas) + 4 // 表头2行 + 数据行 + 底部边框1行
 	firstPrint = false
 }
 

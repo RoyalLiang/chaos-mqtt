@@ -43,6 +43,8 @@ type VesselInfo struct {
 	MinWf      int               `json:"min_wf"`
 	VesselInfo VesselDetail      `json:"vessel_info"`
 	CAs        []VesselCAInfo    `json:"cas"`
+	WAArrives  []string          `json:"wa_arrives"`
+	CAArrives  []string          `json:"ca_arrives"`
 	Cranes     []VesselCraneInfo `json:"cranes"`
 	Ingress    VesselGressInfo   `json:"ingress"`
 	Egress     VesselGressInfo   `json:"egress"`
