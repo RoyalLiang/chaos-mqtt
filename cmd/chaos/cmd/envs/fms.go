@@ -49,6 +49,6 @@ func init() {
 	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "FMS HOST地址")
 	FMSCmd.Flags().StringVarP(&module, "module", "m", "", "模块名称")
 	FMSCmd.Flags().StringVarP(&port, "port", "p", "", "模块启动端口")
-	FMSCmd.Flags().StringVarP(&moduleUrl, "base-url", "u", "", "模块base地址")
+	FMSCmd.Flags().StringVarP(&moduleUrl, "base-url", "b", "", "模块base地址")
 	FMSCmd.MarkFlagsRequiredTogether("module", "moduleUrl")
 }
