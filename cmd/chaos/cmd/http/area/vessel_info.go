@@ -2,7 +2,7 @@ package area
 
 import (
 	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal/http"
+	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/configs"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -49,7 +49,7 @@ var GetVesselCmd = &cobra.Command{
 	},
 }
 
-func getVessels() *http.GetVesselsResponse {
+func getVessels() *fms.GetVesselsResponse {
 	var address string
 
 	if configs.Chaos.FMS == nil {
@@ -67,18 +67,18 @@ func getVessels() *http.GetVesselsResponse {
 		address = "http://10.1.205.3:8888"
 	}
 
-	url := address + http.GetVesselsURL
+	url := address + fms.GetVesselsURL
 	if vid != "" {
 		url += "?vessel_id=" + vid
 	}
 
-	resp, err := http.Get(url)
+	resp, err := fms.Get(url)
 	if err != nil {
 		fmt.Println("获取船舶信息失败: ", err.Error())
 		return nil
 	}
 
-	vesselInfo := &http.GetVesselsResponse{}
+	vesselInfo := &fms.GetVesselsResponse{}
 	if err := json.Unmarshal(resp, vesselInfo); err != nil {
 		fmt.Println("解析船舶信息失败: ", err.Error())
 		return nil
@@ -86,8 +86,8 @@ func getVessels() *http.GetVesselsResponse {
 	return vesselInfo
 }
 
-func parseVesselInfo(vessels []http.VesselInfo) {
-	cas := make([]http.VesselCAInfo, 0)
+func parseVesselInfo(vessels []fms.VesselInfo) {
+	cas := make([]fms.VesselCAInfo, 0)
 
 	for _, vessel := range vessels {
 		if vessel.CAs == nil {
@@ -102,7 +102,7 @@ func parseVesselInfo(vessels []http.VesselInfo) {
 	printResult(vessels, cas)
 }
 
-func getAssignedQCData(vessels []http.VesselInfo, craneNo string) http.VesselCraneInfo {
+func getAssignedQCData(vessels []fms.VesselInfo, craneNo string) fms.VesselCraneInfo {
 	for _, vs := range vessels {
 		for _, c := range vs.Cranes {
 			if c.Name == craneNo {
@@ -110,7 +110,7 @@ func getAssignedQCData(vessels []http.VesselInfo, craneNo string) http.VesselCra
 			}
 		}
 	}
-	return http.VesselCraneInfo{}
+	return fms.VesselCraneInfo{}
 }
 
 func getLockedStatus(status int) string {
@@ -120,7 +120,7 @@ func getLockedStatus(status int) string {
 	return ""
 }
 
-func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
+func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
 	t.ResetRows()
 	for _, ca := range cas {
 		var bindLane int
