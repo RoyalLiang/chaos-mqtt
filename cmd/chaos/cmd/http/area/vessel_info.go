@@ -26,7 +26,7 @@ var GetVesselCmd = &cobra.Command{
 				if vessels := getVessels(); vessels != nil {
 					parseVesselInfo(vessels.Data.Values)
 				}
-				time.Sleep(5 * time.Second)
+				time.Sleep(10 * time.Second)
 			}
 		} else {
 			if vessels := getVessels(); vessels != nil {
@@ -37,18 +37,29 @@ var GetVesselCmd = &cobra.Command{
 }
 
 func getVessels() *http.GetVesselsResponse {
-	var baseUrl string
-	for _, service := range configs.Chaos.FMS.Services {
-		if service.Name == "area" {
-			baseUrl = service.Address
-			break
+	var address string
+
+	if configs.Chaos.FMS == nil {
+		address = ""
+	} else {
+		for _, service := range configs.Chaos.FMS.Services {
+			if service.Name == "area" {
+				address = service.Address
+				break
+			}
 		}
 	}
 
-	if baseUrl == "" {
-		baseUrl = "http://10.1.205.3:8888"
+	if address == "" {
+		address = "http://10.1.205.3:8888"
 	}
-	resp, err := http.Get(baseUrl + http.GetVesselsURL)
+
+	url := address + http.GetVesselsURL
+	if vid != "" {
+		url += "?vessel_id=" + vid
+	}
+
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("获取船舶信息失败: ", err.Error())
 		return nil
@@ -78,7 +89,18 @@ func parseVesselInfo(vessels []http.VesselInfo) {
 	printResult(vessels, cas)
 }
 
-func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
+func getAssignedQCData(vessels []http.VesselInfo, craneNo string) http.VesselCraneInfo {
+	for _, vs := range vessels {
+		for _, c := range vs.Cranes {
+			if c.Name == craneNo {
+				return c
+			}
+		}
+	}
+	return http.VesselCraneInfo{}
+}
+
+func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	// 计算每列的最大宽度
 	colWidths := make([]int, 7)
 	// 设置表头宽度作为初始值
@@ -113,11 +135,19 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
 	fmt.Println(border + "==============")
 
-	// 打印数据行
 	for _, ca := range cas {
+		var bindLane int
 		lockStatus := "未锁定"
+		//crane := getAssignedQCData(vessels, ca.Crane)
+
 		if ca.Locked == 1 {
 			lockStatus = "已锁定"
+		}
+
+		if ca.FixedWorkLane != nil {
+			bindLane = *ca.FixedWorkLane
+		} else {
+			bindLane = ca.BindLane
 		}
 
 		// 使用ANSI颜色代码设置背景色
@@ -127,7 +157,7 @@ func printResult(_ []http.VesselInfo, cas []http.VesselCAInfo) {
 			colWidths[1]-1, ca.Name,
 			colWidths[2]+1, ca.Capacity,
 			colWidths[3]-1, lockStatus,
-			colWidths[4]+2, ca.BindLane,
+			colWidths[4]+2, bindLane,
 			colWidths[5]+1, strings.Join(ca.Vehicles, ","),
 			colWidths[6]-3, "")
 	}

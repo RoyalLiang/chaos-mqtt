@@ -60,20 +60,20 @@ type VesselDetail struct {
 }
 
 type VesselCAInfo struct {
-	Locked         int         `json:"locked"`
-	VesselId       string      `json:"vessel_id"`
-	Width          int         `json:"width"`
-	Capacity       int         `json:"capacity"`
-	FixedWorkLane  interface{} `json:"fixed_work_lane"`
-	Vehicles       []string    `json:"vehicles"`
-	Name           string      `json:"name"`
-	Pos            Coordinate  `json:"pos"`
-	Lane           int         `json:"lane"`
-	BindLane       int         `json:"bind_lane"`
-	Index          interface{} `json:"index"`
-	WharfMarkStart int         `json:"wharf_mark_start"`
-	WharfMarkEnd   int         `json:"wharf_mark_end"`
-	Crane          string      `json:"crane"`
+	Locked         int        `json:"locked"`
+	VesselId       string     `json:"vessel_id"`
+	Width          int        `json:"width"`
+	Capacity       int        `json:"capacity"`
+	FixedWorkLane  *int       `json:"fixed_work_lane"`
+	Vehicles       []string   `json:"vehicles"`
+	Name           string     `json:"name"`
+	Pos            Coordinate `json:"pos"`
+	Lane           int        `json:"lane"`
+	BindLane       int        `json:"bind_lane"`
+	Index          *int       `json:"index"`
+	WharfMarkStart int        `json:"wharf_mark_start"`
+	WharfMarkEnd   int        `json:"wharf_mark_end"`
+	Crane          string     `json:"crane"`
 }
 
 type VesselCraneInfo struct {
