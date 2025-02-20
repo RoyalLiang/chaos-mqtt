@@ -17,6 +17,11 @@ var (
 	t    = table.NewWriter()
 )
 
+const (
+	clearScreen = "\033[H\033[2J"
+	moveCursor  = "\033[H"
+)
+
 var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
@@ -24,12 +29,17 @@ var GetVesselCmd = &cobra.Command{
 		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
 		t.AppendHeader(header)
 
+		// 首次清屏
+		fmt.Print(clearScreen)
+
 		if keep {
 			for {
 				if vessels := getVessels(); vessels != nil {
 					parseVesselInfo(vessels.Data.Values)
 				}
 				time.Sleep(10 * time.Second)
+				// 移动光标到起始位置
+				fmt.Print(moveCursor)
 			}
 		} else {
 			if vessels := getVessels(); vessels != nil {
@@ -129,7 +139,10 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 
 		t.AppendRow(row)
 	}
-	fmt.Println(t.Render())
+
+	// 清除当前行到屏幕底部
+	fmt.Print("\033[J")
+	fmt.Print(t.Render())
 }
 
 func init() {
