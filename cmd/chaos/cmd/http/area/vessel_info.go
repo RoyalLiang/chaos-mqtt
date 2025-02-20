@@ -133,7 +133,7 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 		}
 
 		row := table.Row{
-			ca.VesselId, ca.Name, ca.Capacity, bindLane, getLockedStatus(ca.Locked), strings.Join(ca.Vehicles, ","),
+			ca.VesselId, ca.Name, ca.Capacity, getLockedStatus(ca.Locked), bindLane, strings.Join(ca.Vehicles, ","),
 			getLockedStatus(crane.Locked), crane.VehicleID, "", "",
 		}
 
