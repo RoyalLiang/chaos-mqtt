@@ -12,16 +12,18 @@ import (
 )
 
 var (
-	keep       bool
-	vid        string
-	firstPrint = true
-	tableRows  = 0
+	keep bool
+	vid  string
+	t    = table.NewWriter()
 )
 
 var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
+		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
+		t.AppendHeader(header)
+
 		if keep {
 			for {
 				if vessels := getVessels(); vessels != nil {
@@ -109,46 +111,7 @@ func getLockedStatus(status int) string {
 }
 
 func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
-
-	t := table.NewWriter()
-	header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
-	t.AppendHeader(header)
-	// 计算每列的最大宽度
-	//colWidths := make([]int, 9)
-	// 设置表头宽度作为初始值
-	//colWidths[0] = 8  // 船舶ID
-	//colWidths[1] = 12 // CA
-	//colWidths[2] = 2  // 容量
-	//colWidths[3] = 6  // 锁定状态
-	//colWidths[4] = 2  // 绑定车道
-	//colWidths[5] = 6  // QC状态
-	//colWidths[6] = 6  // QC队列
-	//colWidths[7] = 32 // 集卡队列
-	//colWidths[8] = 36 // 等待队列
-	//
-	//border := "="
-	//header := ""
-	//for i, width := range colWidths {
-	//	border += strings.Repeat("=", width) + "="
-	//	headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "QC状态", "QC队列", "集卡队列", "等待队列"}[i]
-	//	header += fmt.Sprintf(" %-*s ", width-1, headerText) + "|"
-	//}
-	//
-	//h := strings.Split(header, "|")
-
-	// 如果不是首次打印，移动光标到表格开始位置并清除表格区域
-	//if !firstPrint {
-	//	// 移动光标到表格开始位置（上移tableRows行）
-	//	fmt.Printf("\033[%dA", tableRows)
-	//	// 清除从光标到屏幕底部的内容
-	//	fmt.Print("\033[J")
-	//}
-
-	// 打印表格
-	//fmt.Println(border + "==========================")
-	//fmt.Println(strings.Join(h[0:len(h)-1], "|"))
-	//fmt.Println(border + "==========================")
-
+	t.ResetRows()
 	for _, ca := range cas {
 		var bindLane int
 		crane := getAssignedQCData(vessels, ca.Crane)
