@@ -7,10 +7,9 @@ import (
 )
 
 var (
-	url     string
-	name    string
-	port    string
-	address string
+	url  string
+	name string
+	port string
 )
 
 var FMSCmd = &cobra.Command{
