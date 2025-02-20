@@ -5,6 +5,7 @@ import (
 	"fms-awesome-tools/cmd/chaos/internal/http"
 	"fms-awesome-tools/configs"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 	"strings"
 	"time"
@@ -108,43 +109,46 @@ func getLockedStatus(status int) string {
 }
 
 func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
+
+	t := table.NewWriter()
+	header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
+	t.AppendHeader(header)
 	// 计算每列的最大宽度
-	colWidths := make([]int, 9)
+	//colWidths := make([]int, 9)
 	// 设置表头宽度作为初始值
-	colWidths[0] = 8  // 船舶ID
-	colWidths[1] = 12 // CA
-	colWidths[2] = 2  // 容量
-	colWidths[3] = 6  // 锁定状态
-	colWidths[4] = 2  // 绑定车道
-	colWidths[5] = 6  // QC状态
-	colWidths[6] = 6  // QC队列
-	colWidths[7] = 32 // 集卡队列
-	colWidths[8] = 36 // 等待队列
-
-	border := "="
-	header := ""
-	for i, width := range colWidths {
-		border += strings.Repeat("=", width) + "="
-		headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "QC状态", "QC队列", "集卡队列", "等待队列"}[i]
-		header += fmt.Sprintf(" %-*s ", width-1, headerText) + "|"
-	}
-
-	h := strings.Split(header, "|")
+	//colWidths[0] = 8  // 船舶ID
+	//colWidths[1] = 12 // CA
+	//colWidths[2] = 2  // 容量
+	//colWidths[3] = 6  // 锁定状态
+	//colWidths[4] = 2  // 绑定车道
+	//colWidths[5] = 6  // QC状态
+	//colWidths[6] = 6  // QC队列
+	//colWidths[7] = 32 // 集卡队列
+	//colWidths[8] = 36 // 等待队列
+	//
+	//border := "="
+	//header := ""
+	//for i, width := range colWidths {
+	//	border += strings.Repeat("=", width) + "="
+	//	headerText := []string{"船舶ID", "CA", "容量", "锁定状态", "绑定车道", "QC状态", "QC队列", "集卡队列", "等待队列"}[i]
+	//	header += fmt.Sprintf(" %-*s ", width-1, headerText) + "|"
+	//}
+	//
+	//h := strings.Split(header, "|")
 
 	// 如果不是首次打印，移动光标到表格开始位置并清除表格区域
-	if !firstPrint {
-		// 移动光标到表格开始位置（上移tableRows行）
-		fmt.Printf("\033[%dA", tableRows)
-		// 清除从光标到屏幕底部的内容
-		fmt.Print("\033[J")
-	}
+	//if !firstPrint {
+	//	// 移动光标到表格开始位置（上移tableRows行）
+	//	fmt.Printf("\033[%dA", tableRows)
+	//	// 清除从光标到屏幕底部的内容
+	//	fmt.Print("\033[J")
+	//}
 
 	// 打印表格
-	fmt.Println(border + "==========================")
-	fmt.Println(strings.Join(h[0:len(h)-1], "|"))
-	fmt.Println(border + "==========================")
+	//fmt.Println(border + "==========================")
+	//fmt.Println(strings.Join(h[0:len(h)-1], "|"))
+	//fmt.Println(border + "==========================")
 
-	// 打印数据行
 	for _, ca := range cas {
 		var bindLane int
 		crane := getAssignedQCData(vessels, ca.Crane)
@@ -155,22 +159,14 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 			bindLane = ca.BindLane
 		}
 
-		fmt.Printf("| %-*s | %-*s | %-*d | %-*s | %-*d | %-*s | %-*s | %-*s | %-*s |\n",
-			colWidths[0]-1, ca.VesselId,
-			colWidths[1]-1, ca.Name,
-			colWidths[2]+1, ca.Capacity,
-			colWidths[3]+2, getLockedStatus(ca.Locked),
-			colWidths[4]+5, bindLane,
-			colWidths[5], getLockedStatus(crane.Locked),
-			colWidths[6], crane.VehicleID,
-			colWidths[7]+2, strings.Join(ca.Vehicles, ","),
-			colWidths[8], "")
-	}
-	fmt.Println(border + "==========================")
+		row := table.Row{
+			ca.VesselId, ca.Name, ca.Capacity, getLockedStatus(ca.Locked),
+			bindLane, getLockedStatus(crane.Locked), crane.VehicleID, strings.Join(ca.Vehicles, ","), "",
+		}
 
-	// 更新表格行数和首次打印标志
-	tableRows = len(cas) + 4 // 表头2行 + 数据行 + 底部边框1行
-	firstPrint = false
+		t.AppendRow(row)
+	}
+	fmt.Println(t.Render())
 }
 
 func init() {
