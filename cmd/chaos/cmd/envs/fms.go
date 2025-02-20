@@ -47,7 +47,7 @@ var FMSCmd = &cobra.Command{
 
 func init() {
 	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "FMS HOST地址")
-	FMSCmd.Flags().StringVarP(&name, "module", "m", "", "模块名称")
+	FMSCmd.Flags().StringVarP(&name, "name", "n", "", "模块名称")
 	FMSCmd.Flags().StringVarP(&port, "port", "p", "", "模块启动端口")
 	FMSCmd.Flags().StringVarP(&address, "address", "a", "", "模块base地址")
 	FMSCmd.MarkFlagsRequiredTogether("name", "address")

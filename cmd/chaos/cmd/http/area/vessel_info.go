@@ -40,7 +40,7 @@ func getVessels() *http.GetVesselsResponse {
 	var baseUrl string
 	for _, service := range configs.Chaos.FMS.Services {
 		if service.Name == "area" {
-			baseUrl = service.BaseUrl
+			baseUrl = service.Address
 			break
 		}
 	}
