@@ -18,24 +18,28 @@ var (
 )
 
 const (
-	moveCursor = "\033[H"
+	moveCursor    = "\033[s" // 保存光标位置
+	restoreCursor = "\033[u" // 恢复光标位置
+	clearScreen   = "\033[J" // 清除从光标到屏幕底部的内容
 )
 
 var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "QC Status", "QC Queue", "CA Queue", "DWA Queue"}
+		header := table.Row{"VesselID", "CA", "Capacity", "CA Status", "Working lane", "Ca Queues", "QC Status", "QC Assigned", "QC Queues", "DWA Queues"}
 		t.AppendHeader(header)
 
 		if keep {
+			// 保存初始光标位置
+			fmt.Print(moveCursor)
 			for {
 				if vessels := getVessels(); vessels != nil {
+					// 恢复到保存的位置并清屏
+					fmt.Print(restoreCursor, clearScreen)
 					parseVesselInfo(vessels.Data.Values)
 				}
-				time.Sleep(10 * time.Second)
-				// 移动光标到起始位置
-				fmt.Print(moveCursor)
+				time.Sleep(5 * time.Second)
 			}
 		} else {
 			if vessels := getVessels(); vessels != nil {
@@ -129,15 +133,13 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 		}
 
 		row := table.Row{
-			ca.VesselId, ca.Name, ca.Capacity, getLockedStatus(ca.Locked),
-			bindLane, getLockedStatus(crane.Locked), crane.VehicleID, strings.Join(ca.Vehicles, ","), "",
+			ca.VesselId, ca.Name, ca.Capacity, bindLane, getLockedStatus(ca.Locked), strings.Join(ca.Vehicles, ","),
+			getLockedStatus(crane.Locked), crane.VehicleID, "", "",
 		}
 
 		t.AppendRow(row)
 	}
 
-	// 清除当前行到屏幕底部
-	//fmt.Print("\033[J")
 	fmt.Print(t.Render())
 }
 
