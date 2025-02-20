@@ -30,8 +30,7 @@ type fms struct {
 
 type FmsService struct {
 	Name    string `json:"name"`
-	BaseUrl string `json:"baseUrl"`
-	//Port string `json:"port"`
+	Address string `json:"address"`
 }
 
 func (f fms) String() string {
@@ -86,7 +85,7 @@ func defaultConfig() chaosConfig {
 	config.FMS.Services = []FmsService{}
 	config.FMS.Services = append(config.FMS.Services, FmsService{
 		Name:    "area",
-		BaseUrl: "http://127.0.0.1:8888",
+		Address: "http://127.0.0.1:8888",
 	})
 	return config
 }
