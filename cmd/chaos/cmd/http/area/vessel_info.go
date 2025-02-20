@@ -117,9 +117,9 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	colWidths[3] = 6  // 锁定状态
 	colWidths[4] = 2  // 绑定车道
 	colWidths[5] = 6  // QC状态
-	colWidths[6] = 10 // QC队列
+	colWidths[6] = 6  // QC队列
 	colWidths[7] = 32 // 集卡队列
-	colWidths[8] = 40 // 等待队列
+	colWidths[8] = 36 // 等待队列
 
 	border := "="
 	header := ""
