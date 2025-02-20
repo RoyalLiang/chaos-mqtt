@@ -137,7 +137,7 @@ func printResult(vessels []http.VesselInfo, cas []http.VesselCAInfo) {
 	}
 
 	// 清除当前行到屏幕底部
-	fmt.Print("\033[J")
+	//fmt.Print("\033[J")
 	fmt.Print(t.Render())
 }
 
