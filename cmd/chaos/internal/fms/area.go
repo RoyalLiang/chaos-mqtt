@@ -12,6 +12,7 @@ const (
 	SetBlockURL       = prefix + "/hatch_cover/op"
 	GetVesselsURL     = prefix + "/vessels"
 	GetAssignedVessel = prefix + "/vessel"
+	GetVehiclesURL    = prefix + "/vehicles"
 )
 
 type GetVesselsResponse struct {
@@ -101,4 +102,40 @@ type VesselGressInfo struct {
 	End            Coordinate `json:"end"`
 	WharfMarkStart int        `json:"wharf_mark_start"`
 	WharfMarkEnd   int        `json:"wharf_mark_end"`
+}
+
+type VehiclesResponse struct {
+	Status string                 `json:"status"`
+	Errno  interface{}            `json:"errno"`
+	Msg    interface{}            `json:"msg"`
+	Code   int                    `json:"code"`
+	Data   []VehiclesResponseData `json:"data"`
+}
+
+type VehiclesResponseData struct {
+	ID                 string                 `json:"id"`
+	VesselID           string                 `json:"vessel_id"`
+	CanGoCallIn        bool                   `json:"can_go_call_in"`
+	Arrived            bool                   `json:"arrived"`
+	Destination        VehicleDestination     `json:"destination"`
+	CurrentDestination VehicleCurrDestination `json:"current_destination"`
+	LastDestination    VehicleCurrDestination `json:"last_destination"`
+}
+
+type VehicleDestination struct {
+	Name string `json:"name"`
+	Lane int    `json:"lane"`
+	Type string `json:"type"`
+}
+
+type VehicleCurrDestination struct {
+	Type      string  `json:"type"`
+	VehicleID string  `json:"vehicle_id"`
+	Name      string  `json:"name"`
+	Block     *string `json:"block"`
+	Bay       *string `json:"bay"`
+	Lane      int     `json:"lane"`
+	CraneNo   string  `json:"crane_no"`
+	StayThere bool    `json:"stay_there"`
+	Weight    int     `json:"weight"`
 }

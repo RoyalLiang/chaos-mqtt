@@ -136,7 +136,6 @@ func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
 			ca.VesselId, ca.Name, bindLane, ca.Capacity, getLockedStatus(ca.Locked), strings.Join(ca.Vehicles, ","),
 			getLockedStatus(crane.Locked), crane.VehicleID, "", "",
 		}
-
 		t.AppendRow(row)
 	}
 
