@@ -22,7 +22,7 @@ var fmsCmd = &cobra.Command{
 func init() {
 	fmsCmd.PersistentFlags().StringVarP(&ip, "ip", "", "127.0.0.1", "服务地址")
 
-	fmsCmd.AddCommand(area.SetBlockCmd)
+	fmsCmd.AddCommand(area.HatchCoverCmd)
 	fmsCmd.AddCommand(area.ManualModeCmd)
 	fmsCmd.AddCommand(area.GetVesselCmd)
 	fmsCmd.AddCommand(area.VehicleCmd)
