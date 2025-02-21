@@ -17,7 +17,7 @@ var (
 
 var APMArrivedCmd = &cobra.Command{
 	Use:   "apm_arrived_request",
-	Short: "发送APM arrive message",
+	Short: "发送 APM arrived message",
 	Run: func(cmd *cobra.Command, args []string) {
 		if arrivedPosition <= 0 {
 			_ = cmd.Help()
@@ -45,7 +45,7 @@ var APMArrivedCmd = &cobra.Command{
 			}
 
 			data := generateAPMArrivedRequest(location).String()
-			if err := service.PublishAssignedTopic("apm_arrived_request", "", data); err != nil {
+			if err := service.PublishAssignedTopic("/apm/apm_arrived_request", "", data); err != nil {
 				cobra.CheckErr(err)
 			} else {
 				fmt.Println(data, " ==> apm_arrived_request")
