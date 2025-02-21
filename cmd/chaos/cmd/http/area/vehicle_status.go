@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
+	"sort"
 	"time"
 )
 
@@ -20,7 +21,7 @@ var VehicleCmd = &cobra.Command{
 	Use:   "vehicles",
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Current Arrived", "Destination", "Destination Lane", "Call Status"}
+		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status"}
 		vehicleTable.AppendHeader(header)
 
 		if k {
@@ -38,22 +39,13 @@ var VehicleCmd = &cobra.Command{
 	},
 }
 
-func getVehicles() []fms.VehiclesResponseData {
+func getVehicles() fms.Vehicles {
 	var address string
-
-	if configs.Chaos.FMS == nil {
-		address = ""
-	} else {
-		for _, service := range configs.Chaos.FMS.Services {
-			if service.Name == "area" {
-				address = service.Address
-				break
-			}
+	for _, service := range configs.Chaos.FMS.Services {
+		if service.Name == "area" {
+			address = service.Address
+			break
 		}
-	}
-
-	if address == "" {
-		address = "http://10.1.205.3:8888"
 	}
 
 	url := address + fms.GetVehiclesURL
@@ -68,15 +60,16 @@ func getVehicles() []fms.VehiclesResponseData {
 	}
 
 	respData := &fms.VehiclesResponse{}
-	if err := json.Unmarshal(resp, respData); err != nil {
+	if err = json.Unmarshal(resp, respData); err != nil {
 		fmt.Println("解析集卡数据失败: ", err.Error())
 		return nil
 	}
 	return respData.Data
 }
 
-func printVehicles(vehicles []fms.VehiclesResponseData) {
+func printVehicles(vehicles fms.Vehicles) {
 	vehicleTable.ResetRows()
+	sort.Sort(vehicles)
 	for index, vehicle := range vehicles {
 
 		called := ""
@@ -89,9 +82,30 @@ func printVehicles(vehicles []fms.VehiclesResponseData) {
 			arrived = "Arrived"
 		}
 
+		name := vehicle.CurrentDestination.Name
+		if vehicle.CurrentDestination.Type == "Pre-Ingress" {
+			name = vehicle.CurrentDestination.Type
+		}
+		if vehicle.Destination.Type == "YARD" {
+			name = vehicle.Destination.Name
+		}
+
+		dtype := vehicle.CurrentDestination.Type
+		switch vehicle.CurrentDestination.Type {
+		case "CRANE_AREA":
+			dtype = "QC"
+		case "CALLIN_AREA":
+			dtype = "CA"
+		case "WAIT_AREA":
+			dtype = "DWA"
+		case "Pre-Ingress":
+			dtype = "Pre-Ingress"
+		default:
+			dtype = vehicle.Destination.Type
+		}
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.CurrentDestination.Name, arrived,
-			vehicle.Destination.Name, vehicle.Destination.Lane, called,
+			index + 1, vehicle.ID, vehicle.Destination.Type, name, dtype,
+			arrived, vehicle.Destination.Name, vehicle.Destination.Lane, called,
 		}
 		vehicleTable.AppendRow(row)
 	}

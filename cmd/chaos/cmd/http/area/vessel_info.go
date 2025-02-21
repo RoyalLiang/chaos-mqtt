@@ -51,20 +51,11 @@ var GetVesselCmd = &cobra.Command{
 
 func getVessels() *fms.GetVesselsResponse {
 	var address string
-
-	if configs.Chaos.FMS == nil {
-		address = ""
-	} else {
-		for _, service := range configs.Chaos.FMS.Services {
-			if service.Name == "area" {
-				address = service.Address
-				break
-			}
+	for _, service := range configs.Chaos.FMS.Services {
+		if service.Name == "area" {
+			address = service.Address
+			break
 		}
-	}
-
-	if address == "" {
-		address = "http://10.1.205.3:8888"
 	}
 
 	url := address + fms.GetVesselsURL

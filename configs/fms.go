@@ -82,7 +82,11 @@ func defaultConfig() chaosConfig {
 		Password: "",
 	}
 
-	config.FMS.Services = []FmsService{}
+	config.FMS = &fms{
+		Host:     "",
+		Services: []FmsService{},
+	}
+
 	config.FMS.Services = append(config.FMS.Services, FmsService{
 		Name:    "area",
 		Address: "http://127.0.0.1:8888",

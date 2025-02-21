@@ -8,7 +8,7 @@ import (
 const prefix = "/fms/psa"
 
 const (
-	ManualModeURL     = ""
+	ManualModeURL     = prefix + "/vessel/{vessel_id}/manualModel"
 	SetBlockURL       = prefix + "/hatch_cover/op"
 	GetVesselsURL     = prefix + "/vessels"
 	GetAssignedVessel = prefix + "/vessel"
@@ -105,11 +105,11 @@ type VesselGressInfo struct {
 }
 
 type VehiclesResponse struct {
-	Status string                 `json:"status"`
-	Errno  interface{}            `json:"errno"`
-	Msg    interface{}            `json:"msg"`
-	Code   int                    `json:"code"`
-	Data   []VehiclesResponseData `json:"data"`
+	Status string      `json:"status"`
+	Errno  interface{} `json:"errno"`
+	Msg    interface{} `json:"msg"`
+	Code   int         `json:"code"`
+	Data   Vehicles    `json:"data"`
 }
 
 type VehiclesResponseData struct {
@@ -120,6 +120,20 @@ type VehiclesResponseData struct {
 	Destination        VehicleDestination     `json:"destination"`
 	CurrentDestination VehicleCurrDestination `json:"current_destination"`
 	LastDestination    VehicleCurrDestination `json:"last_destination"`
+}
+
+type Vehicles []VehiclesResponseData
+
+func (v Vehicles) Len() int {
+	return len(v)
+}
+
+func (v Vehicles) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
+}
+
+func (v Vehicles) Less(i, j int) bool {
+	return v[i].ID < v[j].ID
 }
 
 type VehicleDestination struct {

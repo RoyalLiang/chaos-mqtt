@@ -5,8 +5,8 @@ mqtt:
 fms:
     host: 10.1.100.3
     services:
-        name: area
-        baseUrl: http://10.1.205.3:8888
+        - name: area
+          address: http://10.1.205.3:8888
 product:
     description: awesome fms daemon CLI program.
     name: chaos
