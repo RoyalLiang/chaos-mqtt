@@ -95,7 +95,7 @@ func printVehicles(vehicles []fms.VehiclesResponseData) {
 		}
 		vehicleTable.AppendRow(row)
 	}
-	fmt.Println(t.Render())
+	fmt.Println(vehicleTable.Render())
 }
 
 func init() {
