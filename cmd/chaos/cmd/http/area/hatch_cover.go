@@ -3,6 +3,7 @@ package area
 import (
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/cmd/chaos/internal/fms/area"
+	"fms-awesome-tools/configs"
 	"fmt"
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,15 @@ func operateHatchCover() {
 }
 
 func sendData(url string, data []byte) {
-	resp, err := fms.Post(url, data)
+	var address string
+	for _, service := range configs.Chaos.FMS.Services {
+		if service.Name == "area" {
+			address = service.Address
+			break
+		}
+	}
+
+	resp, err := fms.Post(address+url, data)
 	if err != nil {
 		cobra.CheckErr(err)
 	} else {
