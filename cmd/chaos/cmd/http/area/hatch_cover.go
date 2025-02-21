@@ -28,6 +28,9 @@ var HatchCoverCmd = &cobra.Command{
 		if hClear {
 			sendData(fms.ClearBlockURL, make([]byte, 0))
 		} else {
+			if hStart <= 0 || hEnd <= 0 {
+				cobra.CheckErr("invalid start or end wm")
+			}
 			operateHatchCover()
 		}
 	},
@@ -73,7 +76,7 @@ func init() {
 	HatchCoverCmd.Flags().Int64VarP(&hStart, "start", "s", 0, "开始位置")
 	HatchCoverCmd.Flags().Int64VarP(&hEnd, "end", "e", 0, "结束位置")
 	HatchCoverCmd.MarkFlagsMutuallyExclusive("add", "delete", "clear")
-	HatchCoverCmd.MarkFlagsRequiredTogether("add", "start", "end")
-	HatchCoverCmd.MarkFlagsRequiredTogether("delete", "start", "end")
+	HatchCoverCmd.MarkFlagsRequiredTogether("start", "end")
+	//HatchCoverCmd.MarkFlagsRequiredTogether("delete", "start", "end")
 
 }
