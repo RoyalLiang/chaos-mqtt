@@ -16,7 +16,7 @@ var (
 
 var InstructionCmd = &cobra.Command{
 	Use:   "instruction",
-	Short: "发送mount_instruction/offload_instruction",
+	Short: "发送 mount_instruction/offload_instruction",
 	Run: func(cmd *cobra.Command, args []string) {
 		if taskID == "" && opAction == "" {
 			_ = cmd.Help()
@@ -37,10 +37,10 @@ var InstructionCmd = &cobra.Command{
 			_ = cmd.Help()
 		}
 
-		if err := service.PublishAssignedTopic(fmt.Sprintf("%s_instruction", action), "", data); err != nil {
+		if err := service.PublishAssignedTopic(fmt.Sprintf("%s_instruction", opAction), "", data); err != nil {
 			cobra.CheckErr(err)
 		} else {
-			fmt.Println(data, " ==> ", fmt.Sprintf("%s_instruction"))
+			fmt.Println(data, " ==> ", fmt.Sprintf("%s_instruction", opAction))
 		}
 	},
 }
@@ -70,6 +70,6 @@ func generateMountInstruction() messages.MountInstruction {
 
 func init() {
 	InstructionCmd.Flags().StringVarP(&taskID, "id", "i", "", "任务ID")
-	InstructionCmd.Flags().StringVarP(&opAction, "action", "a", "mount", "动作, 可选:\nmount/offload\n")
+	InstructionCmd.Flags().StringVarP(&opAction, "action", "a", "", "动作, 可选:\nmount/offload\n")
 	InstructionCmd.MarkFlagsRequiredTogether("id", "action")
 }
