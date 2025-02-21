@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	vehicleID string
-	k         bool
+	vehicleID    string
+	k            bool
+	vehicleTable = table.NewWriter()
 )
 
 var VehicleCmd = &cobra.Command{
@@ -20,7 +21,7 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Current Arrived", "Destination", "Destination Lane", "Call Status"}
-		t.AppendHeader(header)
+		vehicleTable.AppendHeader(header)
 
 		if keep {
 			fmt.Print(moveCursor)
@@ -76,7 +77,7 @@ func getVehicles() []fms.VehiclesResponseData {
 }
 
 func printVehicles(vehicles []fms.VehiclesResponseData) {
-	t.ResetRows()
+	vehicleTable.ResetRows()
 	for index, vehicle := range vehicles {
 
 		called := ""
@@ -93,7 +94,7 @@ func printVehicles(vehicles []fms.VehiclesResponseData) {
 			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.CurrentDestination.Name, arrived,
 			vehicle.Destination.Name, vehicle.Destination.Lane, called,
 		}
-		t.AppendRow(row)
+		vehicleTable.AppendRow(row)
 	}
 	fmt.Println(t.Render())
 }
