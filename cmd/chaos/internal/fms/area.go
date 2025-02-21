@@ -9,7 +9,8 @@ const prefix = "/fms/psa"
 
 const (
 	ManualModeURL     = prefix + "/vessel/{vessel_id}/manualModel"
-	SetBlockURL       = prefix + "/hatch_cover/op"
+	OpBlockURL        = prefix + "/hatch_cover/op"
+	ClearBlockURL     = prefix + "/hatch_cover/clear"
 	GetVesselsURL     = prefix + "/vessels"
 	GetAssignedVessel = prefix + "/vessel"
 	GetVehiclesURL    = prefix + "/vehicles"

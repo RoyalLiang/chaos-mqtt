@@ -44,3 +44,8 @@ type APMArrivedRequestData struct {
 	ID                 string `json:"id"`
 	TargetDockPosition string `json:"target_dock_position"`
 }
+
+func (ar APMArrivedRequest) String() string {
+	v, _ := json.Marshal(ar)
+	return string(v)
+}

@@ -9,7 +9,19 @@ type ManualModeRequest struct {
 	Mode    int64            `json:"mode"`
 }
 
-func (req *ManualModeRequest) String() string {
+func (req ManualModeRequest) String() string {
+	v, _ := json.Marshal(req)
+	return string(v)
+}
+
+type HatchCoverConfigRequest struct {
+	Name  string `json:"name"`
+	Op    string `json:"op"`
+	Start int64  `json:"start"`
+	End   int64  `json:"end"`
+}
+
+func (req HatchCoverConfigRequest) String() string {
 	v, _ := json.Marshal(req)
 	return string(v)
 }
