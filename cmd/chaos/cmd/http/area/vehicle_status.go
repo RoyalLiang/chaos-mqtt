@@ -23,7 +23,7 @@ var VehicleCmd = &cobra.Command{
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Current Arrived", "Destination", "Destination Lane", "Call Status"}
 		vehicleTable.AppendHeader(header)
 
-		if keep {
+		if k {
 			fmt.Print(moveCursor)
 			for {
 				vehicles := getVehicles()
@@ -32,9 +32,8 @@ var VehicleCmd = &cobra.Command{
 				time.Sleep(5 * time.Second)
 			}
 		} else {
-			if vessels := getVessels(); vessels != nil {
-				parseVesselInfo(vessels.Data.Values)
-			}
+			vehicles := getVehicles()
+			printVehicles(vehicles)
 		}
 	},
 }
