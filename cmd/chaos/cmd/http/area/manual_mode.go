@@ -56,7 +56,7 @@ func sendRequest(qcLaneMap map[string]int64) {
 		}
 	}
 
-	url := address + "/fms/psa//vessel/" + vesselID + "/manualModel"
+	url := address + "/fms/psa/vessel/" + vesselID + "/manualModel"
 	body := area.ManualModeRequest{
 		Ingress: ingress,
 		Egress:  egress,

@@ -6,3 +6,4 @@ fms*.exe
 fms-tool
 chaos.exe
 dist/*
+*.yaml
