@@ -40,14 +40,7 @@ var VehicleCmd = &cobra.Command{
 }
 
 func getVehicles() fms.Vehicles {
-	var address string
-	for _, service := range configs.Chaos.FMS.Services {
-		if service.Name == "area" {
-			address = service.Address
-			break
-		}
-	}
-
+	address := configs.Chaos.FMS.Area.Address
 	url := address + fms.GetVehiclesURL
 	if vehicleID != "" {
 		url += "?vehicle_id=" + vehicleID

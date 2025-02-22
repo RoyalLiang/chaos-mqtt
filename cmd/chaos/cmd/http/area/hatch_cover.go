@@ -53,14 +53,7 @@ func operateHatchCover() {
 }
 
 func sendData(url string, data []byte) {
-	var address string
-	for _, service := range configs.Chaos.FMS.Services {
-		if service.Name == "area" {
-			address = service.Address
-			break
-		}
-	}
-
+	address := configs.Chaos.FMS.Area.Address
 	resp, err := fms.Post(address+url, data)
 	if err != nil {
 		cobra.CheckErr(err)

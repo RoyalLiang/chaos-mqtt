@@ -24,8 +24,15 @@ type product struct {
 }
 
 type fms struct {
-	Host     string       `json:"host"`
-	Services []FmsService `json:"services"`
+	//Host     string       `json:"host"`
+	//Services []FmsService `json:"services"`
+	Area   FMSModuleConfig `json:"area"`
+	TOS    FMSModuleConfig `json:"tos"`
+	Device FMSModuleConfig `json:"device"`
+}
+
+type FMSModuleConfig struct {
+	Address string `json:"address"`
 }
 
 type FmsService struct {
@@ -83,14 +90,10 @@ func defaultConfig() chaosConfig {
 	}
 
 	config.FMS = &fms{
-		Host:     "",
-		Services: []FmsService{},
+		Area:   FMSModuleConfig{},
+		TOS:    FMSModuleConfig{},
+		Device: FMSModuleConfig{},
 	}
-
-	config.FMS.Services = append(config.FMS.Services, FmsService{
-		Name:    "area",
-		Address: "http://127.0.0.1:8888",
-	})
 	return config
 }
 

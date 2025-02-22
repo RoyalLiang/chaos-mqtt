@@ -8,58 +8,44 @@ import (
 )
 
 var (
-	url  string
-	name string
-	port string
+	area   bool
+	tos    bool
+	device bool
 )
 
 var FMSCmd = &cobra.Command{
 	Use:   "fms",
 	Short: "FMS模块配置",
 	Run: func(cmd *cobra.Command, args []string) {
-		if url == "" && name == "" && constants.Address == "" {
+		if (!area && !tos && !device) || constants.Address == "" {
 			_ = cmd.Help()
 			return
 		}
 
-		if url != "" {
-			if err := configs.WriteFMSConfig("fms.host", url); err != nil {
-				fmt.Println("HOST配置失败: ", err)
-			}
+		cfg := configs.FMSModuleConfig{
+			Address: constants.Address,
+		}
+		if area {
+			configs.Chaos.FMS.Area = cfg
+		} else if tos {
+			configs.Chaos.FMS.TOS = cfg
+		} else if device {
+			configs.Chaos.FMS.Device = cfg
 		}
 
-		if name != "" && constants.Address != "" {
-			cfg := &configs.FmsService{
-				Name:    name,
-				Address: constants.Address,
-			}
-
-			services := configs.Chaos.FMS.Services
-			found := false
-			for i, service := range services {
-				if service.Name == name {
-					services[i] = *cfg
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				services = append(services, *cfg)
-			}
-
-			configs.Chaos.FMS.Services = services
-			if err := configs.WriteFMSConfig("fms", configs.Chaos.FMS); err != nil {
-				fmt.Println("FMS HOST配置失败:", err.Error())
-			}
+		if err := configs.WriteFMSConfig("fms", configs.Chaos.FMS); err != nil {
+			cobra.CheckErr(err)
 		}
-
 		fmt.Println("配置成功...")
 	},
 }
 
 func init() {
-	FMSCmd.Flags().StringVarP(&url, "host", "u", "", "FMS HOST地址")
-	FMSCmd.Flags().StringVarP(&name, "name", "n", "", "模块名称")
-	FMSCmd.Flags().StringVarP(&port, "port", "p", "", "模块启动端口")
+	FMSCmd.Flags().BoolVar(&area, "area", false, "area-slot 模块")
+	FMSCmd.Flags().BoolVar(&tos, "tos", false, "tos-interface 模块")
+	FMSCmd.Flags().BoolVar(&device, "device", false, "device-info 模块")
+
+	FMSCmd.MarkFlagsMutuallyExclusive("area", "tos", "device")
+	FMSCmd.MarkFlagsRequiredTogether("address")
+
 }

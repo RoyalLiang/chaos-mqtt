@@ -73,14 +73,7 @@ func manualRequest() {
 }
 
 func sendRequest(url string, data []byte) {
-	var address string
-	for _, service := range configs.Chaos.FMS.Services {
-		if service.Name == "area" {
-			address = service.Address
-			break
-		}
-	}
-
+	address := configs.Chaos.FMS.Area.Address
 	url = address + url
 	resp, err := fms.Post(url, data)
 	if err != nil {

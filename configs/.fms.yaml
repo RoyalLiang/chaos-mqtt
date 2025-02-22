@@ -3,10 +3,11 @@ mqtt:
     password: public
     user: admin
 fms:
-    host: 10.1.100.3
-    services:
-        - name: area
-          address: http://10.1.205.3:8888
+    area:
+        address: http://10.1.205.3:8888
+    tos:
+        address: http://10.1.205.3:31160
+
 product:
     description: awesome fms daemon CLI program.
     name: chaos
