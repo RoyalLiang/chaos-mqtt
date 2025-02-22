@@ -46,6 +46,4 @@ func init() {
 	FMSCmd.Flags().BoolVar(&device, "device", false, "device-info 模块")
 
 	FMSCmd.MarkFlagsMutuallyExclusive("area", "tos", "device")
-	FMSCmd.MarkFlagsRequiredTogether("address")
-
 }
