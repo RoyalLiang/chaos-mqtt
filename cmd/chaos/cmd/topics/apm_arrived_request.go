@@ -13,6 +13,8 @@ const locations = "\n1=堆场位置\n2=Pre-Ingress\n3=DWA\n4=CA\n5=QC\n6=REFUEL\
 
 var (
 	arrivedPosition int
+	aCrane          string
+	aBlock          string
 )
 
 var APMArrivedCmd = &cobra.Command{
@@ -22,18 +24,29 @@ var APMArrivedCmd = &cobra.Command{
 		if arrivedPosition <= 0 {
 			_ = cmd.Help()
 		} else {
+			if arrivedPosition == 1 && (aBlock == "" || aCrane != "") {
+				cobra.CheckErr("目的地与到达类型不匹配")
+			}
+
+			craneType := []int{2, 3, 4, 5}
+			for _, v := range craneType {
+				if v == arrivedPosition && (aBlock != "" || aCrane == "") {
+					cobra.CheckErr("目的地与到达类型不匹配")
+				}
+			}
+
 			location := ""
 			switch arrivedPosition {
 			case 1:
-				location = "Y,V,,"
+				location = "Y,V,," + aBlock
 			case 2:
-				location = "P,PQCXXX  _Pre-Ingress"
+				location = fmt.Sprintf("P,%s  _Pre-Ingress", aCrane)
 			case 3:
-				location = "P,PQCXXX _Waiting Area"
+				location = fmt.Sprintf("P,%s  _Waiting Area", aCrane)
 			case 4:
-				location = "P,PQCXXX _Call In Area"
+				location = fmt.Sprintf("P,%s  _Call In Area", aCrane)
 			case 5:
-				location = "P,PQCXXX "
+				location = fmt.Sprintf("P,%s   ", aCrane)
 			case 6:
 				location = "Refuel_X_X"
 			case 7:
@@ -69,4 +82,7 @@ func generateAPMArrivedRequest(location string) messages.APMArrivedRequest {
 
 func init() {
 	APMArrivedCmd.Flags().IntVarP(&arrivedPosition, "position", "p", *new(int), "到达位置"+locations)
+	APMArrivedCmd.Flags().StringVar(&aCrane, "crane", "", "到达的QC")
+	APMArrivedCmd.Flags().StringVar(&aBlock, "block", "", "到达的block")
+	APMArrivedCmd.MarkFlagsMutuallyExclusive("crane", "block")
 }
