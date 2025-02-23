@@ -66,6 +66,18 @@ func subs() {
 			print("get error: ", err.Error())
 			break
 		}
+
+		modeData, err := redis.HGet(ctx, "vehicle_status", vehicle.ID).Result()
+		if err != nil {
+			print("hget error: ", err.Error())
+			break
+		}
+
+		if err = json.Unmarshal([]byte(modeData), vehicle); err != nil {
+			print("get error: ", err.Error())
+			break
+		}
+
 		vs[vehicle.ID] = vehicle
 		for _, v := range vs {
 			vehicles = append(vehicles, *v)

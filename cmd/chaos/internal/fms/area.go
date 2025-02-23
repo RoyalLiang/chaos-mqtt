@@ -121,6 +121,10 @@ type VehiclesResponseData struct {
 	Destination        VehicleDestination     `json:"destination"`
 	CurrentDestination VehicleCurrDestination `json:"current_destination"`
 	LastDestination    VehicleCurrDestination `json:"last_destination"`
+	Mode               string                 `json:"mode"`
+	SSA                int                    `json:"ssa"`
+	ReadyStatus        int                    `json:"ready_status"`
+	ManualStatus       int                    `json:"manual_status"`
 }
 
 type Vehicles []VehiclesResponseData
