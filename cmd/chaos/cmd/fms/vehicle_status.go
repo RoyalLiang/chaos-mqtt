@@ -67,7 +67,7 @@ func subs() {
 			break
 		}
 
-		modeData, err := redis.HGet(ctx, "vehicle_status", vehicle.ID).Result()
+		modeData, err := redis.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
 		if err != nil {
 			print("hget error: ", err.Error())
 			break
