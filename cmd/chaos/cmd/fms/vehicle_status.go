@@ -1,14 +1,21 @@
 package area
 
 import (
+	"context"
 	"encoding/json"
 	"fms-awesome-tools/cmd/chaos/internal/fms"
+	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 	"sort"
-	"time"
+)
+
+const (
+	moveCursor    = "\033[s" // 保存光标位置
+	restoreCursor = "\033[u" // 恢复光标位置
+	clearScreen   = "\033[J" // 清除从光标到屏幕底部的内容
 )
 
 var (
@@ -26,17 +33,40 @@ var VehicleCmd = &cobra.Command{
 
 		if k {
 			fmt.Print(moveCursor)
-			for {
-				vehicles := getVehicles()
-				fmt.Print(restoreCursor, clearScreen)
-				printVehicles(vehicles)
-				time.Sleep(5 * time.Second)
-			}
+			subs()
 		} else {
 			vehicles := getVehicles()
 			printVehicles(vehicles)
 		}
 	},
+}
+
+func subs() {
+	var ctx = context.Background()
+	vs := make(map[string]*fms.VehiclesResponseData)
+	sub := service.Redis.Subscribe(ctx, "vehicle_status")
+
+	defer sub.Close()
+	for {
+		vehicles := make(fms.Vehicles, 0)
+		msg, err := sub.ReceiveMessage(ctx)
+		if err != nil {
+			print("get error: ", err.Error())
+			break
+		}
+
+		vehicle := &fms.VehiclesResponseData{}
+		if err = json.Unmarshal([]byte(msg.Payload), vehicle); err != nil {
+			print("get error: ", err.Error())
+			break
+		}
+		vs[vehicle.ID] = vehicle
+		for _, v := range vs {
+			vehicles = append(vehicles, *v)
+		}
+		fmt.Print(restoreCursor, clearScreen)
+		printVehicles(vehicles)
+	}
 }
 
 func getVehicles() fms.Vehicles {

@@ -11,9 +11,10 @@ var (
 )
 
 type chaosConfig struct {
-	Product *product `json:"product"`
-	MQTT    *mqtt    `json:"mqtt"`
-	FMS     *fms     `json:"fms"`
+	Product *product     `json:"product"`
+	MQTT    *mqtt        `json:"mqtt"`
+	FMS     *fms         `json:"fms"`
+	Redis   *RedisConfig `json:"redis"`
 }
 
 type product struct {
@@ -29,6 +30,12 @@ type fms struct {
 	Area   FMSModuleConfig `json:"area"`
 	TOS    FMSModuleConfig `json:"tos"`
 	Device FMSModuleConfig `json:"device"`
+}
+
+type RedisConfig struct {
+	Address  string `json:"address"`
+	DB       int    `json:"db"`
+	Password string `json:"password"`
 }
 
 type FMSModuleConfig struct {
@@ -94,6 +101,7 @@ func defaultConfig() chaosConfig {
 		TOS:    FMSModuleConfig{},
 		Device: FMSModuleConfig{},
 	}
+	config.Redis = &RedisConfig{}
 	return config
 }
 
