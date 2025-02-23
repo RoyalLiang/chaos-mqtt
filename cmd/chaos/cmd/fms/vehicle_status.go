@@ -6,8 +6,10 @@ import (
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
+	"fms-awesome-tools/constants"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 	"sort"
 )
@@ -22,6 +24,7 @@ var (
 	vehicleID    string
 	k            bool
 	vehicleTable = table.NewWriter()
+	redisClient  *redis.Client
 )
 
 var VehicleCmd = &cobra.Command{
@@ -31,26 +34,32 @@ var VehicleCmd = &cobra.Command{
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
+		if !k && constants.VehicleID == "" {
+			_ = cmd.Help()
+			return
+		}
+
+		var err error
+		redisClient, err = service.NewRedisClient()
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
 		if k {
 			fmt.Print(moveCursor)
 			subs()
 		} else {
 			vehicles := getVehicles()
-			printVehicles(vehicles)
+			printVehicles(context.Background(), vehicles)
 		}
 	},
 }
 
 func subs() {
 
-	redis, err := service.NewRedisClient()
-	if err != nil {
-		cobra.CheckErr(err)
-	}
-
 	var ctx = context.Background()
 	vs := make(map[string]*fms.VehiclesResponseData)
-	sub := redis.Subscribe(ctx, "vehicle_status")
+	sub := redisClient.Subscribe(ctx, "vehicle_status")
 
 	defer sub.Close()
 	for {
@@ -67,15 +76,12 @@ func subs() {
 			break
 		}
 
-		modeData, err := redis.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
-		_ = json.Unmarshal([]byte(modeData), vehicle)
-
 		vs[vehicle.ID] = vehicle
 		for _, v := range vs {
 			vehicles = append(vehicles, *v)
 		}
 		fmt.Print(restoreCursor, clearScreen)
-		printVehicles(vehicles)
+		printVehicles(ctx, vehicles)
 	}
 }
 
@@ -100,10 +106,13 @@ func getVehicles() fms.Vehicles {
 	return respData.Data
 }
 
-func printVehicles(vehicles fms.Vehicles) {
+func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 	vehicleTable.ResetRows()
 	sort.Sort(vehicles)
 	for index, vehicle := range vehicles {
+
+		modeData, _ := redisClient.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
+		_ = json.Unmarshal([]byte(modeData), vehicle)
 
 		called := ""
 		if vehicle.CanGoCallIn {
