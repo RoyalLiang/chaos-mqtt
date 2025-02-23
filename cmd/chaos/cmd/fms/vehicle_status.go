@@ -28,7 +28,7 @@ var VehicleCmd = &cobra.Command{
 	Use:   "vehicles",
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status"}
+		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
 		if k {
@@ -57,26 +57,18 @@ func subs() {
 		vehicles := make(fms.Vehicles, 0)
 		msg, err := sub.ReceiveMessage(ctx)
 		if err != nil {
-			print("get error: ", err.Error())
+			print("subs error: ", err.Error())
 			break
 		}
 
 		vehicle := &fms.VehiclesResponseData{}
 		if err = json.Unmarshal([]byte(msg.Payload), vehicle); err != nil {
-			print("get error: ", err.Error())
+			fmt.Println("parse msg failed: ", err.Error())
 			break
 		}
 
 		modeData, err := redis.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
-		if err != nil {
-			print("hget error: ", err.Error())
-			break
-		}
-
-		if err = json.Unmarshal([]byte(modeData), vehicle); err != nil {
-			print("get error: ", err.Error())
-			break
-		}
+		_ = json.Unmarshal([]byte(modeData), vehicle)
 
 		vs[vehicle.ID] = vehicle
 		for _, v := range vs {
@@ -123,6 +115,21 @@ func printVehicles(vehicles fms.Vehicles) {
 			arrived = "Arrived"
 		}
 
+		ssa := ""
+		if vehicle.SSA == 1 {
+			ssa = "ON"
+		}
+
+		ready := ""
+		if vehicle.ReadyStatus == 0 {
+			ready = "OFF"
+		}
+
+		manual := ""
+		if vehicle.ManualStatus == 1 {
+			manual = "ON"
+		}
+
 		name := vehicle.CurrentDestination.Name
 		if vehicle.CurrentDestination.Type == "Pre-Ingress" {
 			name = vehicle.CurrentDestination.Type
@@ -145,8 +152,8 @@ func printVehicles(vehicles fms.Vehicles) {
 			dtype = vehicle.Destination.Type
 		}
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, name, dtype,
-			arrived, vehicle.Destination.Name, vehicle.Destination.Lane, called,
+			index + 1, vehicle.ID, vehicle.Destination.Type, name, dtype, arrived, vehicle.Destination.Name,
+			vehicle.Destination.Lane, called, vehicle.Mode, ready, manual, ssa,
 		}
 		vehicleTable.AppendRow(row)
 	}
