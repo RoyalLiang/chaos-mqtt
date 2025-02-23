@@ -112,7 +112,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 	for index, vehicle := range vehicles {
 
 		modeData, _ := redisClient.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
-		_ = json.Unmarshal([]byte(modeData), vehicle)
+		_ = json.Unmarshal([]byte(modeData), &vehicle)
 
 		called := ""
 		if vehicle.CanGoCallIn {
