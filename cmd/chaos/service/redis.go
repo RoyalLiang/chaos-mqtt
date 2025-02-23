@@ -3,30 +3,17 @@ package service
 import (
 	"errors"
 	"fms-awesome-tools/configs"
-	"fmt"
 	"github.com/redis/go-redis/v9"
-	"os"
 )
 
-var Redis *redis.Client
+func NewRedisClient() (*redis.Client, error) {
 
-func newRedisClient(config *configs.RedisConfig) (*redis.Client, error) {
-	if config == nil {
+	if configs.Chaos.Redis == nil {
 		return nil, errors.New("no redis config provided")
 	}
 	return redis.NewClient(&redis.Options{
-		Addr:     config.Address,
-		Password: config.Password,
-		DB:       config.DB,
+		Addr:     configs.Chaos.Redis.Address,
+		Password: configs.Chaos.Redis.Password,
+		DB:       configs.Chaos.Redis.DB,
 	}), nil
-}
-
-func init() {
-	var err error
-
-	Redis, err = newRedisClient(configs.Chaos.Redis)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(0)
-	}
 }

@@ -42,9 +42,15 @@ var VehicleCmd = &cobra.Command{
 }
 
 func subs() {
+
+	redis, err := service.NewRedisClient()
+	if err != nil {
+		cobra.CheckErr(err)
+	}
+
 	var ctx = context.Background()
 	vs := make(map[string]*fms.VehiclesResponseData)
-	sub := service.Redis.Subscribe(ctx, "vehicle_status")
+	sub := redis.Subscribe(ctx, "vehicle_status")
 
 	defer sub.Close()
 	for {
