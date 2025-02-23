@@ -58,6 +58,7 @@ func listConfig() {
 func init() {
 	envCmd.AddCommand(envs.MQTTCmd)
 	envCmd.AddCommand(envs.FMSCmd)
+	envCmd.AddCommand(envs.RedisCmd)
 
 	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
 	envCmd.PersistentFlags().StringVarP(&constants.Address, "address", "a", "", "服务base url")
