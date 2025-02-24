@@ -6,7 +6,6 @@ import (
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
-	"fms-awesome-tools/constants"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/redis/go-redis/v9"
@@ -39,7 +38,7 @@ var VehicleCmd = &cobra.Command{
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
-		if !k && constants.VehicleID == "" {
+		if !k && vehicleID == "" {
 			_ = cmd.Help()
 			return
 		}
@@ -66,6 +65,10 @@ type VehicleManager struct {
 }
 
 func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
+	if vehicleID != "" && vehicle.ID != vehicleID {
+		return
+	}
+
 	if vehicle.ID == "AT001" || vehicle.ID == "AT002" {
 		return
 	}
