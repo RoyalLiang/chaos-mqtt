@@ -125,10 +125,6 @@ func subs() {
 				manager.Add(vehicle)
 			}
 		case <-ticker.C:
-			if len(messages) == 0 {
-				continue
-			}
-
 			vehicles := manager.GetSorted()
 			fmt.Print("\033[u\033[J")
 			printVehicles(ctx, vehicles)
