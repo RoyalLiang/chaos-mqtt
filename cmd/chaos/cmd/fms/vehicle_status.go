@@ -197,7 +197,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		lane := ""
-		if vehicle.Destination.Lane >= 0 {
+		if vehicle.Destination.Lane >= 0 && vehicle.Destination.Name != "" {
 			lane = fmt.Sprintf("%d", vehicle.Destination.Lane)
 		}
 
