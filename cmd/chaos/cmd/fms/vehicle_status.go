@@ -108,7 +108,6 @@ func subs() {
 		}
 	}()
 
-	var messages []*redis.Message
 	ticker := time.NewTicker(batchTimeout)
 	defer ticker.Stop()
 
