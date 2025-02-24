@@ -196,6 +196,11 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			manual = "ON"
 		}
 
+		lane := ""
+		if vehicle.Destination.Lane >= 0 {
+			lane = fmt.Sprintf("%d", vehicle.Destination.Lane)
+		}
+
 		name := vehicle.CurrentDestination.Name
 		if vehicle.CurrentDestination.Type == "Pre-Ingress" {
 			name = vehicle.CurrentDestination.Type
@@ -219,7 +224,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 		row := table.Row{
 			index + 1, vehicle.ID, vehicle.Destination.Type, name, dtype, arrived, vehicle.Destination.Name,
-			vehicle.Destination.Lane, called, vehicle.Mode, ready, manual, ssa,
+			lane, called, vehicle.Mode, ready, manual, ssa,
 		}
 		vehicleTable.AppendRow(row)
 	}
