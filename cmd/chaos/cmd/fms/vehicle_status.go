@@ -11,7 +11,12 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
+	"os"
+	"os/signal"
 	"sort"
+	"sync"
+	"syscall"
+	"time"
 )
 
 const (
@@ -55,33 +60,82 @@ var VehicleCmd = &cobra.Command{
 	},
 }
 
+type VehicleManager struct {
+	sync.Mutex
+	vehicles map[string]*fms.VehiclesResponseData
+}
+
+func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
+	vm.Lock()
+	defer vm.Unlock()
+	vm.vehicles[vehicle.ID] = vehicle
+}
+
+func (vm *VehicleManager) GetSorted() fms.Vehicles {
+	vm.Lock()
+	defer vm.Unlock()
+
+	vehicles := make(fms.Vehicles, 0, len(vm.vehicles))
+	for _, v := range vm.vehicles {
+		vehicles = append(vehicles, *v)
+	}
+	sort.Sort(vehicles)
+	return vehicles
+}
+
 func subs() {
 
-	var ctx = context.Background()
-	vs := make(map[string]*fms.VehiclesResponseData)
+	var (
+		ctx          = context.Background()
+		msgChan      = make(chan *redis.Message, 100)
+		batchTimeout = time.Second
+		manager      = &VehicleManager{
+			vehicles: make(map[string]*fms.VehiclesResponseData),
+		}
+	)
+
 	sub := redisClient.Subscribe(ctx, "vehicle_status")
-
 	defer sub.Close()
+	go func() {
+		for {
+			msg, err := sub.ReceiveMessage(ctx)
+			if err != nil {
+				fmt.Println("subs error:", err.Error())
+				close(msgChan)
+				return
+			}
+			msgChan <- msg
+		}
+	}()
+
+	var messages []*redis.Message
+	ticker := time.NewTicker(batchTimeout)
+	defer ticker.Stop()
+
+	exitChan := make(chan os.Signal, 1)
+	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
 	for {
-		vehicles := make(fms.Vehicles, 0)
-		msg, err := sub.ReceiveMessage(ctx)
-		if err != nil {
-			print("subs error: ", err.Error())
-			break
-		}
+		select {
+		case msg, ok := <-msgChan:
+			if !ok {
+				return
+			}
+			vehicle := &fms.VehiclesResponseData{}
+			if err := json.Unmarshal([]byte(msg.Payload), vehicle); err == nil {
+				manager.Add(vehicle)
+			}
+		case <-ticker.C:
+			if len(messages) == 0 {
+				continue
+			}
 
-		vehicle := &fms.VehiclesResponseData{}
-		if err = json.Unmarshal([]byte(msg.Payload), vehicle); err != nil {
-			fmt.Println("parse msg failed: ", err.Error())
-			break
+			vehicles := manager.GetSorted()
+			fmt.Print("\033[u\033[J")
+			printVehicles(ctx, vehicles)
+		case <-exitChan:
+			fmt.Print("\033[0;0H") // 复位光标
+			return
 		}
-
-		vs[vehicle.ID] = vehicle
-		for _, v := range vs {
-			vehicles = append(vehicles, *v)
-		}
-		fmt.Print(restoreCursor, clearScreen)
-		printVehicles(ctx, vehicles)
 	}
 }
 
@@ -166,7 +220,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 		vehicleTable.AppendRow(row)
 	}
-	fmt.Println(vehicleTable.Render())
+	fmt.Print(vehicleTable.Render())
 }
 
 func init() {
