@@ -69,7 +69,7 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 		return
 	}
 
-	if vehicle.ID == "AT001" || vehicle.ID == "AT002" {
+	if (vehicle.ID == "AT001" || vehicle.ID == "AT002") && vehicleID == "" {
 		return
 	}
 	vm.Lock()
