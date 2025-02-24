@@ -84,7 +84,7 @@ func sendRequest(url string, data []byte) {
 }
 
 func init() {
-	ManualModeCmd.Flags().BoolVar(&reset, "reset", true, "重置船舶模式")
+	ManualModeCmd.Flags().BoolVar(&reset, "reset", false, "重置船舶模式")
 	ManualModeCmd.Flags().StringVarP(&vesselID, "vessel-id", "v", "", "船舶ID")
 	ManualModeCmd.Flags().Int64VarP(&ingress, "ingress", "i", 0, "指定的ingress wharf mark")
 	ManualModeCmd.Flags().Int64VarP(&egress, "egress", "e", 0, "指定的egress wharf mark")
