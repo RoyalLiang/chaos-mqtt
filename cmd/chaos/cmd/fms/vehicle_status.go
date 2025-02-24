@@ -174,9 +174,11 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			called = "Called"
 		}
 
-		arrived := "On the way"
+		arrived := ""
 		if vehicle.Arrived {
 			arrived = "Arrived"
+		} else if vehicle.Destination.Name != "" {
+			arrived = "On the way"
 		}
 
 		ssa := ""
