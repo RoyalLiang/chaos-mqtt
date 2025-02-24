@@ -66,6 +66,9 @@ type VehicleManager struct {
 }
 
 func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
+	if vehicle.ID == "AT001" || vehicle.ID == "AT002" {
+		return
+	}
 	vm.Lock()
 	defer vm.Unlock()
 	vm.vehicles[vehicle.ID] = vehicle
@@ -88,7 +91,7 @@ func subs() {
 	var (
 		ctx          = context.Background()
 		msgChan      = make(chan *redis.Message, 100)
-		batchTimeout = time.Second
+		batchTimeout = time.Second * 2
 		manager      = &VehicleManager{
 			vehicles: make(map[string]*fms.VehiclesResponseData),
 		}
