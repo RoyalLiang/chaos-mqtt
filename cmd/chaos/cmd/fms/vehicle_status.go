@@ -24,11 +24,17 @@ const (
 	clearScreen   = "\033[J" // 清除从光标到屏幕底部的内容
 )
 
+const (
+	taskTypes = "\nQC\nYARD (STANDBY)\nIYS\n"
+)
+
 var (
-	vehicleID    string
-	k            bool
-	vehicleTable = table.NewWriter()
-	redisClient  *redis.Client
+	vehicleID     string
+	k             bool
+	vehicleReset  bool
+	vehicleTable  = table.NewWriter()
+	redisClient   *redis.Client
+	vehicleFilter string
 )
 
 var VehicleCmd = &cobra.Command{
@@ -38,8 +44,16 @@ var VehicleCmd = &cobra.Command{
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
-		if !k && vehicleID == "" {
+		if !k && vehicleID == "" && !vehicleReset {
 			_ = cmd.Help()
+			return
+		}
+
+		if vehicleReset {
+			if vehicleID == "" {
+				cobra.CheckErr("[集卡重置] 缺失集卡号...")
+			}
+			resetVehicle()
 			return
 		}
 
@@ -72,6 +86,11 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 	if (vehicle.ID == "AT001" || vehicle.ID == "AT002") && vehicleID == "" {
 		return
 	}
+
+	if vehicleFilter != "" && vehicle.Destination.Type != vehicleFilter {
+		return
+	}
+
 	vm.Lock()
 	defer vm.Unlock()
 	vm.vehicles[vehicle.ID] = vehicle
@@ -87,6 +106,16 @@ func (vm *VehicleManager) GetSorted() fms.Vehicles {
 	}
 	sort.Sort(vehicles)
 	return vehicles
+}
+
+func resetVehicle() {
+	address := configs.Chaos.FMS.Area.Address
+	url := address + fmt.Sprintf("%s/%s/clear", fms.ResetVehicleURL, vehicleID)
+	resp, err := fms.Get(url)
+	if err != nil {
+		cobra.CheckErr(err)
+	}
+	fmt.Println(resp)
 }
 
 func subs() {
@@ -234,4 +263,6 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 func init() {
 	VehicleCmd.Flags().BoolVarP(&k, "keepalive", "k", false, "是否保持刷新(F/5s)")
 	VehicleCmd.Flags().StringVarP(&vehicleID, "vehicle", "v", "", "集卡号")
+	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
+	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡")
 }

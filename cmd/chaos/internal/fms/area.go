@@ -14,6 +14,7 @@ const (
 	GetVesselsURL     = prefix + "/vessels"
 	GetAssignedVessel = prefix + "/vessel"
 	GetVehiclesURL    = prefix + "/vehicles"
+	ResetVehicleURL   = prefix + "/truck"
 )
 
 type GetVesselsResponse struct {
