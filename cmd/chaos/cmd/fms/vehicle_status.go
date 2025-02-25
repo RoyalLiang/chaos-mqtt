@@ -45,6 +45,14 @@ var VehicleCmd = &cobra.Command{
 		header := table.Row{"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
+		if vehicleReset {
+			if vehicleID == "" {
+				cobra.CheckErr("[集卡重置] 缺失集卡号...")
+			}
+			resetVehicle()
+			return
+		}
+
 		if k {
 			fmt.Print(moveCursor)
 			subs()
@@ -56,14 +64,6 @@ var VehicleCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if !k && vehicleID == "" && !vehicleReset {
 			_ = cmd.Help()
-			return
-		}
-
-		if vehicleReset {
-			if vehicleID == "" {
-				cobra.CheckErr("[集卡重置] 缺失集卡号...")
-			}
-			resetVehicle()
 			return
 		}
 
