@@ -8,6 +8,7 @@ import (
 	"fms-awesome-tools/configs"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 	"os"
@@ -41,9 +42,18 @@ var VehicleCmd = &cobra.Command{
 	Use:   "vehicles",
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"ID", "Vehicle ID", "Task Type", "Current Destination", "Destination Type", "Current Arrived", "Destination", "Destination Lane", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
+		header := table.Row{"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
 		vehicleTable.AppendHeader(header)
 
+		if k {
+			fmt.Print(moveCursor)
+			subs()
+		} else {
+			vehicles := getVehicles()
+			printVehicles(context.Background(), vehicles)
+		}
+	},
+	PreRun: func(cmd *cobra.Command, args []string) {
 		if !k && vehicleID == "" && !vehicleReset {
 			_ = cmd.Help()
 			return
@@ -61,14 +71,6 @@ var VehicleCmd = &cobra.Command{
 		redisClient, err = service.NewRedisClient()
 		if err != nil {
 			cobra.CheckErr(err)
-		}
-
-		if k {
-			fmt.Print(moveCursor)
-			subs()
-		} else {
-			vehicles := getVehicles()
-			printVehicles(context.Background(), vehicles)
 		}
 	},
 }
@@ -118,7 +120,7 @@ func resetVehicle() {
 	if err != nil {
 		cobra.CheckErr(err)
 	}
-	fmt.Println(resp)
+	fmt.Println(string(resp))
 }
 
 func subs() {
@@ -196,8 +198,8 @@ func getVehicles() fms.Vehicles {
 func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 	vehicleTable.ResetRows()
 	sort.Sort(vehicles)
-	for index, vehicle := range vehicles {
 
+	for index, vehicle := range vehicles {
 		modeData, _ := redisClient.HGet(ctx, "psa_vehicle_status", vehicle.ID).Result()
 		_ = json.Unmarshal([]byte(modeData), &vehicle)
 
@@ -254,11 +256,22 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		default:
 			dtype = vehicle.Destination.Type
 		}
+
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, name, dtype, arrived, vehicle.Destination.Name,
-			lane, called, vehicle.Mode, ready, manual, ssa,
+			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.Destination.CreateTime, vehicle.Destination.Name,
+			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual, ssa,
 		}
 		vehicleTable.AppendRow(row)
+
+		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
+			if row[10].(string) == "MA" {
+				return text.Colors{text.BgRed}
+			} else if row[1].(string) == "TN" {
+				return text.Colors{text.BgYellow}
+			}
+			return nil
+		})
+
 	}
 	fmt.Print(vehicleTable.Render())
 }

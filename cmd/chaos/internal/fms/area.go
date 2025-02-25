@@ -143,9 +143,10 @@ func (v Vehicles) Less(i, j int) bool {
 }
 
 type VehicleDestination struct {
-	Name string `json:"name"`
-	Lane int    `json:"lane"`
-	Type string `json:"type"`
+	Name       string `json:"name"`
+	Lane       int    `json:"lane"`
+	Type       string `json:"type"`
+	CreateTime string `json:"create_time"`
 }
 
 type VehicleCurrDestination struct {
