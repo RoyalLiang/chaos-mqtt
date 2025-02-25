@@ -116,7 +116,7 @@ func (vm *VehicleManager) GetSorted() fms.Vehicles {
 func resetVehicle() {
 	address := configs.Chaos.FMS.Area.Address
 	url := address + fmt.Sprintf("%s/%s/clear", fms.ResetVehicleURL, vehicleID)
-	resp, err := fms.Get(url)
+	resp, err := fms.Post(url, make([]byte, 0))
 	if err != nil {
 		cobra.CheckErr(err)
 	}
