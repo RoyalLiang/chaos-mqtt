@@ -88,6 +88,9 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 	}
 
 	if vehicleFilter != "" && vehicle.Destination.Type != vehicleFilter {
+		if _, ok := vm.vehicles[vehicleID]; ok {
+			delete(vm.vehicles, vehicleID)
+		}
 		return
 	}
 
