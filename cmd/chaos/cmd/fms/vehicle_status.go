@@ -26,7 +26,8 @@ const (
 )
 
 const (
-	taskTypes = "\nQC\nYARD (STANDBY)\nIYS\n"
+	taskTypes     = "\nQC\nYARD (STANDBY)\nIYS\n"
+	HatchCoverOps = "psa_hatch_cover_ops"
 )
 
 var (
@@ -42,7 +43,10 @@ var VehicleCmd = &cobra.Command{
 	Use:   "vehicles",
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual Status", "SSA"}
+		header := table.Row{
+			"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination",
+			"Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual Status", "Hatch Cover", "SSA",
+		}
 		vehicleTable.AppendHeader(header)
 
 		if vehicleReset {
@@ -243,6 +247,13 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			name = vehicle.Destination.Name
 		}
 
+		if vehicle.Destination.Type == "QC" {
+			hatchData, _ := redisClient.HGet(ctx, HatchCoverOps, vehicle.Destination.Name).Result()
+			if hatchData != "" {
+				vehicle.HatchCover = "ON"
+			}
+		}
+
 		dtype := vehicle.CurrentDestination.Type
 		switch vehicle.CurrentDestination.Type {
 		case "CRANE_AREA":
@@ -259,15 +270,15 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		row := table.Row{
 			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.Destination.CreateTime, vehicle.Destination.Name,
-			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual, ssa,
+			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual, vehicle.HatchCover, ssa,
 		}
 		vehicleTable.AppendRow(row)
 
 		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
 			if row[10].(string) == "MA" {
-				return text.Colors{text.BgRed}
+				return text.Colors{text.FgRed}
 			} else if row[1].(string) == "TN" {
-				return text.Colors{text.BgYellow}
+				return text.Colors{text.FgYellow}
 			}
 			return nil
 		})

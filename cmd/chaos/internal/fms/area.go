@@ -126,6 +126,7 @@ type VehiclesResponseData struct {
 	SSA                int                    `json:"ssa"`
 	ReadyStatus        int                    `json:"ready_status"`
 	ManualStatus       int                    `json:"manual_status"`
+	HatchCover         string                 `json:"hatch_cover"`
 }
 
 type Vehicles []VehiclesResponseData
