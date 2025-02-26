@@ -127,6 +127,22 @@ type VehiclesResponseData struct {
 	ReadyStatus        int                    `json:"ready_status"`
 	ManualStatus       int                    `json:"manual_status"`
 	HatchCover         string                 `json:"hatch_cover"`
+	TaskInfo           VehicleTaskInfo        `json:"task_info"`
+}
+
+type VehicleTaskInfo struct {
+	Activity            int      `json:"activity"`
+	TosRawID            int      `json:"tos_raw_id"`
+	DestLocation        string   `json:"dest_location"`
+	ContainerSize       int      `json:"container_size"`
+	DockPosition        string   `json:"dock_position"`
+	OnlyOne             bool     `json:"only_one"`
+	ArrivedLocation     string   `json:"arrived_location"`
+	TargetDockPositions []string `json:"target_dock_positions"`
+	Containers          []string `json:"containers"`
+	TargetLane          string   `json:"target_lane"`
+	LiftType            int      `json:"lift_type"`
+	Crane               string   `json:"crane"`
 }
 
 type Vehicles []VehiclesResponseData

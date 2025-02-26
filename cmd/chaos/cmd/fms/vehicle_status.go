@@ -26,8 +26,9 @@ const (
 )
 
 const (
-	taskTypes     = "\nQC\nYARD (STANDBY)\nIYS\n"
-	HatchCoverOps = "psa_hatch_cover_ops"
+	taskTypes       = "\nQC\nYARD (STANDBY)\nIYS\n"
+	HatchCoverOps   = "psa_hatch_cover_ops"
+	VehicleTaskInfo = "psa_task_info"
 )
 
 var (
@@ -44,8 +45,8 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination",
-			"Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual", "Hatch Cover", "SSA",
+			"ID", "Vehicle ID", "Task Type", "ISO", "Dock Position", "Start Time", "Destination", "Lane",
+			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -219,10 +220,10 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			arrived = "On the way"
 		}
 
-		ssa := ""
-		if vehicle.SSA == 1 {
-			ssa = "ON"
-		}
+		//ssa := ""
+		//if vehicle.SSA == 1 {
+		//	ssa = "ON"
+		//}
 
 		ready := ""
 		if vehicle.ReadyStatus == 0 {
@@ -254,6 +255,9 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			}
 		}
 
+		task, _ := redisClient.HGet(ctx, VehicleTaskInfo, vehicle.ID).Result()
+		_ = json.Unmarshal([]byte(task), &vehicle.TaskInfo)
+
 		dtype := vehicle.CurrentDestination.Type
 		switch vehicle.CurrentDestination.Type {
 		case "CRANE_AREA":
@@ -269,8 +273,9 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.Destination.CreateTime, vehicle.Destination.Name,
-			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual, vehicle.HatchCover, ssa,
+			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.TaskInfo.ContainerSize,
+			vehicle.TaskInfo.DestLocation, vehicle.Destination.CreateTime[11:], vehicle.Destination.Name,
+			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
 
