@@ -256,7 +256,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		task, _ := redisClient.HGet(ctx, VehicleTaskInfo, vehicle.ID).Result()
-		_ = json.Unmarshal([]byte(task), &vehicle.TaskInfo)
+		_ = json.Unmarshal([]byte(task), &vehicle)
 
 		st := vehicle.Destination.CreateTime
 		if len(st) >= 12 {
