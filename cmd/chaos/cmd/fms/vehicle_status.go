@@ -258,6 +258,11 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		task, _ := redisClient.HGet(ctx, VehicleTaskInfo, vehicle.ID).Result()
 		_ = json.Unmarshal([]byte(task), &vehicle.TaskInfo)
 
+		st := vehicle.Destination.CreateTime
+		if len(st) >= 12 {
+			st = st[11:]
+		}
+
 		dtype := vehicle.CurrentDestination.Type
 		switch vehicle.CurrentDestination.Type {
 		case "CRANE_AREA":
@@ -274,7 +279,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		row := table.Row{
 			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.TaskInfo.ContainerSize,
-			vehicle.TaskInfo.DestLocation, vehicle.Destination.CreateTime[11:], vehicle.Destination.Name,
+			vehicle.TaskInfo.DestLocation, st, vehicle.Destination.Name,
 			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
