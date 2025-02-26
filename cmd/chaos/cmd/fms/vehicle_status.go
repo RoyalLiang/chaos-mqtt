@@ -45,7 +45,7 @@ var VehicleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
 			"ID", "Vehicle ID", "Task Type", "Start time", "Destination", "Lane", "Curr Destination",
-			"Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual Status", "Hatch Cover", "SSA",
+			"Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual", "Hatch Cover", "SSA",
 		}
 		vehicleTable.AppendHeader(header)
 
