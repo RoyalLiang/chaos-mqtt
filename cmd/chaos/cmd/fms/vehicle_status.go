@@ -28,6 +28,7 @@ const (
 
 const (
 	taskTypes     = "\nQC\nYARD (STANDBY)\nIYS\n"
+	vehicleModes  = "\nMA\nTN\nOP\n"
 	HatchCoverOps = "psa_hatch_cover_ops"
 	GetTaskInfo   = "psa_task_info"
 )
@@ -39,6 +40,7 @@ var (
 	vehicleTable  = table.NewWriter()
 	redisClient   *redis.Client
 	vehicleFilter string
+	exclude       string
 )
 
 var VehicleCmd = &cobra.Command{
@@ -46,8 +48,8 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "Cons", "ISO", "Start Time", "Destination", "Lane",
-			"Curr Destination", "Curr Type", "Arrived", "Is Called", "Mode", "Ready", "Manual",
+			"ID", "Vehicle ID", "Task Type", "Containers", "ISO", "Start Time", "Destination", "Lane",
+			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -78,6 +80,10 @@ var VehicleCmd = &cobra.Command{
 		if err != nil {
 			cobra.CheckErr(err)
 		}
+
+		if exclude != "" && (exclude != "MA" && exclude != "TN" && exclude != "OP") {
+			cobra.CheckErr("--exclude 选项错误")
+		}
 	},
 }
 
@@ -96,6 +102,13 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 	}
 
 	if vehicleFilter != "" && vehicle.Destination.Type != vehicleFilter {
+		if _, ok := vm.vehicles[vehicleID]; ok {
+			delete(vm.vehicles, vehicleID)
+		}
+		return
+	}
+
+	if exclude != "" && vehicle.Mode != exclude {
 		if _, ok := vm.vehicles[vehicleID]; ok {
 			delete(vm.vehicles, vehicleID)
 		}
@@ -306,5 +319,6 @@ func init() {
 	VehicleCmd.Flags().BoolVarP(&k, "keepalive", "k", false, "是否保持刷新(F/5s)")
 	VehicleCmd.Flags().StringVarP(&vehicleID, "vehicle", "v", "", "集卡号")
 	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
+	VehicleCmd.Flags().StringVarP(&exclude, "exclude", "e", "", "过滤指定模式的集卡"+vehicleModes)
 	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡")
 }
