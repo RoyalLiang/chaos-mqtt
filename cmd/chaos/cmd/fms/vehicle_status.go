@@ -7,17 +7,18 @@ import (
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
 	"fmt"
+	"os"
+	"os/signal"
+	"sort"
+	"strconv"
+	"sync"
+	"syscall"
+	"time"
+
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
-	"os"
-	"os/signal"
-	"sort"
-	"strings"
-	"sync"
-	"syscall"
-	"time"
 )
 
 const (
@@ -48,7 +49,7 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "Containers", "ISO", "Start Time", "Destination", "Lane",
+			"ID", "Vehicle ID", "Task Type", "Job Type", "Containers", "ISO", "Start Time", "Destination", "Lane",
 			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
@@ -279,7 +280,14 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		cons := ""
 		if len(vehicle.TaskInfo.Containers) > 0 {
-			cons = strings.Join(vehicle.TaskInfo.Containers, "\n")
+			cons = strconv.FormatInt(int64(len(vehicle.TaskInfo.Containers)), 10)
+		}
+
+		job := ""
+		if vehicle.TaskInfo.Activity == 2 || vehicle.TaskInfo.Activity == 3 || vehicle.TaskInfo.Activity == 4 {
+			job = "MOUNT"
+		} else if vehicle.TaskInfo.Activity == 6 || vehicle.TaskInfo.Activity == 7 || vehicle.TaskInfo.Activity == 8 {
+			job = "OFFLOAD"
 		}
 
 		dtype := vehicle.CurrentDestination.Type
@@ -297,15 +305,15 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, cons, vehicle.TaskInfo.ContainerSize,
+			index + 1, vehicle.ID, vehicle.Destination.Type, job, cons, vehicle.TaskInfo.ContainerSize,
 			st, vehicle.Destination.Name, lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
 
 		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
-			if row[12].(string) == "MA" {
+			if row[13].(string) == "MA" {
 				return text.Colors{text.FgRed}
-			} else if row[12].(string) == "TN" {
+			} else if row[13].(string) == "TN" {
 				return text.Colors{text.FgYellow}
 			}
 			return nil
