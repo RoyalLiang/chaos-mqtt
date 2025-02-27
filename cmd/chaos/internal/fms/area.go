@@ -127,7 +127,7 @@ type VehiclesResponseData struct {
 	ReadyStatus        int                    `json:"ready_status"`
 	ManualStatus       int                    `json:"manual_status"`
 	HatchCover         string                 `json:"hatch_cover"`
-	TaskInfo           VehicleTaskInfo        `json:"task_info"`
+	TaskInfo           *VehicleTaskInfo       `json:"task_info"`
 }
 
 type VehicleTaskInfo struct {
