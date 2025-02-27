@@ -285,9 +285,9 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		vehicleTable.AppendRow(row)
 
 		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
-			if row[10].(string) == "MA" {
+			if row[12].(string) == "MA" {
 				return text.Colors{text.FgRed}
-			} else if row[1].(string) == "TN" {
+			} else if row[12].(string) == "TN" {
 				return text.Colors{text.FgYellow}
 			}
 			return nil
