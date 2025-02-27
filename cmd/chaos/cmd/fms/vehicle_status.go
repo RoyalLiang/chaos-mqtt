@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"sort"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -45,7 +46,7 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "ISO", "Dock Position", "Start Time", "Destination", "Lane",
+			"ID", "Vehicle ID", "Task Type", "Cons", "ISO", "Start Time", "Destination", "Lane",
 			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
@@ -263,6 +264,11 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			st = st[11:]
 		}
 
+		cons := ""
+		if len(vehicle.TaskInfo.Containers) > 0 {
+			cons = strings.Join(vehicle.TaskInfo.Containers, "\n")
+		}
+
 		dtype := vehicle.CurrentDestination.Type
 		switch vehicle.CurrentDestination.Type {
 		case "CRANE_AREA":
@@ -278,9 +284,8 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, vehicle.TaskInfo.ContainerSize,
-			vehicle.TaskInfo.DestLocation, st, vehicle.Destination.Name,
-			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
+			index + 1, vehicle.ID, vehicle.Destination.Type, cons, vehicle.TaskInfo.ContainerSize,
+			st, vehicle.Destination.Name, lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
 
