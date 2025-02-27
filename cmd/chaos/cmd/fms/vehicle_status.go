@@ -49,8 +49,8 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "Job Type", "Containers", "ISO", "Start Time", "Destination", "Lane",
-			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready", "Manual",
+			"ID", "Vehicle ID", "Task Type", "Job Type", "Cons", "ISO", "Start Time", "Destination", "Lift Type",
+			"Lane", "Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -306,14 +306,15 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		row := table.Row{
 			index + 1, vehicle.ID, vehicle.Destination.Type, job, cons, vehicle.TaskInfo.ContainerSize,
-			st, vehicle.Destination.Name, lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
+			st, vehicle.Destination.Name, vehicle.TaskInfo.LiftType,
+			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
 
 		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
-			if row[13].(string) == "MA" {
+			if row[14].(string) == "MA" {
 				return text.Colors{text.FgRed}
-			} else if row[13].(string) == "TN" {
+			} else if row[14].(string) == "TN" {
 				return text.Colors{text.FgYellow}
 			}
 			return nil
