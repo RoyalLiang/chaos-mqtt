@@ -47,7 +47,7 @@ var VehicleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
 			"ID", "Vehicle ID", "Task Type", "Cons", "ISO", "Start Time", "Destination", "Lane",
-			"Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready Status", "Manual",
+			"Curr Destination", "Curr Type", "Arrived", "Is Called", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -266,7 +266,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		cons := ""
 		if len(vehicle.TaskInfo.Containers) > 0 {
-			cons = strings.Join(vehicle.TaskInfo.Containers, ", ")
+			cons = strings.Join(vehicle.TaskInfo.Containers, "\n")
 		}
 
 		dtype := vehicle.CurrentDestination.Type
