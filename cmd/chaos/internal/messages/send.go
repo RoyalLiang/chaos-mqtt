@@ -357,9 +357,6 @@ func (r RouteRequest) String() string {
 
 func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, container, quantity int64) string {
 	var dest = ""
-	//if constants.Activity == 2 || constants.Activity == 6 {
-	//
-	//}
 	if strings.HasPrefix(destination, "PQC") {
 		dest = "P," + destination + "          "
 	} else {
@@ -384,19 +381,20 @@ func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, 
 		},
 	}
 
-	routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
 	switch constants.Activity {
 	case 2, 3, 4:
 		routeJob.Data.AssignedCntrSize = strconv.FormatInt(container, 10)
 	case 6, 7, 8:
 		if container >= 40 {
-			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "FFFF0000000")
+			routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
 			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, 5)
+			routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
 			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(5, 10))
 		}
 		for c := range quantity {
-			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "FFFF0000000")
+			routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
 			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, int(c))
+			routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(20, 10))
 			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(c, 10))
 		}
 	}
