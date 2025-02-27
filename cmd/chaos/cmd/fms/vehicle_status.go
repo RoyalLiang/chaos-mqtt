@@ -26,9 +26,9 @@ const (
 )
 
 const (
-	taskTypes       = "\nQC\nYARD (STANDBY)\nIYS\n"
-	HatchCoverOps   = "psa_hatch_cover_ops"
-	VehicleTaskInfo = "psa_task_info"
+	taskTypes     = "\nQC\nYARD (STANDBY)\nIYS\n"
+	HatchCoverOps = "psa_hatch_cover_ops"
+	GetTaskInfo   = "psa_task_info"
 )
 
 var (
@@ -164,7 +164,7 @@ func subs() {
 			if !ok {
 				return
 			}
-			vehicle := &fms.VehiclesResponseData{}
+			vehicle := &fms.VehiclesResponseData{TaskInfo: &fms.VehicleTaskInfo{}}
 			if err := json.Unmarshal([]byte(msg.Payload), vehicle); err == nil {
 				manager.Add(vehicle)
 			}
@@ -255,7 +255,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			}
 		}
 
-		task, _ := redisClient.HGet(ctx, VehicleTaskInfo, vehicle.ID).Result()
+		task, _ := redisClient.HGet(ctx, GetTaskInfo, vehicle.ID).Result()
 		_ = json.Unmarshal([]byte(task), &vehicle.TaskInfo)
 
 		st := vehicle.Destination.CreateTime
