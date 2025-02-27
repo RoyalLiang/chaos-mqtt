@@ -134,7 +134,7 @@ type VehicleTaskInfo struct {
 	Activity            int      `json:"activity"`
 	TosRawID            int      `json:"tos_raw_id"`
 	DestLocation        string   `json:"dest_location"`
-	ContainerSize       int      `json:"container_size"`
+	ContainerSize       string   `json:"container_size"`
 	DockPosition        string   `json:"dock_position"`
 	OnlyOne             bool     `json:"only_one"`
 	ArrivedLocation     string   `json:"arrived_location"`

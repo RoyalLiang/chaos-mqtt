@@ -266,7 +266,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		cons := ""
 		if len(vehicle.TaskInfo.Containers) > 0 {
-			cons = strings.Join(vehicle.TaskInfo.Containers, "\n")
+			cons = strings.Join(vehicle.TaskInfo.Containers, ", ")
 		}
 
 		dtype := vehicle.CurrentDestination.Type
