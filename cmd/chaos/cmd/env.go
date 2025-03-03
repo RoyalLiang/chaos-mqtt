@@ -61,7 +61,7 @@ func init() {
 	envCmd.AddCommand(envs.FMSCmd)
 	envCmd.AddCommand(envs.RedisCmd)
 
-	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表")
+	envCmd.Flags().BoolVarP(&list, "list", "l", false, "列出当前配置列表😎")
 	envCmd.PersistentFlags().StringVarP(&constants.Address, "address", "a", "", "服务base url")
 
 	rootCmd.AddCommand(envCmd)

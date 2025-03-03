@@ -48,12 +48,12 @@ func startWorkflow() {
 }
 
 func init() {
-	workflowCmd.Flags().BoolVarP(&start, "start", "s", false, "start workflow;")
+	workflowCmd.Flags().BoolVarP(&start, "start", "s", false, "start workflow")
 	workflowCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n")
-	workflowCmd.Flags().StringVarP(&constants.VehicleID, "truck", "v", "APM9001", "集卡号;")
-	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ;")
-	workflowCmd.Flags().StringVarP(&lane, "lane", "l", "2", "车道号;")
-	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "是否自动发送call-in request(5s);")
+	workflowCmd.Flags().StringVarP(&constants.VehicleID, "truck", "v", "APM9001", "集卡号🚗")
+	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ;🔚")
+	workflowCmd.Flags().StringVarP(&lane, "lane", "l", "2", "车道号")
+	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "自动发送call-in🔄️")
 	workflowCmd.Flags().StringSliceVarP(&vehicles, "vehicles", "", make([]string, 0), "")
 	//workflowCmd.MarkFlagsRequiredTogether("truck", "activity")
 	rootCmd.AddCommand(workflowCmd)

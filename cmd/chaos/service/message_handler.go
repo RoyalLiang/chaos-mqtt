@@ -123,9 +123,9 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 
 	if data.Data.Location == wf.destination {
 		switch wf.task.Data.Activity {
-		case 2:
+		case 2, 3, 4:
 			wf.mount()
-		case 6:
+		case 6, 7, 8:
 			wf.offload()
 		default:
 			return

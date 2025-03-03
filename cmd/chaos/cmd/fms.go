@@ -9,8 +9,9 @@ import (
 )
 
 var fmsCmd = &cobra.Command{
-	Use:  "fms",
-	Long: tools.CustomTitle("与FMS模块进行交互, 接收数据/配置数据"),
+	Use:   "fms",
+	Short: "与FMS模块进行交互, 接收数据/配置数据",
+	Long:  tools.CustomTitle("与FMS模块进行交互, 接收数据/配置数据"),
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},

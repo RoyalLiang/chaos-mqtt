@@ -11,11 +11,11 @@ var name string
 
 var subCmd = &cobra.Command{
 	Use:   "subscribe",
-	Short: "订阅指定主题的消息",
-	Long:  tools.CustomTitle("订阅指定主题的消息"),
+	Short: "订阅指定Topic的消息",
+	Long:  tools.CustomTitle("订阅指定Topic的消息"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if name == "" {
-			cmd.Help()
+			_ = cmd.Help()
 		} else {
 			service.StartSubscribe(name)
 		}
@@ -23,6 +23,6 @@ var subCmd = &cobra.Command{
 }
 
 func init() {
-	subCmd.Flags().StringVarP(&name, "topic", "t", "", "topic名称")
+	subCmd.Flags().StringVarP(&name, "topic", "t", "", "topic名称🔠")
 	rootCmd.AddCommand(subCmd)
 }
