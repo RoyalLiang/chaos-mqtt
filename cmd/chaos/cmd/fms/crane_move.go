@@ -17,6 +17,7 @@ var (
 	moveCrane    string
 	moveDistance int64
 	moveTime     int64
+	coordinate   *c
 )
 
 var CraneMoveCmd = &cobra.Command{
@@ -43,6 +44,11 @@ var CraneMoveCmd = &cobra.Command{
 	},
 }
 
+type c struct {
+	offsetCoordinate *fms.Coordinate
+	centerCoordinate *fms.Coordinate
+}
+
 func getCraneData() (*fms.Coordinate, error) {
 	url := configs.Chaos.FMS.Area.Address + fms.GetCraneLocationURL + "?crane_no=" + moveCrane
 	resp, err := fms.Get(url)
@@ -67,18 +73,21 @@ func craneMOve() {
 		cobra.CheckErr("无法获取岸桥坐标...")
 	}
 
-	coordinate := pos
+	coordinate.centerCoordinate = pos
 	ticker := time.NewTicker(time.Duration(moveTime) * time.Second)
 	defer ticker.Stop()
+
+Loop:
 	for {
 		select {
 		case <-ticker.C:
-			break
+			break Loop
 		case <-time.After(time.Second):
 			sendRequest(coordinate)
 			coordinate = calcCoordinate(coordinate)
 		}
 	}
+	fmt.Println("运行结束...")
 }
 
 func getOffset(offset float64) (float64, float64) {
@@ -88,7 +97,7 @@ func getOffset(offset float64) (float64, float64) {
 	return x, y
 }
 
-func calcCoordinate(coordinate *fms.Coordinate) *fms.Coordinate {
+func calcCoordinate(coordinate *c) *c {
 	xoff, yoff := getOffset(12.05418)
 
 	theta := -2.11 - math.Pi
@@ -96,20 +105,20 @@ func calcCoordinate(coordinate *fms.Coordinate) *fms.Coordinate {
 		theta = -2.11 + math.Pi
 	}
 
-	coordinate.X += float64(moveDistance) * math.Cos(theta)
-	coordinate.Y += float64(moveDistance) * math.Sin(theta)
-	coordinate.X += xoff
-	coordinate.Y -= yoff
+	coordinate.centerCoordinate.X += float64(moveDistance) * math.Cos(theta)
+	coordinate.centerCoordinate.Y += float64(moveDistance) * math.Sin(theta)
+	coordinate.offsetCoordinate.X = coordinate.centerCoordinate.X + xoff
+	coordinate.offsetCoordinate.Y = coordinate.centerCoordinate.Y - yoff
 	return coordinate
 }
 
-func sendRequest(coordinate *fms.Coordinate) {
+func sendRequest(coordinate *c) {
 	url := configs.Chaos.FMS.CraneManager.Address + fms.SetCraneLocationURL
 	req := fms.SetCraneLocationReq{
 		DeviceID: moveCrane, HOPos: 15108.6240234375, TRPos: 246.0, SPRLocked: true, SpreaderType: "40",
 		TRRun: true, CraneReady: true, CurrentBayID: "MT9.250", CurrentLane: 3, GPSStatus: "normal",
-		X: strconv.FormatFloat(coordinate.X, 'E', -1, 64), DisconnectCauseGPS: "1", Height: 12934,
-		Y: strconv.FormatFloat(coordinate.Y, 'E', -1, 64), CMSStatus: "1", Size: "0", Loaction: "6",
+		X: strconv.FormatFloat(coordinate.offsetCoordinate.X, 'E', -1, 64), DisconnectCauseGPS: "1", Height: 12934,
+		Y: strconv.FormatFloat(coordinate.offsetCoordinate.Y, 'E', -1, 64), CMSStatus: "1", Size: "0", Loaction: "6",
 		OpenClose: true, DisconnectCauseCMS: "2",
 	}
 
@@ -117,10 +126,15 @@ func sendRequest(coordinate *fms.Coordinate) {
 	if err != nil {
 		cobra.CheckErr(err)
 	}
-	fmt.Printf("岸桥当前位置: x: %.5f, y: %.5f\n", coordinate.X, coordinate.Y)
+	fmt.Printf("岸桥当前位置: x: %.5f, y: %.5f\n", coordinate.centerCoordinate.X, coordinate.centerCoordinate.Y)
 }
 
 func init() {
+	coordinate = &c{
+		offsetCoordinate: &fms.Coordinate{},
+		centerCoordinate: &fms.Coordinate{},
+	}
+
 	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "移动的岸桥号")
 	CraneMoveCmd.Flags().Int64VarP(&moveDistance, "distance", "d", 1, "岸桥每次移动的距离\n>0 wharf mark ⬆️\n<0 wharf mark ⬇️\n")
 	CraneMoveCmd.Flags().Int64VarP(&moveTime, "time", "t", 0, "移动时间")
