@@ -1,7 +1,6 @@
 package area
 
 import (
-	"context"
 	"encoding/json"
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/configs"
@@ -69,12 +68,11 @@ func craneMOve() {
 	}
 
 	coordinate := pos
-	ctx := context.Background()
+	ticker := time.NewTicker(time.Duration(moveTime) * time.Second)
+	defer ticker.Stop()
 	for {
 		select {
-		case <-ctx.Done():
-			return
-		case <-time.Tick(time.Duration(moveTime) * time.Second):
+		case <-ticker.C:
 			break
 		case <-time.After(time.Second):
 			sendRequest(coordinate)
