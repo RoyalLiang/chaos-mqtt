@@ -1,11 +1,13 @@
 package topics
 
 import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+
 	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"
-	"fmt"
-	"github.com/spf13/cobra"
 )
 
 var (

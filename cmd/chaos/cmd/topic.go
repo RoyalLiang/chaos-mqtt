@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	tools "fms-awesome-tools/utils"
 	"fmt"
+
+	tools "fms-awesome-tools/utils"
 
 	"fms-awesome-tools/cmd/chaos/cmd/topics"
 	"fms-awesome-tools/constants"
@@ -36,9 +37,9 @@ func listAvcsTopics() {
 }
 
 func init() {
-	topicCmd.PersistentFlags().StringVarP(&constants.VehicleID, "vehicle", "v", "APM9001", "集卡号")
+	topicCmd.PersistentFlags().StringVarP(&constants.VehicleID, "vehicle", "v", "APM9001", "集卡号🚗")
 
-	topicCmd.Flags().BoolVarP(&listTopics, "list", "l", false, "列出AVCS的 topic 列表")
+	topicCmd.Flags().BoolVarP(&listTopics, "list", "l", false, "列出AVCS的 topic 列表📜")
 
 	topicCmd.AddCommand(topics.CAllCmd)
 	topicCmd.AddCommand(topics.RouteJobCmd)

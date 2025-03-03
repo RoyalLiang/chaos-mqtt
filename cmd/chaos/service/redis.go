@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
-	"fms-awesome-tools/configs"
+
 	"github.com/redis/go-redis/v9"
+
+	"fms-awesome-tools/configs"
 )
 
 func NewRedisClient() (*redis.Client, error) {

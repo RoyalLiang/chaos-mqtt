@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	tools "fms-awesome-tools/utils"
 	"github.com/spf13/cobra"
+
+	tools "fms-awesome-tools/utils"
 )
 
 var (

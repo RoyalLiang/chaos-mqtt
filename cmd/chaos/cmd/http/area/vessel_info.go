@@ -2,13 +2,15 @@ package area
 
 import (
 	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal/fms"
-	"fms-awesome-tools/configs"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/spf13/cobra"
 	"strings"
 	"time"
+
+	"fms-awesome-tools/cmd/chaos/internal/fms"
+	"fms-awesome-tools/configs"
+
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -127,6 +129,6 @@ func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
 }
 
 func init() {
-	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "是否保持刷新(refresh every 5s)")
-	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "v", "", "船舶ID")
+	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "自动刷新🔄️️(1/5s)")
+	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "v", "", "船舶ID🚢")
 }

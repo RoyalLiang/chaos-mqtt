@@ -3,9 +3,6 @@ package area
 import (
 	"context"
 	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal/fms"
-	"fms-awesome-tools/cmd/chaos/service"
-	"fms-awesome-tools/configs"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,6 +11,10 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"fms-awesome-tools/cmd/chaos/internal/fms"
+	"fms-awesome-tools/cmd/chaos/service"
+	"fms-awesome-tools/configs"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"

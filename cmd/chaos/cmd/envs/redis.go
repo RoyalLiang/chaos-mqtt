@@ -1,9 +1,11 @@
 package envs
 
 import (
-	"fms-awesome-tools/configs"
 	"fmt"
+
 	"github.com/spf13/cobra"
+
+	"fms-awesome-tools/configs"
 )
 
 var (

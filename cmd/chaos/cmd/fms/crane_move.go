@@ -2,13 +2,14 @@ package area
 
 import (
 	"encoding/json"
-	"fms-awesome-tools/cmd/chaos/internal/fms"
-	"fms-awesome-tools/configs"
 	"fmt"
 	"math"
 	"os"
 	"strconv"
 	"time"
+
+	"fms-awesome-tools/cmd/chaos/internal/fms"
+	"fms-awesome-tools/configs"
 
 	"github.com/spf13/cobra"
 )
@@ -135,7 +136,7 @@ func init() {
 		centerCoordinate: &fms.Coordinate{},
 	}
 
-	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "岸桥号")
+	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "岸桥号🌉")
 	CraneMoveCmd.Flags().Int64VarP(&moveDistance, "distance", "d", 1, "单次移动距离\n>0 wm⬆️\n<0 wm⬇️\n")
 	CraneMoveCmd.Flags().Int64VarP(&moveTime, "time", "t", 0, "移动时间⏰")
 	CraneMoveCmd.MarkFlagsRequiredTogether("distance", "time")

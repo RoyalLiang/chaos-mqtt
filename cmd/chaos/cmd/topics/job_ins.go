@@ -1,11 +1,12 @@
 package topics
 
 import (
-	"fms-awesome-tools/cmd/chaos/internal/messages"
-	tools "fms-awesome-tools/utils"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"fms-awesome-tools/cmd/chaos/internal/messages"
+	tools "fms-awesome-tools/utils"
 
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"

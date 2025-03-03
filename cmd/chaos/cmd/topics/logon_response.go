@@ -1,9 +1,10 @@
 package topics
 
 import (
-	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fmt"
 	"strings"
+
+	"fms-awesome-tools/cmd/chaos/internal/messages"
 
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"

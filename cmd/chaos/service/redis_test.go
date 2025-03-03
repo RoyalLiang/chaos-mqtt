@@ -2,22 +2,23 @@ package service
 
 import (
 	"context"
-	"fms-awesome-tools/configs"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"testing"
+
+	"github.com/redis/go-redis/v9"
+
+	"fms-awesome-tools/configs"
 )
 
 func TestRedis(t *testing.T) {
 	cfg := &configs.RedisConfig{
-		Host:     "10.1.205.3",
-		Port:     16397,
+		Address:  "10.1.205.3:16397",
 		DB:       0,
 		Password: "aeiou",
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Addr:     fmt.Sprintf("%s", cfg.Address),
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})

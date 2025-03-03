@@ -1,12 +1,14 @@
 package topics
 
 import (
+	"fmt"
+	"time"
+
+	"github.com/spf13/cobra"
+
 	"fms-awesome-tools/cmd/chaos/internal/messages"
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"
-	"fmt"
-	"github.com/spf13/cobra"
-	"time"
 )
 
 const locations = "\n1=堆场位置\n2=Pre-Ingress\n3=DWA\n4=CA\n5=QC\n6=REFUEL\n7=PARKING\n8=MAINTENANCE\n9=CALLBACK"

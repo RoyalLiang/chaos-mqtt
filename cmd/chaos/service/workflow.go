@@ -1,11 +1,12 @@
 package service
 
 import (
-	tools "fms-awesome-tools/utils"
 	"fmt"
 	"os"
 	"sync"
 	"time"
+
+	tools "fms-awesome-tools/utils"
 
 	"fms-awesome-tools/cmd/chaos/internal/messages"
 

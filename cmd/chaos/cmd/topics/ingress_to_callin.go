@@ -1,12 +1,14 @@
 package topics
 
 import (
-	"fms-awesome-tools/cmd/chaos/internal/messages"
-	"fms-awesome-tools/constants"
 	"fmt"
 
-	"fms-awesome-tools/cmd/chaos/service"
+	"fms-awesome-tools/cmd/chaos/internal/messages"
+	"fms-awesome-tools/constants"
+
 	"github.com/spf13/cobra"
+
+	"fms-awesome-tools/cmd/chaos/service"
 )
 
 var IngressToCallInCmd = &cobra.Command{

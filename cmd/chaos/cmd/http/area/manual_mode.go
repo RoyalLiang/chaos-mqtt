@@ -1,13 +1,15 @@
 package area
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/cmd/chaos/internal/fms/area"
 	"fms-awesome-tools/configs"
-	"fmt"
+
 	"github.com/spf13/cobra"
-	"strconv"
-	"strings"
 )
 
 var (
@@ -84,9 +86,9 @@ func sendRequest(url string, data []byte) {
 }
 
 func init() {
-	ManualModeCmd.Flags().BoolVar(&reset, "reset", false, "重置船舶模式")
-	ManualModeCmd.Flags().StringVarP(&vesselID, "vessel-id", "v", "", "船舶ID")
-	ManualModeCmd.Flags().Int64VarP(&ingress, "ingress", "i", 0, "指定的ingress wharf mark")
-	ManualModeCmd.Flags().Int64VarP(&egress, "egress", "e", 0, "指定的egress wharf mark")
-	ManualModeCmd.Flags().StringSliceVarP(&qcs, "qc-config", "c", []string{}, "批量设置数据，格式: QC1=2")
+	ManualModeCmd.Flags().BoolVar(&reset, "reset", false, "重置船舶模式🆑")
+	ManualModeCmd.Flags().StringVarP(&vesselID, "vessel-id", "v", "", "船舶ID🚢")
+	ManualModeCmd.Flags().Int64VarP(&ingress, "ingress", "i", 0, "指定的ingress wm🚩")
+	ManualModeCmd.Flags().Int64VarP(&egress, "egress", "e", 0, "指定的egress wm🚩")
+	ManualModeCmd.Flags().StringSliceVarP(&qcs, "qc-config", "c", []string{}, "批量设置数据，格式: QC1=2🌉")
 }

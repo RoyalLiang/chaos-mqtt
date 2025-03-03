@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"fmt"
+	"path/filepath"
+
 	"fms-awesome-tools/cmd/chaos/cmd/envs"
 	"fms-awesome-tools/configs"
 	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
-	"fmt"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

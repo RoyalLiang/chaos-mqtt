@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"fms-awesome-tools/cmd/chaos/service"
 	"github.com/spf13/cobra"
+
+	"fms-awesome-tools/cmd/chaos/service"
 )
 
 var name string
