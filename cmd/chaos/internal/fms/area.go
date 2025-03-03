@@ -199,7 +199,7 @@ type GetCranesResponseData struct {
 	Status            int        `json:"status"`
 	LastStatus        int        `json:"last_status"`
 	Moving            bool       `json:"moving"`
-	MovementThreshold int        `json:"movement_threshold"`
+	MovementThreshold float64    `json:"movement_threshold"`
 	StopDuration      int        `json:"stop_duration"`
 	LastMovementTime  time.Time  `json:"last_movement_time"`
 	Pos               Coordinate `json:"pos"`
