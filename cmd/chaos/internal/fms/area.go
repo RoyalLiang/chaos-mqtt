@@ -8,13 +8,18 @@ import (
 const prefix = "/fms/psa"
 
 const (
-	ManualModeURL     = prefix + "/vessel/{vessel_id}/manualModel"
-	OpBlockURL        = prefix + "/hatch_cover/op"
-	ClearBlockURL     = prefix + "/hatch_cover/clear"
-	GetVesselsURL     = prefix + "/vessels"
-	GetAssignedVessel = prefix + "/vessel"
-	GetVehiclesURL    = prefix + "/vehicles"
-	ResetVehicleURL   = prefix + "/truck"
+	ManualModeURL       = prefix + "/vessel/{vessel_id}/manualModel"
+	OpBlockURL          = prefix + "/hatch_cover/op"
+	ClearBlockURL       = prefix + "/hatch_cover/clear"
+	GetVesselsURL       = prefix + "/vessels"
+	GetAssignedVessel   = prefix + "/vessel"
+	GetVehiclesURL      = prefix + "/vehicles"
+	ResetVehicleURL     = prefix + "/truck"
+	GetCraneLocationURL = prefix + "/cranes"
+)
+
+const (
+	SetCraneLocationURL = "/api/only_simulation_test"
 )
 
 type GetVesselsResponse struct {
@@ -176,4 +181,55 @@ type VehicleCurrDestination struct {
 	CraneNo   string  `json:"crane_no"`
 	StayThere bool    `json:"stay_there"`
 	Weight    int     `json:"weight"`
+}
+
+type GetCranesResponse struct {
+	Status string                `json:"status"`
+	Errno  *int64                `json:"errno"`
+	Msg    *string               `json:"msg"`
+	Code   int                   `json:"code"`
+	Data   GetCranesResponseData `json:"data"`
+}
+
+type GetCranesResponseData struct {
+	Locked            int        `json:"locked"`
+	Type              string     `json:"type"`
+	Name              string     `json:"name"`
+	WharfMark         int        `json:"wharf_mark"`
+	Status            int        `json:"status"`
+	LastStatus        int        `json:"last_status"`
+	Moving            bool       `json:"moving"`
+	MovementThreshold int        `json:"movement_threshold"`
+	StopDuration      int        `json:"stop_duration"`
+	LastMovementTime  time.Time  `json:"last_movement_time"`
+	Pos               Coordinate `json:"pos"`
+	LastPos           Coordinate `json:"last_pos"`
+	LatestPos         Coordinate `json:"latest_pos"`
+}
+
+type SetCraneLocationReq struct {
+	DeviceID           string  `json:"deviceID"`
+	HOPos              float64 `json:"HO_Pos"`
+	TRPos              float64 `json:"TR_Pos"`
+	SPRLocked          bool    `json:"SPR_Locked"`
+	SpreaderType       string  `json:"Spreader_Type"`
+	TRRun              bool    `json:"TR_Run"`
+	CraneReady         bool    `json:"crane_ready"`
+	CurrentLane        int     `json:"current_lane"`
+	CurrentBayID       string  `json:"current_bay_id"`
+	X                  string  `json:"x"`
+	Y                  string  `json:"y"`
+	GPSStatus          string  `json:"gps_status"`
+	DisconnectCauseGPS string  `json:"disconnect_cause_gps"`
+	CMSStatus          string  `json:"cms_status"`
+	Size               string  `json:"size"`
+	Loaction           string  `json:"location"`
+	Height             int     `json:"height"`
+	OpenClose          bool    `json:"open_close"`
+	DisconnectCauseCMS string  `json:"disconnect_cause_cms"`
+}
+
+func (slr SetCraneLocationReq) String() string {
+	v, _ := json.Marshal(slr)
+	return string(v)
 }

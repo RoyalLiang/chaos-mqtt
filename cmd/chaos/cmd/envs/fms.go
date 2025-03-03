@@ -4,6 +4,7 @@ import (
 	"fms-awesome-tools/configs"
 	"fms-awesome-tools/constants"
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -11,6 +12,7 @@ var (
 	area   bool
 	tos    bool
 	device bool
+	crane  bool
 )
 
 var FMSCmd = &cobra.Command{
@@ -31,6 +33,8 @@ var FMSCmd = &cobra.Command{
 			configs.Chaos.FMS.TOS = cfg
 		} else if device {
 			configs.Chaos.FMS.Device = cfg
+		} else if crane {
+			configs.Chaos.FMS.CraneManager = cfg
 		}
 
 		if err := configs.WriteFMSConfig("fms", configs.Chaos.FMS); err != nil {
@@ -44,6 +48,6 @@ func init() {
 	FMSCmd.Flags().BoolVar(&area, "area", false, "area-slot 模块")
 	FMSCmd.Flags().BoolVar(&tos, "tos", false, "tos-interface 模块")
 	FMSCmd.Flags().BoolVar(&device, "device", false, "device-info 模块")
-
-	FMSCmd.MarkFlagsMutuallyExclusive("area", "tos", "device")
+	FMSCmd.Flags().BoolVar(&crane, "crane-manager", false, "crane-manager 模块")
+	FMSCmd.MarkFlagsMutuallyExclusive("area", "tos", "device", "crane-manager")
 }

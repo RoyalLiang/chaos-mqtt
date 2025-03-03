@@ -2,6 +2,7 @@ package configs
 
 import (
 	"encoding/json"
+
 	"github.com/spf13/viper"
 )
 
@@ -27,9 +28,10 @@ type product struct {
 type fms struct {
 	//Host     string       `json:"host"`
 	//Services []FmsService `json:"services"`
-	Area   FMSModuleConfig `json:"area"`
-	TOS    FMSModuleConfig `json:"tos"`
-	Device FMSModuleConfig `json:"device"`
+	Area         FMSModuleConfig `json:"area"`
+	TOS          FMSModuleConfig `json:"tos"`
+	Device       FMSModuleConfig `json:"device"`
+	CraneManager FMSModuleConfig `json:"crane_manager"`
 }
 
 type RedisConfig struct {
@@ -97,9 +99,10 @@ func defaultConfig() chaosConfig {
 	}
 
 	config.FMS = &fms{
-		Area:   FMSModuleConfig{},
-		TOS:    FMSModuleConfig{},
-		Device: FMSModuleConfig{},
+		Area:         FMSModuleConfig{},
+		TOS:          FMSModuleConfig{},
+		Device:       FMSModuleConfig{},
+		CraneManager: FMSModuleConfig{},
 	}
 	config.Redis = &RedisConfig{}
 	return config
