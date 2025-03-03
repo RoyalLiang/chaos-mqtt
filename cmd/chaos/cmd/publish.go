@@ -13,8 +13,8 @@ var (
 
 var publishCmd = &cobra.Command{
 	Use:   "publish",
-	Short: "publish the message of assigned topic to MQTT",
-	Long:  tools.CustomTitle("publish the message of assigned topic to MQTT"),
+	Short: "发送指定topic数据到配置的MQTT Server",
+	Long:  tools.CustomTitle("发送指定topic数据到配置的MQTT Server"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if topic == "" && message == "" {
 			_ = cmd.Help()

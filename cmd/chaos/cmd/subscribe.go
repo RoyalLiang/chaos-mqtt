@@ -4,13 +4,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"fms-awesome-tools/cmd/chaos/service"
+	tools "fms-awesome-tools/utils"
 )
 
 var name string
 
 var subCmd = &cobra.Command{
 	Use:   "subscribe",
-	Short: "订阅指定主题消息",
+	Short: "订阅指定主题的消息",
+	Long:  tools.CustomTitle("订阅指定主题的消息"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if name == "" {
 			cmd.Help()

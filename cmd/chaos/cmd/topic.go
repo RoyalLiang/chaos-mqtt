@@ -17,8 +17,8 @@ var (
 
 var topicCmd = &cobra.Command{
 	Use:   "topic",
-	Short: "publish assigned topic message to MQTT",
-	Long:  tools.CustomTitle("publish assigned topic message to MQTT"),
+	Short: "发送指定Topic数据到配置的MQTT Server",
+	Long:  tools.CustomTitle("发送指定Topic数据到配置的MQTT Server"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if listTopics {
 			listAvcsTopics()

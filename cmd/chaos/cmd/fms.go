@@ -8,21 +8,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	ip string
-)
-
 var fmsCmd = &cobra.Command{
-	Use:   "fms",
-	Short: "request data from assigned fms server",
-	Long:  tools.CustomTitle("request data to assigned server"),
+	Use:  "fms",
+	Long: tools.CustomTitle("与FMS模块进行交互, 接收数据/配置数据"),
 	Run: func(cmd *cobra.Command, args []string) {
-
+		_ = cmd.Help()
 	},
 }
 
 func init() {
-	fmsCmd.PersistentFlags().StringVarP(&ip, "ip", "", "127.0.0.1", "服务地址")
+	//fmsCmd.PersistentFlags().StringVarP(&ip, "ip", "", "127.0.0.1", "服务地址")
 
 	fmsCmd.AddCommand(area.HatchCoverCmd)
 	fmsCmd.AddCommand(area.ManualModeCmd)

@@ -19,8 +19,8 @@ var (
 var envCmd = &cobra.Command{
 
 	Use:   "env",
-	Short: "读取/写入相关配置",
-	Long:  tools.CustomTitle("读取/写入相关配置"),
+	Short: "读取/写入MQTT/Redis/FMS等相关配置",
+	Long:  tools.CustomTitle("读取/写入MQTT/Redis/FMS等相关配置"),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if !list {
