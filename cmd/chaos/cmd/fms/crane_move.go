@@ -28,7 +28,7 @@ var CraneMoveCmd = &cobra.Command{
 
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if moveCrane == "" && moveDistance == 0 && moveTime == 0 {
+		if moveCrane == "" && moveTime == 0 {
 			_ = cmd.Help()
 			os.Exit(1)
 		}
