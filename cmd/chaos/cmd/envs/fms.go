@@ -19,7 +19,7 @@ var FMSCmd = &cobra.Command{
 	Use:   "fms",
 	Short: "FMS模块配置",
 	Run: func(cmd *cobra.Command, args []string) {
-		if (!area && !tos && !device) || constants.Address == "" {
+		if (!area && !tos && !device && !crane) || constants.Address == "" {
 			_ = cmd.Help()
 			return
 		}
