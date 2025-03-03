@@ -4,6 +4,7 @@ import (
 	fms "fms-awesome-tools/cmd/chaos/cmd/fms"
 	"fms-awesome-tools/cmd/chaos/cmd/http/area"
 	tools "fms-awesome-tools/utils"
+
 	"github.com/spf13/cobra"
 )
 
@@ -27,5 +28,6 @@ func init() {
 	fmsCmd.AddCommand(area.ManualModeCmd)
 	fmsCmd.AddCommand(area.GetVesselCmd)
 	fmsCmd.AddCommand(fms.VehicleCmd)
+	fmsCmd.AddCommand(fms.CraneMoveCmd)
 	rootCmd.AddCommand(fmsCmd)
 }
