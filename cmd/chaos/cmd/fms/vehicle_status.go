@@ -46,7 +46,7 @@ var (
 
 var VehicleCmd = &cobra.Command{
 	Use:   "vehicles",
-	Short: "获取所有/指定集卡状态",
+	Short: "获取所有/指定集卡状态\n参数说明: \n\t--keepalive: 自动刷新(2s/次)\n\t--reset: 重置集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
 			"ID", "Vehicle ID", "Task Type", "Job Type", "Cones", "ISO", "Start Time", "Destination", "Lift Type",
@@ -325,9 +325,9 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 }
 
 func init() {
-	VehicleCmd.Flags().BoolVarP(&k, "keepalive", "k", false, "是否保持刷新(F/5s)")
-	VehicleCmd.Flags().StringVarP(&vehicleID, "vehicle", "v", "", "集卡号")
+	VehicleCmd.Flags().BoolVarP(&k, "keepalive", "k", false, "自动刷新🔄️")
+	VehicleCmd.Flags().StringVarP(&vehicleID, "vehicle", "v", "", "集卡号🚗")
 	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
 	VehicleCmd.Flags().StringVarP(&exclude, "exclude", "e", "", "过滤指定模式的集卡"+vehicleModes)
-	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡")
+	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡⭕")
 }

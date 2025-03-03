@@ -5,6 +5,7 @@ import (
 	"fms-awesome-tools/cmd/chaos/internal/fms/area"
 	"fms-awesome-tools/configs"
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -63,11 +64,11 @@ func sendData(url string, data []byte) {
 }
 
 func init() {
-	HatchCoverCmd.Flags().BoolVar(&hClear, "clear", false, "清除所有的后大梁锁闭区")
-	HatchCoverCmd.Flags().BoolVarP(&hAdd, "add", "a", false, "添加后大梁锁闭区")
-	HatchCoverCmd.Flags().BoolVarP(&hDel, "delete", "d", false, "删除后大梁锁闭区")
-	HatchCoverCmd.Flags().Int64VarP(&hStart, "start", "s", 0, "开始位置")
-	HatchCoverCmd.Flags().Int64VarP(&hEnd, "end", "e", 0, "结束位置")
+	HatchCoverCmd.Flags().BoolVar(&hClear, "clear", false, "清除所有的后大梁锁闭区🆑")
+	HatchCoverCmd.Flags().BoolVarP(&hAdd, "add", "a", false, "添加后大梁锁闭区➕")
+	HatchCoverCmd.Flags().BoolVarP(&hDel, "delete", "d", false, "删除后大梁锁闭区➖")
+	HatchCoverCmd.Flags().Int64VarP(&hStart, "start", "s", 0, "开始位置🔛")
+	HatchCoverCmd.Flags().Int64VarP(&hEnd, "end", "e", 0, "结束位置🔚")
 	HatchCoverCmd.MarkFlagsMutuallyExclusive("add", "delete", "clear")
 	HatchCoverCmd.MarkFlagsRequiredTogether("start", "end")
 	//HatchCoverCmd.MarkFlagsRequiredTogether("delete", "start", "end")

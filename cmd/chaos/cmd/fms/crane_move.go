@@ -135,8 +135,8 @@ func init() {
 		centerCoordinate: &fms.Coordinate{},
 	}
 
-	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "移动的岸桥号")
-	CraneMoveCmd.Flags().Int64VarP(&moveDistance, "distance", "d", 1, "岸桥每次移动的距离\n>0 wharf mark ⬆️\n<0 wharf mark ⬇️\n")
-	CraneMoveCmd.Flags().Int64VarP(&moveTime, "time", "t", 0, "移动时间")
+	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "岸桥号")
+	CraneMoveCmd.Flags().Int64VarP(&moveDistance, "distance", "d", 1, "单次移动距离\n>0 wm⬆️\n<0 wm⬇️\n")
+	CraneMoveCmd.Flags().Int64VarP(&moveTime, "time", "t", 0, "移动时间⏰")
 	CraneMoveCmd.MarkFlagsRequiredTogether("distance", "time")
 }
