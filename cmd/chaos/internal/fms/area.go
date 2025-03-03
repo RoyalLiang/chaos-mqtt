@@ -46,6 +46,11 @@ type Coordinate struct {
 	Theta float64 `json:"theta"`
 }
 
+func (c Coordinate) String() string {
+	v, _ := json.Marshal(c)
+	return string(v)
+}
+
 type VesselInfo struct {
 	MaxWf      int               `json:"max_wf"`
 	MinWf      int               `json:"min_wf"`

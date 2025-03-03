@@ -75,7 +75,7 @@ func craneMOve() {
 		case <-ctx.Done():
 			return
 		case <-time.Tick(time.Duration(moveTime) * time.Second):
-			<-ctx.Done()
+			break
 		case <-time.After(time.Second):
 			sendRequest(coordinate)
 			coordinate = calcCoordinate(coordinate)
@@ -100,7 +100,6 @@ func calcCoordinate(coordinate *fms.Coordinate) *fms.Coordinate {
 
 	coordinate.X += float64(moveDistance) * math.Cos(theta)
 	coordinate.Y += float64(moveDistance) * math.Sin(theta)
-	fmt.Println("xy: ", coordinate)
 	coordinate.X += xoff
 	coordinate.Y -= yoff
 	return coordinate
@@ -116,11 +115,11 @@ func sendRequest(coordinate *fms.Coordinate) {
 		OpenClose: true, DisconnectCauseCMS: "2",
 	}
 
-	resp, err := fms.Post(url, []byte(req.String()))
+	_, err := fms.Post(url, []byte(req.String()))
 	if err != nil {
 		cobra.CheckErr(err)
 	}
-	fmt.Println(string(resp))
+	fmt.Printf("岸桥当前位置: x: %.5f, y: %.5f\n", coordinate.X, coordinate.Y)
 }
 
 func init() {
