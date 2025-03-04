@@ -84,7 +84,9 @@ func printVesselsForever() {
 		msgChan   = make(chan *redis.Message, 100)
 		sleepTime = time.Second * 2
 		exitChan  = make(chan os.Signal, 1)
-		manager   = &vesselManager{}
+		manager   = &vesselManager{
+			vessels: make(map[string]fms.VesselInfo),
+		}
 	)
 
 	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
