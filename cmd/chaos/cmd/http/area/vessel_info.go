@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -26,7 +27,7 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"VesselID", "Ingress WM", "Egress WM", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
+		"Vessel ID", "Ingress WM", "Egress WM", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
 		"QC Status", "QC Assigned", "QC Queues", "DWA Queues",
 	}
 )
@@ -58,19 +59,38 @@ var GetVesselCmd = &cobra.Command{
 	},
 }
 
+type vesselManager struct {
+	sync.Mutex
+	vessels map[string]fms.VesselInfo
+}
+
+func (vm *vesselManager) addVessel(v fms.VesselInfo) {
+	vm.Lock()
+	defer vm.Unlock()
+	vm.vessels[v.VesselInfo.VesselId] = v
+}
+
+func (vm *vesselManager) getVessels() []fms.VesselInfo {
+	resp := make([]fms.VesselInfo, 0)
+	for _, vs := range vm.vessels {
+		resp = append(resp, vs)
+	}
+	return resp
+}
+
 func printVesselsForever() {
 	var (
 		ctx       = context.Background()
 		msgChan   = make(chan *redis.Message, 100)
 		sleepTime = time.Second * 2
 		exitChan  = make(chan os.Signal, 1)
+		manager   = &vesselManager{}
 	)
 
 	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
 	sub, err := service.Subscribe(ctx, "vessel_status", msgChan)
 	if err != nil {
 		cobra.CheckErr(err)
-		os.Exit(1)
 	}
 
 	defer sub.Close()
@@ -78,19 +98,18 @@ func printVesselsForever() {
 	ticker := time.NewTicker(sleepTime)
 	defer ticker.Stop()
 	for {
-		vessels := make([]fms.VesselInfo, 0)
 		select {
 		case msg, ok := <-msgChan:
 			if !ok {
 				return
 			}
 			vesselInfo := &fms.VesselInfo{}
-			if err := json.Unmarshal([]byte(msg.Payload), vesselInfo); err == nil {
-				vessels = append(vessels, *vesselInfo)
+			if err = json.Unmarshal([]byte(msg.Payload), vesselInfo); err == nil {
+				manager.addVessel(*vesselInfo)
 			}
 		case <-ticker.C:
 			fmt.Print("\033[u\033[J")
-			printVessels(vessels)
+			printVessels(manager.getVessels())
 		case <-exitChan:
 			fmt.Print("\033[0;0H")
 			return
