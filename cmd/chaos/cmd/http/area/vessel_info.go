@@ -67,10 +67,13 @@ func printVesselsForever() {
 	)
 
 	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
-	if err := service.Subscribe(ctx, "vessel_status", msgChan); err != nil {
+	sub, err := service.Subscribe(ctx, "vessel_status", msgChan)
+	if err != nil {
 		cobra.CheckErr(err)
 		os.Exit(1)
 	}
+
+	defer sub.Close()
 
 	ticker := time.NewTicker(sleepTime)
 	defer ticker.Stop()

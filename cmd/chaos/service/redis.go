@@ -22,14 +22,14 @@ func NewRedisClient() (*redis.Client, error) {
 	}), nil
 }
 
-func Subscribe(ctx context.Context, channel string, msgChan chan *redis.Message) error {
+func Subscribe(ctx context.Context, channel string, msgChan chan *redis.Message) (*redis.PubSub, error) {
 	rc, err := NewRedisClient()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sub := rc.Subscribe(ctx, channel)
-	defer sub.Close()
+	//defer sub.Close()
 
 	go func() {
 		for {
@@ -43,5 +43,5 @@ func Subscribe(ctx context.Context, channel string, msgChan chan *redis.Message)
 		}
 	}()
 
-	return nil
+	return sub, nil
 }
