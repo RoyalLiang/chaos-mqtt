@@ -27,7 +27,7 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "Ingress WM", "Egress WM", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
+		"Vessel ID", "Ingress", "Egress", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
 		"QC Status", "QC Assigned", "QC Queues", "DWA Queues",
 	}
 )
