@@ -13,5 +13,5 @@ func TestPrintResult(t *testing.T) {
 	if vessels.Data.Values == nil {
 		return
 	}
-	parseVesselInfo(vessels.Data.Values)
+	printVessels(vessels.Data.Values)
 }

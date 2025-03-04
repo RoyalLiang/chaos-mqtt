@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"errors"
+	"fmt"
 
 	"github.com/redis/go-redis/v9"
 
@@ -18,4 +20,28 @@ func NewRedisClient() (*redis.Client, error) {
 		Password: configs.Chaos.Redis.Password,
 		DB:       configs.Chaos.Redis.DB,
 	}), nil
+}
+
+func Subscribe(ctx context.Context, channel string, msgChan chan *redis.Message) error {
+	rc, err := NewRedisClient()
+	if err != nil {
+		return err
+	}
+
+	sub := rc.Subscribe(ctx, channel)
+	defer sub.Close()
+
+	go func() {
+		for {
+			msg, err := sub.ReceiveMessage(ctx)
+			if err != nil {
+				fmt.Println("subs error:", err.Error())
+				close(msgChan)
+				return
+			}
+			msgChan <- msg
+		}
+	}()
+
+	return nil
 }

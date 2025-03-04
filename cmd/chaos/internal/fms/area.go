@@ -63,6 +63,11 @@ type VesselInfo struct {
 	Egress     VesselGressInfo   `json:"egress"`
 }
 
+func (c VesselInfo) String() string {
+	v, _ := json.Marshal(c)
+	return string(v)
+}
+
 type VesselDetail struct {
 	VesselId   string   `json:"vessel_id"`
 	Cranes     []string `json:"cranes"`
@@ -89,6 +94,14 @@ type VesselCAInfo struct {
 	WharfMarkStart int        `json:"wharf_mark_start"`
 	WharfMarkEnd   int        `json:"wharf_mark_end"`
 	Crane          string     `json:"crane"`
+}
+
+func (ca *VesselCAInfo) GetWorkLane() int {
+	workLane := ca.BindLane
+	if ca.FixedWorkLane != nil {
+		workLane = *ca.FixedWorkLane
+	}
+	return workLane
 }
 
 type VesselCraneInfo struct {

@@ -1,12 +1,20 @@
 package area
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
+	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/redis/go-redis/v9"
+
 	"fms-awesome-tools/cmd/chaos/internal/fms"
+	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -14,9 +22,13 @@ import (
 )
 
 var (
-	keep bool
-	vid  string
-	t    = table.NewWriter()
+	keep   bool
+	vid    string
+	t      = table.NewWriter()
+	header = table.Row{
+		"VesselID", "Ingress WM", "Egress WM", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
+		"QC Status", "QC Assigned", "QC Queues", "DWA Queues",
+	}
 )
 
 const (
@@ -29,26 +41,98 @@ var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		header := table.Row{"VesselID", "CA", "Working lane", "Capacity", "CA Status", "Ca Queues", "QC Status", "QC Assigned", "QC Queues", "DWA Queues"}
-		t.AppendHeader(header)
+		if !keep && vesselID == "" {
+			_ = cmd.Help()
+			return
+		}
 
+		t.AppendHeader(header)
 		if keep {
-			// 保存初始光标位置
 			fmt.Print(moveCursor)
-			for {
-				if vessels := getVessels(); vessels != nil {
-					// 恢复到保存的位置并清屏
-					fmt.Print(restoreCursor, clearScreen)
-					parseVesselInfo(vessels.Data.Values)
-				}
-				time.Sleep(5 * time.Second)
-			}
+			printVesselsForever()
 		} else {
 			if vessels := getVessels(); vessels != nil {
-				parseVesselInfo(vessels.Data.Values)
+				printVessels(vessels.Data.Values)
 			}
 		}
 	},
+}
+
+func printVesselsForever() {
+	var (
+		ctx       = context.Background()
+		msgChan   = make(chan *redis.Message, 100)
+		sleepTime = time.Second * 2
+		exitChan  = make(chan os.Signal, 1)
+	)
+
+	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
+	if err := service.Subscribe(ctx, "vessel_status", msgChan); err != nil {
+		cobra.CheckErr(err)
+		os.Exit(1)
+	}
+
+	ticker := time.NewTicker(sleepTime)
+	defer ticker.Stop()
+	for {
+		vessels := make([]fms.VesselInfo, 0)
+		select {
+		case msg, ok := <-msgChan:
+			if !ok {
+				return
+			}
+			vesselInfo := &fms.VesselInfo{}
+			if err := json.Unmarshal([]byte(msg.Payload), vesselInfo); err == nil {
+				vessels = append(vessels, *vesselInfo)
+			}
+		case <-ticker.C:
+			fmt.Print("\033[u\033[J")
+			printVessels(vessels)
+		case <-exitChan:
+			fmt.Print("\033[0;0H")
+			return
+		}
+	}
+}
+
+func getAssignedCraneCaData(crane string, cas []fms.VesselCAInfo) []fms.VesselCAInfo {
+	res := make([]fms.VesselCAInfo, 0)
+	for _, c := range cas {
+		if strings.HasPrefix(c.Name, crane) {
+			res = append(res, c)
+		}
+	}
+	return res
+}
+
+func printVessels(vessels []fms.VesselInfo) {
+	t.ResetRows()
+	rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
+	for _, vs := range vessels {
+		for _, crane := range vs.Cranes {
+			rows := make([]table.Row, 0)
+			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
+			for _, ca := range cas {
+				row := table.Row{
+					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, crane.Name, ca.Name, ca.GetWorkLane(),
+					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
+					getLockedStatus(crane.Locked), crane.VehicleID, "", "",
+				}
+				rows = append(rows, row)
+			}
+			t.AppendRows(rows, rowConfigAutoMerge)
+		}
+	}
+	t.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
+		{Number: 2, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
+		{Number: 3, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
+		{Number: 4, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
+	})
+
+	t.SetStyle(table.StyleLight)
+	t.Style().Options.SeparateRows = true
+	fmt.Print(t.Render())
 }
 
 func getVessels() *fms.GetVesselsResponse {
@@ -70,22 +154,6 @@ func getVessels() *fms.GetVesselsResponse {
 		return nil
 	}
 	return vesselInfo
-}
-
-func parseVesselInfo(vessels []fms.VesselInfo) {
-	cas := make([]fms.VesselCAInfo, 0)
-
-	for _, vessel := range vessels {
-		if vessel.CAs == nil {
-			continue
-		}
-
-		for _, ca := range vessel.CAs {
-			cas = append(cas, ca)
-		}
-
-	}
-	printResult(vessels, cas)
 }
 
 func getAssignedQCData(vessels []fms.VesselInfo, craneNo string) fms.VesselCraneInfo {
@@ -130,5 +198,5 @@ func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
 
 func init() {
 	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "自动刷新🔄️️(1/5s)")
-	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "v", "", "船舶ID🚢")
+	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "i", "", "船舶ID🚢")
 }
