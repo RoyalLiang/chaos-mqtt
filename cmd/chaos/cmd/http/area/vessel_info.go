@@ -26,7 +26,7 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "Ingress", "Egress", "QC", "Assigned", "CA", "Work lane", "CA Status", "CA Capacity",
+		"Vessel ID", "Ingress", "Egress", "QC", "Locked", "Assigned", "CA", "Work lane", "CA Status", "CA Capacity",
 		"Ca Queues", "QC Queues",
 	}
 )
@@ -130,12 +130,9 @@ func printVessels(vessels []fms.VesselInfo) {
 		for _, crane := range vs.Cranes {
 			rows := make([]table.Row, 0)
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
-
-			c := fmt.Sprintf("%s\r%s", crane.Name, getLockedStatus(crane.Locked))
-
 			for _, ca := range cas {
 				row := table.Row{
-					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, c, crane.VehicleID,
+					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, crane.Name, getLockedStatus(crane.Locked), crane.VehicleID,
 					ca.Name, ca.GetWorkLane(), getLockedStatus(ca.Locked), ca.Capacity,
 					strings.Join(ca.Vehicles, ","), "",
 				}
