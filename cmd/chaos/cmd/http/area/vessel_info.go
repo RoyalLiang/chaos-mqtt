@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/redis/go-redis/v9"
 
 	"fms-awesome-tools/cmd/chaos/internal/fms"
@@ -27,8 +26,8 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "Ingress", "Egress", "QC", "CA", "Working lane", "CA Status", "CA Capacity", "Ca Queues",
-		"QC Status", "QC Assigned", "QC Queues", "DWA Queues",
+		"Vessel ID", "Ingress", "Egress", "QC", "Assigned", "CA", "Work lane", "CA Status", "CA Capacity",
+		"Ca Queues", "QC Queues",
 	}
 )
 
@@ -42,11 +41,6 @@ var GetVesselCmd = &cobra.Command{
 	Use:   "vessels_status",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
-		if !keep && vesselID == "" {
-			_ = cmd.Help()
-			return
-		}
-
 		t.AppendHeader(header)
 		if keep {
 			fmt.Print(moveCursor)
@@ -136,11 +130,14 @@ func printVessels(vessels []fms.VesselInfo) {
 		for _, crane := range vs.Cranes {
 			rows := make([]table.Row, 0)
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
+
+			c := fmt.Sprintf("%s\r%s", crane.Name, getLockedStatus(crane.Locked))
+
 			for _, ca := range cas {
 				row := table.Row{
-					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, crane.Name, ca.Name, ca.GetWorkLane(),
-					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
-					getLockedStatus(crane.Locked), crane.VehicleID, "", "",
+					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, c, crane.VehicleID,
+					ca.Name, ca.GetWorkLane(), getLockedStatus(ca.Locked), ca.Capacity,
+					strings.Join(ca.Vehicles, ","), "",
 				}
 				rows = append(rows, row)
 			}
@@ -148,14 +145,13 @@ func printVessels(vessels []fms.VesselInfo) {
 		}
 	}
 	t.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
-		{Number: 2, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
-		{Number: 3, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
-		{Number: 4, AutoMerge: true, VAlign: text.VAlignMiddle, Align: text.AlignCenter},
+		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true},
+		{Number: 4, AutoMerge: true},
 	})
 
 	t.SetStyle(table.StyleLight)
 	t.Style().Options.SeparateRows = true
+	//t.Style().Options.SeparateColumns = true
 	fmt.Print(t.Render())
 }
 
@@ -221,6 +217,6 @@ func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
 }
 
 func init() {
-	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "自动刷新🔄️️(1/5s)")
+	GetVesselCmd.Flags().BoolVarP(&keep, "keepalive", "k", false, "自动刷新🔄️️(1/2s)")
 	GetVesselCmd.Flags().StringVarP(&vid, "vessel-id", "i", "", "船舶ID🚢")
 }
