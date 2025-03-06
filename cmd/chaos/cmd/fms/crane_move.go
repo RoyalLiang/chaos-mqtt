@@ -27,7 +27,7 @@ const (
 
 var (
 	moveCrane    string
-	moveDistance int64
+	moveDistance float64
 	moveTime     int64
 	assigned     int64
 	coordinate   *c
@@ -79,7 +79,6 @@ func setAssignedLocation() {
 		fmt.Printf("<%d> 不存在...\n", assigned)
 	} else {
 		coordinate.centerCoordinate = &fms.Coordinate{X: r.X, Y: r.Y}
-		coordinate = calcCoordinate(coordinate)
 		sendRequest(coordinate)
 	}
 }
@@ -109,6 +108,7 @@ func craneMOve() {
 	}
 
 	coordinate.centerCoordinate = pos
+	sendRequest(coordinate)
 	ticker := time.NewTicker(time.Duration(moveTime) * time.Second)
 	defer ticker.Stop()
 
@@ -119,7 +119,6 @@ Loop:
 			break Loop
 		case <-time.After(time.Second):
 			sendRequest(coordinate)
-			coordinate = calcCoordinate(coordinate)
 		}
 	}
 	fmt.Println("运行结束...")
@@ -132,7 +131,7 @@ func getOffset(offset float64) (float64, float64) {
 	return x, y
 }
 
-func calcCoordinate(coordinate *c) *c {
+func (coordinate *c) calcCoordinate() {
 	xoff, yoff := getOffset(12.05418)
 
 	theta := -2.11 - math.Pi
@@ -140,14 +139,15 @@ func calcCoordinate(coordinate *c) *c {
 		theta = -2.11 + math.Pi
 	}
 
-	coordinate.centerCoordinate.X += float64(moveDistance) * math.Cos(theta)
-	coordinate.centerCoordinate.Y += float64(moveDistance) * math.Sin(theta)
+	coordinate.centerCoordinate.X += moveDistance * math.Cos(theta)
+	coordinate.centerCoordinate.Y += moveDistance * math.Sin(theta)
 	coordinate.offsetCoordinate.X = coordinate.centerCoordinate.X + xoff
 	coordinate.offsetCoordinate.Y = coordinate.centerCoordinate.Y - yoff
-	return coordinate
 }
 
 func sendRequest(coordinate *c) {
+	coordinate.calcCoordinate()
+
 	url := configs.Chaos.FMS.CraneManager.Address + fms.SetCraneLocationURL
 	req := fms.SetCraneLocationReq{
 		DeviceID: moveCrane, HOPos: 15108.6240234375, TRPos: 246.0, SPRLocked: true, SpreaderType: "40",
@@ -171,7 +171,7 @@ func init() {
 	}
 
 	CraneMoveCmd.Flags().StringVarP(&moveCrane, "crane", "c", "", "岸桥号🌉")
-	CraneMoveCmd.Flags().Int64VarP(&moveDistance, "distance", "d", 1, "单次移动距离\n>0 wm⬆️\n<0 wm⬇️\n")
+	CraneMoveCmd.Flags().Float64VarP(&moveDistance, "distance", "d", 1, "单次移动距离\n>0 wm⬆️\n<0 wm⬇️\n")
 	CraneMoveCmd.Flags().Int64VarP(&moveTime, "time", "t", 0, "移动时间⏰")
 	CraneMoveCmd.Flags().Int64VarP(&assigned, "assigned", "a", 0, "指定wm位置🚩")
 	CraneMoveCmd.MarkFlagsRequiredTogether("distance", "time")
