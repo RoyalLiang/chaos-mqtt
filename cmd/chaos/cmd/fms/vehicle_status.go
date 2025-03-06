@@ -287,10 +287,13 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		job := ""
-		if vehicle.TaskInfo.Activity == 2 || vehicle.TaskInfo.Activity == 3 || vehicle.TaskInfo.Activity == 4 {
+		switch vehicle.TaskInfo.Activity {
+		case 2, 3, 4:
 			job = "MOUNT"
-		} else if vehicle.TaskInfo.Activity == 6 || vehicle.TaskInfo.Activity == 7 || vehicle.TaskInfo.Activity == 8 {
+		case 6, 7, 8:
 			job = "OFFLOAD"
+		case 1, 5:
+			job = "STANDBY"
 		}
 
 		dtype := vehicle.CurrentDestination.Type

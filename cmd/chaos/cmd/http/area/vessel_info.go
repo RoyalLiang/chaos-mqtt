@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -26,7 +27,7 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "WMs", "Ingress", "Egress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
+		"Vessel ID", "D", "Berth", "Ingress", "Egress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
 		"CA Capacity", "Ca Queue",
 	}
 )
@@ -65,11 +66,12 @@ func (vm *vesselManager) addVessel(v fms.VesselInfo) {
 }
 
 func (vm *vesselManager) getVessels() []fms.VesselInfo {
-	resp := make([]fms.VesselInfo, 0)
+	vessels := make(fms.VesselsInfo, 0)
 	for _, vs := range vm.vessels {
-		resp = append(resp, vs)
+		vessels = append(vessels, vs)
 	}
-	return resp
+	sort.Sort(vessels)
+	return vessels
 }
 
 func printVesselsForever() {
@@ -123,7 +125,7 @@ func getAssignedCraneCaData(crane string, cas []fms.VesselCAInfo) []fms.VesselCA
 	return res
 }
 
-func printVessels(vessels []fms.VesselInfo) {
+func printVessels(vessels fms.VesselsInfo) {
 	t.ResetRows()
 	//rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
 	for _, vs := range vessels {
@@ -132,7 +134,7 @@ func printVessels(vessels []fms.VesselInfo) {
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
 			for _, ca := range cas {
 				row := table.Row{
-					ca.VesselId, vs.Wms(), vs.Ingress.WharfMarkEnd, vs.Egress.WharfMarkEnd, crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
+					ca.VesselId, vs.VesselInfo.Direction, vs.Wms(), vs.Ingress.WharfMarkEnd, vs.Egress.WharfMarkEnd, crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
 					crane.VehicleID, strings.Join(vs.CAArrives, ","), ca.Name, ca.GetWorkLane(),
 					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
 				}
@@ -145,7 +147,7 @@ func printVessels(vessels []fms.VesselInfo) {
 	t.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true},
 		{Number: 4, AutoMerge: true}, {Number: 5, AutoMerge: true}, {Number: 6, AutoMerge: true},
-		{Number: 8, AutoMerge: true},
+		{Number: 7, AutoMerge: true}, {Number: 8, AutoMerge: true},
 	})
 
 	//t.SetStyle(table.StyleLight)
