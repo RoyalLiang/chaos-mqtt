@@ -2,6 +2,7 @@ package fms
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -63,8 +64,16 @@ type VesselInfo struct {
 	Egress     VesselGressInfo   `json:"egress"`
 }
 
-func (c VesselInfo) String() string {
-	v, _ := json.Marshal(c)
+func (ve VesselInfo) Wms() string {
+	return fmt.Sprintf("%d-%d", ve.VesselInfo.StartPos, ve.VesselInfo.EndPos)
+}
+
+func (ve VesselInfo) Gress() string {
+	return fmt.Sprintf("%d-%d", ve.Ingress.WharfMarkStart, ve.Egress.WharfMarkEnd)
+}
+
+func (ve VesselInfo) String() string {
+	v, _ := json.Marshal(ve)
 	return string(v)
 }
 

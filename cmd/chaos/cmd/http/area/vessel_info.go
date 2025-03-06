@@ -26,8 +26,8 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "Ingress", "Egress", "QC", "Locked", "Assigned", "CA", "Work lane", "CA Status", "CA Capacity",
-		"Ca Queues", "QC Queues",
+		"Vessel ID", "WMs", "Gress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
+		"CA Capacity", "Ca Queue",
 	}
 )
 
@@ -125,28 +125,24 @@ func getAssignedCraneCaData(crane string, cas []fms.VesselCAInfo) []fms.VesselCA
 
 func printVessels(vessels []fms.VesselInfo) {
 	t.ResetRows()
-	rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
+	//rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
 	for _, vs := range vessels {
 		for _, crane := range vs.Cranes {
 			rows := make([]table.Row, 0)
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
 			for _, ca := range cas {
 				row := table.Row{
-					ca.VesselId, vs.Ingress.WharfMarkStart, vs.Egress.WharfMarkEnd, crane.Name, getLockedStatus(crane.Locked), crane.VehicleID,
-					ca.Name, ca.GetWorkLane(), getLockedStatus(ca.Locked), ca.Capacity,
-					strings.Join(ca.Vehicles, ","), "",
+					ca.VesselId, vs.Wms(), vs.Gress(), crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
+					crane.VehicleID, strings.Join(vs.CAArrives, ","), ca.Name, ca.GetWorkLane(),
+					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
 				}
 				rows = append(rows, row)
 			}
-			t.AppendRows(rows, rowConfigAutoMerge)
+			t.AppendRows(rows)
 		}
 	}
-	t.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true},
-		{Number: 4, AutoMerge: true},
-	})
 
-	t.SetStyle(table.StyleLight)
+	//t.SetStyle(table.StyleLight)
 	t.Style().Options.SeparateRows = true
 	//t.Style().Options.SeparateColumns = true
 	fmt.Print(t.Render())

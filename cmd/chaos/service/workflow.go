@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -48,6 +49,18 @@ func NewWorkflow(activity int64, lane, vehicleID, dest string, autoCallIn bool) 
 	return w
 }
 
+func sendLogon() {
+	message := messages.LogonResponse{
+		APMID: constants.VehicleID,
+		Data: messages.LogonResponseData{
+			Success: 1, TrailerSeqNumbers: []int{1}, TrailerLengths: []int{20}, TrailerUnladenWeights: []int{11},
+			TrailerTypes: strings.Split("CST", ","), TrailerPayloads: []int{200}, TrailerWidths: make([]int, 0),
+			TrailerHeights: make([]int, 0), TrailerNumbers: strings.Split("C53525", ","),
+		},
+	}.String()
+	_ = PublishAssignedTopic("logon_response", "", message)
+}
+
 func (wf *Workflow) StartWorkflow() error {
 
 	topics := map[string]byte{}
@@ -55,6 +68,7 @@ func (wf *Workflow) StartWorkflow() error {
 		topics[v] = 1
 	}
 
+	sendLogon()
 	go func() {
 		time.Sleep(time.Second * 3)
 		message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "5", 1, 40, 1)
@@ -65,7 +79,7 @@ func (wf *Workflow) StartWorkflow() error {
 		}
 	}()
 
-	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start Listen...          \n"))
+	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start...          \n"))
 	wf.client.SubscribeMultiple(topics, wf.messageHandler)
 	return nil
 }
