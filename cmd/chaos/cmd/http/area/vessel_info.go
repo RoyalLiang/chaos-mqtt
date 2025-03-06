@@ -26,7 +26,7 @@ var (
 	vid    string
 	t      = table.NewWriter()
 	header = table.Row{
-		"Vessel ID", "WMs", "Gress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
+		"Vessel ID", "WMs", "Ingress", "Egress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
 		"CA Capacity", "Ca Queue",
 	}
 )
@@ -132,7 +132,7 @@ func printVessels(vessels []fms.VesselInfo) {
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
 			for _, ca := range cas {
 				row := table.Row{
-					ca.VesselId, vs.Wms(), vs.Gress(), crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
+					ca.VesselId, vs.Wms(), vs.Ingress.WharfMarkEnd, vs.Egress.WharfMarkEnd, crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
 					crane.VehicleID, strings.Join(vs.CAArrives, ","), ca.Name, ca.GetWorkLane(),
 					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
 				}
@@ -142,8 +142,14 @@ func printVessels(vessels []fms.VesselInfo) {
 		}
 	}
 
+	t.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true},
+		{Number: 4, AutoMerge: true}, {Number: 5, AutoMerge: true}, {Number: 6, AutoMerge: true},
+		{Number: 8, AutoMerge: true},
+	})
+
 	//t.SetStyle(table.StyleLight)
-	t.Style().Options.SeparateRows = true
+	//t.Style().Options.SeparateRows = true
 	//t.Style().Options.SeparateColumns = true
 	fmt.Print(t.Render())
 }
@@ -169,44 +175,11 @@ func getVessels() *fms.GetVesselsResponse {
 	return vesselInfo
 }
 
-func getAssignedQCData(vessels []fms.VesselInfo, craneNo string) fms.VesselCraneInfo {
-	for _, vs := range vessels {
-		for _, c := range vs.Cranes {
-			if c.Name == craneNo {
-				return c
-			}
-		}
-	}
-	return fms.VesselCraneInfo{}
-}
-
 func getLockedStatus(status int) string {
 	if status == 1 {
 		return "Locked"
 	}
 	return ""
-}
-
-func printResult(vessels []fms.VesselInfo, cas []fms.VesselCAInfo) {
-	t.ResetRows()
-	for _, ca := range cas {
-		var bindLane int
-		crane := getAssignedQCData(vessels, ca.Crane)
-
-		if ca.FixedWorkLane != nil {
-			bindLane = *ca.FixedWorkLane
-		} else {
-			bindLane = ca.BindLane
-		}
-
-		row := table.Row{
-			ca.VesselId, ca.Name, bindLane, ca.Capacity, getLockedStatus(ca.Locked), strings.Join(ca.Vehicles, ","),
-			getLockedStatus(crane.Locked), crane.VehicleID, "", "",
-		}
-		t.AppendRow(row)
-	}
-
-	fmt.Print(t.Render())
 }
 
 func init() {

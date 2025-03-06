@@ -4,9 +4,10 @@ import (
 	"testing"
 )
 
-func TestPrintResult(t *testing.T) {
+func TestPrintResult(te *testing.T) {
 	vessels := getVessels()
 
+	t.AppendHeader(header)
 	if vessels == nil {
 		return
 	}

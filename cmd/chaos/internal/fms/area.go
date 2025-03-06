@@ -53,15 +53,15 @@ func (c Coordinate) String() string {
 }
 
 type VesselInfo struct {
-	MaxWf      int               `json:"max_wf"`
-	MinWf      int               `json:"min_wf"`
-	VesselInfo VesselDetail      `json:"vessel_info"`
-	CAs        []VesselCAInfo    `json:"cas"`
-	WAArrives  []string          `json:"wa_arrives"`
-	CAArrives  []string          `json:"ca_arrives"`
-	Cranes     []VesselCraneInfo `json:"cranes"`
-	Ingress    VesselGressInfo   `json:"ingress"`
-	Egress     VesselGressInfo   `json:"egress"`
+	MaxWf      int                    `json:"max_wf"`
+	MinWf      int                    `json:"min_wf"`
+	VesselInfo VesselDetail           `json:"vessel_info"`
+	CAs        []VesselCAInfo         `json:"cas"`
+	WAArrives  []VesselWaArrivedTruck `json:"wa_arrives"`
+	CAArrives  []string               `json:"ca_arrives"`
+	Cranes     []VesselCraneInfo      `json:"cranes"`
+	Ingress    VesselGressInfo        `json:"ingress"`
+	Egress     VesselGressInfo        `json:"egress"`
 }
 
 func (ve VesselInfo) Wms() string {
@@ -75,6 +75,14 @@ func (ve VesselInfo) Gress() string {
 func (ve VesselInfo) String() string {
 	v, _ := json.Marshal(ve)
 	return string(v)
+}
+
+type VesselWaArrivedTruck struct {
+	Type  string `json:"type"`
+	Name  string `json:"name"`
+	Block string `json:"block"`
+	Bay   string `json:"bay"`
+	Lane  int    `json:"lane"`
 }
 
 type VesselDetail struct {
