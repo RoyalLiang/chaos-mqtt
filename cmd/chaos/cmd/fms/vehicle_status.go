@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -43,6 +44,7 @@ var (
 	redisClient   *redis.Client
 	vehicleFilter string
 	exclude       string
+	withQtruck    bool
 )
 
 var VehicleCmd = &cobra.Command{
@@ -99,7 +101,7 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 		return
 	}
 
-	if (vehicle.ID == "AT001" || vehicle.ID == "AT002") && vehicleID == "" {
+	if !withQtruck && strings.HasPrefix(vehicle.ID, "AT") {
 		return
 	}
 
@@ -331,4 +333,5 @@ func init() {
 	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
 	VehicleCmd.Flags().StringVarP(&exclude, "exclude", "e", "", "过滤指定模式的集卡"+vehicleModes)
 	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡⭕")
+	VehicleCmd.Flags().BoolVar(&withQtruck, "with-qtruck", false, "显示Qtruck🚗")
 }
