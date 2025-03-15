@@ -40,7 +40,7 @@ func generateTemplateParam() string {
 			OperationalTypes: make([]string, 0),
 			CNTRCategorys:    make([]string, 0), CNTRStatus: make([]string, 0), CNTRWeights: make([]float64, 0),
 			CNTRNumbers: make([]string, 0), CNTRSizes: make([]string, 0), CNTRTypes: make([]string, 0),
-			Cones: make([]string, 0), CNTRLocationsOnAPM: make([]string, 0), OperationalJobSequences: make([]string, 0),
+			Cones: make([]int, 0), CNTRLocationsOnAPM: make([]string, 0), OperationalJobSequences: make([]string, 0),
 			OperationalGroups: make([]string, 0), OperationalQCSequences: make([]string, 0), JobTypes: make([]string, 0),
 			Urgents: make([]string, 0), DestLocations: make([]string, 0), DGGroups: make([]string, 0),
 			DGS: make([]string, 0), ReferTemperatures: make([]float64, 0), IMOClass: make([]string, 0),

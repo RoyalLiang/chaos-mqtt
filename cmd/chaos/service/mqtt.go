@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -17,6 +18,16 @@ type MqttClient struct {
 	address string
 	ctx     context.Context
 	exit    chan struct{}
+}
+
+type Message struct {
+	APMID string      `json:"apm_id"`
+	Data  interface{} `json:"data"`
+}
+
+func (m Message) String() string {
+	v, _ := json.Marshal(m.Data)
+	return string(v)
 }
 
 func (mc *MqttClient) connectToServer(prefix, user, password string) error {

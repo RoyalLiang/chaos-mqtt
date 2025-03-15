@@ -2,8 +2,11 @@ package service
 
 import (
 	"encoding/json"
+	tools "fms-awesome-tools/utils"
 	"fmt"
+	"os"
 	"strings"
+	"time"
 
 	"fms-awesome-tools/cmd/chaos/internal"
 	"fms-awesome-tools/cmd/chaos/internal/messages"
@@ -11,9 +14,9 @@ import (
 
 func (wf *Workflow) response(topic, message string) {
 	if err := wf.client.Publish(topic, message); err != nil {
-		fmt.Printf("%s ==> %s\n", topic, err)
+		fmt.Printf("[%s] send message to <%s> failed: %s\n", time.Now().Local().String(), topic, err.Error())
 	} else {
-		fmt.Printf("%s ==> %s\n", topic, message)
+		fmt.Printf("[%s] send message to <%s>: %s\n\n", time.Now().Local().String(), topic, message)
 	}
 }
 
@@ -39,7 +42,7 @@ func (wf *Workflow) offload() {
 	offload := messages.OffloadInstruction{
 		APMID: wf.task.APMID,
 		Data: messages.OffloadInstructionData{
-			CntrNumber: "FFFF0000000",
+			CntrNumber: "FFFF 0000000",
 		},
 	}
 	wf.response("offload_instruction", offload.String())
@@ -68,23 +71,16 @@ func (wf *Workflow) routeJobResponseHandler(message []byte) {
 	if len(data.Data.RouteDAG) != 0 {
 		job := &messages.JobInstruction{}
 		if err := json.Unmarshal(message, job); err != nil {
-			fmt.Println("job_instruction == > route_response_job_instruction解析失败")
-			return
+			fmt.Println("job_instruction解析失败...")
+			os.Exit(1)
 		}
 		job.Data.RouteMandate = "Y"
 		wf.response("job_instruction", job.String())
-
 		wf.task = &data
-		if strings.HasPrefix(data.Data.NextLocation, "P") {
-			wf.taskType = "QC"
-			wf.destination = strings.Replace(strings.Replace(data.Data.NextLocation, "P", "", 1), "_Pre-Ingress", "", 1)
-		} else {
-			wf.taskType = "YARD"
-			wf.destination = data.Data.NextLocation
-		}
 		return
 	}
-	fmt.Println("job_instruction == > route dag为空, 任务下发失败")
+	fmt.Println("job_instruction == > route dag为空, 任务下发失败, 流程结束")
+	os.Exit(1)
 }
 
 func (wf *Workflow) readyForIngressToCallInHandler(message []byte) {
@@ -121,15 +117,31 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 		return
 	}
 
-	if data.Data.Location == wf.destination {
+	if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(wf.destination) {
 		switch wf.task.Data.Activity {
 		case 2, 3, 4:
 			wf.mount()
 		case 6, 7, 8:
 			wf.offload()
+		case 1, 5:
+			time.Sleep(time.Second)
 		default:
 			return
 		}
+
+		if wf.loop < 0 {
+			fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
+		} else if wf.loop == 0 {
+			fmt.Println(tools.CustomTitle("\n          当前流程已结束...          \n"))
+			os.Exit(1)
+		} else if wf.loopCount > wf.loop {
+			fmt.Println(tools.CustomTitle("\n          流程已全部执行结束...          \n"))
+			os.Exit(1)
+		} else {
+			fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
+			wf.loopCount++
+		}
+		wf.sendNewTask()
 	}
 }
 
@@ -139,4 +151,22 @@ func (wf *Workflow) pathUpdateRequestHandler(message []byte) {
 
 func (wf *Workflow) dockPositionResponseHandler(message []byte) {
 
+}
+
+func (wf *Workflow) sendNewTask() {
+	fmt.Printf("old dest: %s, old lane: %s\n", wf.destination, wf.lane)
+	if strings.Contains(wf.destination, "PQC") {
+		wf.updateBlockTask()
+	} else {
+		wf.updateQCTask()
+	}
+	time.Sleep(time.Second * 3)
+	fmt.Printf("curr dest: %s, curr lane: %s\n", wf.destination, wf.lane)
+	message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", 1, 40, 1)
+	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+		fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
+		os.Exit(1)
+	} else {
+		fmt.Printf("[%s] send message to <%s>: %s\n", time.Now().Local().String(), "route_request_job_instruction", message)
+	}
 }

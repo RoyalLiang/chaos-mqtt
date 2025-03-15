@@ -146,14 +146,16 @@ func VersionCompare(cv, nv string) bool {
 func GetVehicleTaskID(vehicleID, dest string, activity int64) string {
 
 	var prefix string
-	if strings.HasPrefix(dest, "Y") {
-		if activity == 1 || activity == 5 {
-			prefix = "ST"
-		} else {
-			prefix = "MO"
-		}
-	} else if strings.HasPrefix(dest, "P") {
-		prefix = "WFMO"
+	switch activity {
+	case 1, 5:
+		prefix = "ST"
+	case 2, 3, 4:
+		prefix = "MO"
+	case 6, 7, 8:
+		prefix = "OF"
+	}
+	if strings.HasPrefix(dest, "P") {
+		prefix = fmt.Sprintf("WF%s", prefix)
 	}
 
 	now := time.Now()

@@ -2,8 +2,10 @@ package messages
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
@@ -129,7 +131,7 @@ type JobInstructionData struct {
 	SourceLocations         []string   `json:"source_locations"`
 	DestLocations           []string   `json:"dest_locations"`
 	OffloadSequences        []string   `json:"offload_sequences"`
-	Cones                   []string   `json:"cones"`
+	Cones                   []int      `json:"cones"`
 	OperationalQCSequences  []string   `json:"operational_qc_sequences"`
 	OperationalJobSequences []string   `json:"operational_job_sequences"`
 	TrailerPositions        []string   `json:"trailer_positions"`
@@ -355,10 +357,10 @@ func (r RouteRequest) String() string {
 	return string(v)
 }
 
-func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, container, quantity int64) string {
+func GenerateRouteRequestJob(destination, lane, direction, targetDockPos string, liftSize, container, quantity int64) string {
 	var dest = ""
 	if strings.HasPrefix(destination, "PQC") {
-		dest = "P," + destination + "          "
+		dest = fmt.Sprintf("P,%s          ", destination)
 	} else {
 		dest = destination
 	}
@@ -368,7 +370,7 @@ func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, 
 		Data: RouteRequestJobInstructionRequestData{
 			APMID: constants.VehicleID, RouteDAG: make([]RouteDag, 0), Activity: constants.Activity,
 			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, constants.Activity), NextLocation: dest, NextLocationLane: lane,
-			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0),
+			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0), Timestamp: time.Now().Unix(),
 			CntrCategorys: make([]string, 0), CntrStatus: make([]string, 0), CntrWeights: make([]string, 0),
 			CntrNumbers: make([]string, 0), CntrSizes: make([]string, 0), CntrTypes: make([]string, 0),
 			Cones: make([]string, 0), CntrLocationsOnAPM: make([]int, 0), OperationalJobSequences: make([]string, 0),
@@ -377,7 +379,7 @@ func GenerateRouteRequestJob(destination, lane, targetDockPos string, liftSize, 
 			DGs: make([]string, 0), ReferTemperatures: make([]string, 0), IMOClass: make([]string, 0),
 			OffloadSequences: make([]string, 0), TrailerPositions: make([]string, 0), WeightClass: make([]string, 0),
 			PlugRequireds: make([]string, 0), SourceLocations: make([]string, 0), MotorDirections: make([]string, 0),
-			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N", RouteMandate: "Y", APMDirection: "S",
+			AssignedCntrType: "GP", NumMountedCntr: 0, DualCycle: "N", RouteMandate: "Y", APMDirection: direction,
 		},
 	}
 
