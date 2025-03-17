@@ -117,29 +117,17 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 		return
 	}
 
-	if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(wf.destination) {
+	if wf.activity == 1 || wf.activity == 5 {
+		time.Sleep(time.Second * 2)
+		wf.sendNewTask()
+	} else if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(wf.destination) {
 		switch wf.task.Data.Activity {
 		case 2, 3, 4:
 			wf.mount()
 		case 6, 7, 8:
 			wf.offload()
-		case 1, 5:
-			time.Sleep(time.Second)
 		default:
 			return
-		}
-
-		if wf.loop < 0 {
-			fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
-		} else if wf.loop == 0 {
-			fmt.Println(tools.CustomTitle("\n          当前流程已结束...          \n"))
-			os.Exit(1)
-		} else if wf.loopCount > wf.loop {
-			fmt.Println(tools.CustomTitle("\n          流程已全部执行结束...          \n"))
-			os.Exit(1)
-		} else {
-			fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
-			wf.loopCount++
 		}
 		wf.sendNewTask()
 	}
@@ -154,6 +142,19 @@ func (wf *Workflow) dockPositionResponseHandler(message []byte) {
 }
 
 func (wf *Workflow) sendNewTask() {
+	if wf.loop < 0 {
+		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
+	} else if wf.loop == 0 {
+		fmt.Println(tools.CustomTitle("\n          当前流程已结束...          \n"))
+		os.Exit(1)
+	} else if wf.loopCount > wf.loop {
+		fmt.Println(tools.CustomTitle("\n          流程已全部执行结束...          \n"))
+		os.Exit(1)
+	} else {
+		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
+		wf.loopCount++
+	}
+
 	if strings.Contains(wf.destination, "PQC") {
 		wf.updateBlockTask()
 	} else {
