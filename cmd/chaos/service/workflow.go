@@ -107,14 +107,6 @@ func choiceBlockLane() string {
 	return Lanes[li]
 }
 
-func (wf *Workflow) updateTask() {
-	if strings.Contains(wf.destination, "PQC") {
-		wf.updateBlockTask()
-	} else {
-		wf.updateQCTask()
-	}
-}
-
 func (wf *Workflow) updateBlockTask() {
 	wf.taskType = choiceTaskType()
 	if wf.taskType == "STANDBY" {
@@ -144,7 +136,7 @@ func (wf *Workflow) StartWorkflow() error {
 	sendLogon()
 	go func() {
 		time.Sleep(time.Second * 3)
-		message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", 1, 40, 1)
+		message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
 		if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 			fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
 			os.Exit(1)

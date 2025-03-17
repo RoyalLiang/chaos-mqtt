@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -41,7 +42,7 @@ func (mc *MqttClient) connectToServer(prefix, user, password string) error {
 
 	mc.client = mqtt.NewClient(options)
 	if token := mc.client.Connect(); token.Wait() && token.Error() != nil {
-		return fmt.Errorf("mqtt connect error: %s\n", token.Error())
+		return errors.New("mqtt connect error: " + token.Error().Error())
 	}
 	return nil
 }

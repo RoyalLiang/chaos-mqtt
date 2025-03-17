@@ -18,7 +18,7 @@ func TestRedis(t *testing.T) {
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s", cfg.Address),
+		Addr:     cfg.Address,
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})

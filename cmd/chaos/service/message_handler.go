@@ -154,15 +154,13 @@ func (wf *Workflow) dockPositionResponseHandler(message []byte) {
 }
 
 func (wf *Workflow) sendNewTask() {
-	fmt.Printf("old dest: %s, old lane: %s\n", wf.destination, wf.lane)
 	if strings.Contains(wf.destination, "PQC") {
 		wf.updateBlockTask()
 	} else {
 		wf.updateQCTask()
 	}
 	time.Sleep(time.Second * 3)
-	fmt.Printf("curr dest: %s, curr lane: %s\n", wf.destination, wf.lane)
-	message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", 1, 40, 1)
+	message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
 	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 		fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
 		os.Exit(1)
