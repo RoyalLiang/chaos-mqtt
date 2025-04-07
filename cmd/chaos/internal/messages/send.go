@@ -3,6 +3,7 @@ package messages
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -365,6 +366,11 @@ func GenerateRouteRequestJob(destination, lane, direction, targetDockPos string,
 		dest = destination
 	}
 
+	if quantity > 2 {
+		fmt.Println("暂只支持双箱或单箱...")
+		os.Exit(1)
+	}
+
 	routeJob := RouteRequestJobInstructionRequest{
 		APMID: constants.VehicleID,
 		Data: RouteRequestJobInstructionRequestData{
@@ -392,12 +398,13 @@ func GenerateRouteRequestJob(destination, lane, direction, targetDockPos string,
 			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, 5)
 			routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
 			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(5, 10))
-		}
-		for c := range quantity {
-			routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
-			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, int(c))
-			routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(20, 10))
-			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(c, 10))
+		} else {
+			for c := range quantity {
+				routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
+				routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, int(2*c+1))
+				routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(20, 10))
+				routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(c, 10))
+			}
 		}
 	}
 	return routeJob.String()
