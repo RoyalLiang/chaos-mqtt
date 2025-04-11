@@ -17,9 +17,9 @@ var (
 
 var ArmgCmd = &cobra.Command{
 	Use:   "armg_request",
-	Short: "发送 armg_request",
+	Short: "发送 armg_instruction_request",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := service.PublishAssignedTopic("armg_request", "", genArmgRequest()); err != nil {
+		if err := service.PublishAssignedTopic("armg_instruction_request", "", genArmgRequest()); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")
