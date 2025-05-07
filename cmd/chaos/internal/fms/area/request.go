@@ -3,10 +3,11 @@ package area
 import "encoding/json"
 
 type ManualModeRequest struct {
-	Ingress int64            `json:"ingress"`
-	Egress  int64            `json:"egress"`
-	QCLanes map[string]int64 `json:"qc_cfg"`
-	Mode    int64            `json:"mode"`
+	Ingress     int64             `json:"ingress"`
+	Egress      int64             `json:"egress"`
+	QCLanes     map[string]int64  `json:"qc_cfg"`
+	TurnMapping map[string]string `json:"turn_cfg"`
+	Mode        int64             `json:"mode"`
 }
 
 func (req ManualModeRequest) String() string {

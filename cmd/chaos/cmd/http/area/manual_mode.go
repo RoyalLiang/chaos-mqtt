@@ -17,6 +17,7 @@ var (
 	ingress  int64
 	egress   int64
 	qcs      []string
+	turns    []string
 	reset    bool
 )
 
@@ -48,6 +49,7 @@ func resetRequest() {
 
 func manualRequest() {
 	qcLaneMap := make(map[string]int64)
+	ingressTurns := make(map[string]string)
 	if len(qcs) > 0 {
 		for _, item := range qcs {
 			parts := strings.Split(item, "=")
@@ -64,12 +66,24 @@ func manualRequest() {
 		}
 	}
 
+	if len(turns) > 0 {
+		for _, item := range turns {
+			parts := strings.Split(item, "=")
+			if len(parts) != 2 {
+				fmt.Printf("无效的输入格式: %s，应为 QC=lane\n", item)
+				return
+			}
+			ingressTurns[parts[0]] = parts[1]
+		}
+	}
+
 	url := "/fms/psa/vessel/" + vesselID + "/manualModel"
 	body := area.ManualModeRequest{
-		Ingress: ingress,
-		Egress:  egress,
-		QCLanes: qcLaneMap,
-		Mode:    1,
+		Ingress:     ingress,
+		Egress:      egress,
+		QCLanes:     qcLaneMap,
+		TurnMapping: ingressTurns,
+		Mode:        1,
 	}
 	sendRequest(url, []byte(body.String()))
 }
@@ -91,4 +105,5 @@ func init() {
 	ManualModeCmd.Flags().Int64VarP(&ingress, "ingress", "i", 0, "指定的ingress wm🚩")
 	ManualModeCmd.Flags().Int64VarP(&egress, "egress", "e", 0, "指定的egress wm🚩")
 	ManualModeCmd.Flags().StringSliceVarP(&qcs, "qc-config", "c", []string{}, "批量设置数据，格式: QC1=2🌉")
+	ManualModeCmd.Flags().StringSliceVarP(&turns, "turn-mapping", "t", []string{}, "设置不同车道的转向方式，格式: 2=left🌌")
 }
