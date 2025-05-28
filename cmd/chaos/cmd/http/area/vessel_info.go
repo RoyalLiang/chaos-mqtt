@@ -39,7 +39,7 @@ const (
 )
 
 var GetVesselCmd = &cobra.Command{
-	Use:   "vessels_status",
+	Use:   "vessels",
 	Short: "获取所有船舶/指定船舶的CA状态及等待队列",
 	Run: func(cmd *cobra.Command, args []string) {
 		t.AppendHeader(header)

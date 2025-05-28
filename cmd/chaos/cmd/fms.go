@@ -25,5 +25,6 @@ func init() {
 	fmsCmd.AddCommand(area.GetVesselCmd)
 	fmsCmd.AddCommand(fms.VehicleCmd)
 	fmsCmd.AddCommand(fms.CraneMoveCmd)
+	fmsCmd.AddCommand(fms.OperateCmd)
 	rootCmd.AddCommand(fmsCmd)
 }

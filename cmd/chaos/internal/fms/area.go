@@ -17,6 +17,9 @@ const (
 	GetVehiclesURL      = prefix + "/vehicles"
 	ResetVehicleURL     = prefix + "/truck"
 	GetCraneLocationURL = prefix + "/cranes"
+
+	LockURL    = prefix + `/vessel/%s/lock`
+	ReleaseURL = prefix + `/vessel/%s/unlock`
 )
 
 const (
@@ -280,5 +283,15 @@ type SetCraneLocationReq struct {
 
 func (slr SetCraneLocationReq) String() string {
 	v, _ := json.Marshal(slr)
+	return string(v)
+}
+
+type OperateReq struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+func (o OperateReq) String() string {
+	v, _ := json.Marshal(o)
 	return string(v)
 }
