@@ -7,6 +7,7 @@ type ManualModeRequest struct {
 	Egress      int64             `json:"egress"`
 	QCLanes     map[string]int64  `json:"qc_cfg"`
 	TurnMapping map[string]string `json:"turn_cfg"`
+	EMapping    map[string]string `json:"e_mapping"`
 	Mode        int64             `json:"mode"`
 }
 

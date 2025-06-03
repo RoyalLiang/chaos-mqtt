@@ -18,6 +18,7 @@ var (
 	egress   int64
 	qcs      []string
 	turns    []string
+	eMapping []string
 	reset    bool
 )
 
@@ -50,6 +51,7 @@ func resetRequest() {
 func manualRequest() {
 	qcLaneMap := make(map[string]int64)
 	ingressTurns := make(map[string]string)
+	egressTurns := make(map[string]string)
 	if len(qcs) > 0 {
 		for _, item := range qcs {
 			parts := strings.Split(item, "=")
@@ -70,22 +72,33 @@ func manualRequest() {
 		for _, item := range turns {
 			parts := strings.Split(item, "=")
 			if len(parts) != 2 {
-				fmt.Printf("无效的输入格式: %s，应为 QC=lane\n", item)
+				fmt.Printf("无效的输入格式: %s，应为 <lane>=<direction>\n", item)
 				return
 			}
 			ingressTurns[parts[0]] = parts[1]
 		}
 	}
 
-	url := "/fms/psa/vessel/" + vesselID + "/manualModel"
+	if len(eMapping) > 0 {
+		for _, item := range eMapping {
+			parts := strings.Split(item, "=")
+			if len(parts) != 2 {
+				fmt.Printf("无效的输入格式: %s，应为 <lane>=<direction>\n", item)
+				return
+			}
+			egressTurns[parts[0]] = parts[1]
+		}
+	}
+
 	body := area.ManualModeRequest{
 		Ingress:     ingress,
 		Egress:      egress,
 		QCLanes:     qcLaneMap,
 		TurnMapping: ingressTurns,
+		EMapping:    egressTurns,
 		Mode:        1,
 	}
-	sendRequest(url, []byte(body.String()))
+	sendRequest(fmt.Sprintf(fms.ManualModeURL, vesselID), []byte(body.String()))
 }
 
 func sendRequest(url string, data []byte) {
@@ -105,5 +118,6 @@ func init() {
 	ManualModeCmd.Flags().Int64VarP(&ingress, "ingress", "i", 0, "指定的ingress wm🚩")
 	ManualModeCmd.Flags().Int64VarP(&egress, "egress", "e", 0, "指定的egress wm🚩")
 	ManualModeCmd.Flags().StringSliceVarP(&qcs, "qc-config", "c", []string{}, "批量设置数据，格式: QC1=2🌉")
-	ManualModeCmd.Flags().StringSliceVarP(&turns, "turn-mapping", "t", []string{}, "设置不同车道的转向方式，格式: 2=left🌌")
+	ManualModeCmd.Flags().StringSliceVarP(&turns, "turn-mapping", "t", []string{}, "设置ingress不同车道的转向方式\n格式: 2=left🌌\n可选方向: left, right, ''\n")
+	ManualModeCmd.Flags().StringSliceVarP(&eMapping, "egress-mapping", "o", []string{}, "设置egress不同车道的转向方式\n格式: 2=left🌌\n可选方向: left, right, ''\n")
 }

@@ -9,7 +9,7 @@ import (
 const prefix = "/fms/psa"
 
 const (
-	ManualModeURL       = prefix + "/vessel/{vessel_id}/manualModel"
+	ManualModeURL       = prefix + `/vessel/%s/manualModel`
 	OpBlockURL          = prefix + "/hatch_cover/op"
 	ClearBlockURL       = prefix + "/hatch_cover/clear"
 	GetVesselsURL       = prefix + "/vessels"
