@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/constants"
@@ -11,12 +13,14 @@ import (
 )
 
 var (
-	start    bool
-	dest     string
-	lane     string
-	auto     bool
-	vehicles []string
-	loopNum  int64
+	start        bool
+	dest         string
+	lane         string
+	auto         bool
+	vehicles     []string
+	loopNum      int64
+	assignedQC   string
+	assignedLane string
 )
 
 var workflowCmd = &cobra.Command{
@@ -30,6 +34,22 @@ var workflowCmd = &cobra.Command{
 			_ = cmd.Help()
 		}
 	},
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if assignedQC != "" && !strings.HasPrefix(assignedQC, "PQC") {
+			return fmt.Errorf("assigned QC fotmat incorrect")
+		}
+
+		if assignedLane != "" {
+			v, err := strconv.Atoi(assignedLane)
+			if err != nil {
+				return err
+			}
+			if v < 2 || v > 6 || v == 4 {
+				return fmt.Errorf("assigned lane must be between 2, 3, 5, 6")
+			}
+		}
+		return nil
+	},
 }
 
 func startWorkflow() {
@@ -42,7 +62,7 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.NewWorkflow(loopNum, constants.Activity, lane, constants.VehicleID, dest, auto).StartWorkflow(); err != nil {
+	if err := service.NewWorkflow(loopNum, constants.Activity, lane, constants.VehicleID, dest, assignedQC, assignedLane, auto).StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
@@ -54,6 +74,8 @@ func init() {
 	workflowCmd.Flags().StringVarP(&constants.VehicleID, "truck", "v", "APM9001", "集卡号🚗")
 	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ;🔚")
 	workflowCmd.Flags().StringVarP(&lane, "lane", "l", "", "目的地车道")
+	workflowCmd.Flags().StringVar(&assignedQC, "assigned-qc", "", "指定作业QC")
+	workflowCmd.Flags().StringVar(&assignedLane, "assigned-lane", "", "指定QC的作业车道")
 	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "自动发送call-in🔄️")
 	workflowCmd.Flags().StringSliceVarP(&vehicles, "vehicles", "", make([]string, 0), "执行workflow的集卡列表")
 	workflowCmd.Flags().Int64Var(&loopNum, "loop", 0, "循环执行workflow\n-1: 无限循环\n0: 执行一次\n>0: 执行指定次数\n新任务目的地轮换指定, QC: PQC924-2, 堆场: 随机指定\n")

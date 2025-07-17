@@ -48,6 +48,18 @@ func resetRequest() {
 	sendRequest(url, make([]byte, 0))
 }
 
+func split(mapping []string) map[string]string {
+	result := make(map[string]string)
+	for _, item := range mapping {
+		parts := strings.Split(item, "=")
+		if len(parts) != 2 {
+			cobra.CheckErr("无效的输入格式: %s，应为 <lane>=<direction>")
+		}
+		result[parts[0]] = parts[1]
+	}
+	return result
+}
+
 func manualRequest() {
 	qcLaneMap := make(map[string]int64)
 	ingressTurns := make(map[string]string)
@@ -69,25 +81,11 @@ func manualRequest() {
 	}
 
 	if len(turns) > 0 {
-		for _, item := range turns {
-			parts := strings.Split(item, "=")
-			if len(parts) != 2 {
-				fmt.Printf("无效的输入格式: %s，应为 <lane>=<direction>\n", item)
-				return
-			}
-			ingressTurns[parts[0]] = parts[1]
-		}
+		ingressTurns = split(turns)
 	}
 
 	if len(eMapping) > 0 {
-		for _, item := range eMapping {
-			parts := strings.Split(item, "=")
-			if len(parts) != 2 {
-				fmt.Printf("无效的输入格式: %s，应为 <lane>=<direction>\n", item)
-				return
-			}
-			egressTurns[parts[0]] = parts[1]
-		}
+		egressTurns = split(eMapping)
 	}
 
 	body := area.ManualModeRequest{

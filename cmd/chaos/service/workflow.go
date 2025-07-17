@@ -30,31 +30,35 @@ var (
 )
 
 type Workflow struct {
-	client      *MqttClient
-	wg          sync.WaitGroup
-	task        *messages.RouteResponseJobInstruction
-	UUID        string
-	vehicleID   string
-	destination string
-	lane        string
-	activity    int64
-	taskType    string
-	autoCallIn  bool
-	loop        int64
-	loopCount   int64
+	client       *MqttClient
+	wg           sync.WaitGroup
+	task         *messages.RouteResponseJobInstruction
+	UUID         string
+	vehicleID    string
+	destination  string
+	lane         string
+	assignedQC   string
+	assignedLane string
+	activity     int64
+	taskType     string
+	autoCallIn   bool
+	loop         int64
+	loopCount    int64
 }
 
-func NewWorkflow(loopNum, activity int64, lane, vehicleID, dest string, autoCallIn bool) *Workflow {
+func NewWorkflow(loopNum, activity int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn bool) *Workflow {
 	w := &Workflow{
-		UUID:        uuid.NewString(),
-		wg:          sync.WaitGroup{},
-		autoCallIn:  autoCallIn,
-		activity:    activity,
-		lane:        lane,
-		vehicleID:   vehicleID,
-		destination: dest,
-		loop:        loopNum,
-		loopCount:   1,
+		UUID:         uuid.NewString(),
+		wg:           sync.WaitGroup{},
+		autoCallIn:   autoCallIn,
+		activity:     activity,
+		lane:         lane,
+		vehicleID:    vehicleID,
+		destination:  dest,
+		loop:         loopNum,
+		loopCount:    1,
+		assignedQC:   aQC,
+		assignedLane: aLane,
 	}
 
 	if strings.HasPrefix(w.destination, "PQC") {
@@ -121,10 +125,18 @@ func (wf *Workflow) updateBlockTask() {
 }
 
 func (wf *Workflow) updateQCTask() {
-	wf.destination = "P,PQC924          "
+	if wf.assignedQC != "" {
+		wf.destination = fmt.Sprintf("P,%s          ", wf.assignedQC)
+	} else {
+		wf.destination = "P,PQC924          "
+	}
 	wf.activity = 2
 	wf.taskType = "QC"
-	wf.lane = choiceQCLane()
+	if wf.assignedLane != "" {
+		wf.lane = wf.assignedLane
+	} else {
+		wf.lane = choiceQCLane()
+	}
 }
 
 func (wf *Workflow) StartWorkflow() error {

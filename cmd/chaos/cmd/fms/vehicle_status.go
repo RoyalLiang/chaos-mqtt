@@ -52,8 +52,8 @@ var VehicleCmd = &cobra.Command{
 	Short: "获取所有/指定集卡状态",
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
-			"ID", "Vehicle ID", "Task Type", "Job Type", "Cones", "ISO", "Start Time", "Destination", "Lift Type",
-			"Lane", "Curr Destination", "Curr Type", "Arrived", "Call Status", "Mode", "Ready", "Manual",
+			"ID", "Vehicle ID", "Task Type", "Job Type", "Lift", "Cones", "ISO", "Start Time", "Destination",
+			"Lane", "Curr Destination", "WTA/s", "Arrived", "Call Status", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -258,12 +258,12 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			lane = fmt.Sprintf("%d", vehicle.Destination.Lane)
 		}
 
-		name := vehicle.CurrentDestination.Name
+		dname := vehicle.CurrentDestination.Name
 		if vehicle.CurrentDestination.Type == "Pre-Ingress" {
-			name = vehicle.CurrentDestination.Type
+			dname = vehicle.CurrentDestination.Type
 		}
 		if vehicle.Destination.Type == "YARD" {
-			name = vehicle.Destination.Name
+			dname = vehicle.Destination.Name
 		}
 
 		if vehicle.Destination.Type == "QC" {
@@ -296,24 +296,25 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			job = "STANDBY"
 		}
 
-		dtype := vehicle.CurrentDestination.Type
 		switch vehicle.CurrentDestination.Type {
 		case "CRANE_AREA":
-			dtype = "QC"
+			dname += " (QC)"
 		case "CALLIN_AREA":
-			dtype = "CA"
+			dname += " (CA)"
 		case "WAIT_AREA":
-			dtype = "DWA"
-		case "Pre-Ingress":
-			dtype = "Pre-Ingress"
-		default:
-			dtype = vehicle.Destination.Type
+			dname += " (DWA)"
+		}
+
+		waitTime := ""
+		if vehicle.KaTime == 0 || vehicle.CallTime == 0 {
+			waitTime = ""
+		} else {
+			waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
 		}
 
 		row := table.Row{
-			index + 1, vehicle.ID, vehicle.Destination.Type, job, cons, vehicle.TaskInfo.ContainerSize,
-			st, vehicle.Destination.Name, vehicle.TaskInfo.LiftType,
-			lane, name, dtype, arrived, called, vehicle.Mode, ready, manual,
+			index + 1, vehicle.ID, vehicle.Destination.Type, job, vehicle.TaskInfo.LiftType, cons, vehicle.TaskInfo.ContainerSize,
+			st, vehicle.Destination.Name, lane, dname, waitTime, arrived, called, vehicle.Mode, ready, manual,
 		}
 		vehicleTable.AppendRow(row)
 
@@ -336,5 +337,5 @@ func init() {
 	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
 	VehicleCmd.Flags().StringVarP(&exclude, "exclude", "e", "", "过滤指定模式的集卡"+vehicleModes)
 	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡⭕")
-	VehicleCmd.Flags().BoolVar(&withQtruck, "with-qtruck", false, "显示Qtruck🚗")
+	VehicleCmd.Flags().BoolVar(&withQtruck, "with-qtruck", false, "同时显示Qtruck🚗")
 }
