@@ -189,6 +189,11 @@ type VehiclesResponseData struct {
 	CallTime           int                    `json:"call_time"`
 }
 
+func (v *VehiclesResponseData) String() string {
+	d, _ := json.Marshal(v)
+	return string(d)
+}
+
 type VehicleTaskInfo struct {
 	Activity            int      `json:"activity"`
 	TosRawID            int      `json:"tos_raw_id"`
