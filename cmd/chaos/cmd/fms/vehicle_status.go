@@ -306,10 +306,23 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		waitTime := ""
+		var waitColor text.Colors
 		if vehicle.KaTime == 0 || vehicle.CallTime == 0 {
 			waitTime = ""
+		} else if vehicle.KaTime > 0 && vehicle.CallTime == 0 {
+			dt := time.Now().UnixMilli() - int64(vehicle.KaTime)
+			if 120 <= dt && dt < 300 {
+				waitColor = text.Colors{text.BgGreen}
+			} else if dt > 300 && dt < 600 {
+				waitColor = text.Colors{text.FgYellow}
+			} else {
+				waitColor = text.Colors{text.FgRed}
+			}
+			waitTime = strconv.FormatInt(dt/1000, 10)
 		} else {
-			waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
+			//waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
+			waitTime = ""
+			waitColor = text.Colors{}
 		}
 
 		row := table.Row{
@@ -323,7 +336,10 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 				return text.Colors{text.FgRed}
 			} else if row[14].(string) == "TN" {
 				return text.Colors{text.FgYellow}
+			} else if waitColor != nil && waitTime != "" {
+				return waitColor
 			}
+
 			return nil
 		})
 
