@@ -307,7 +307,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 
 		waitTime := ""
 		var waitColor text.Colors
-		if vehicle.KaTime == 0 || vehicle.CallTime == 0 {
+		if vehicle.KaTime == 0 && vehicle.CallTime == 0 {
 			waitTime = ""
 		} else if vehicle.KaTime > 0 && vehicle.CurrentDestination.Type != "CALLIN_AREA" {
 			dt := time.Now().UnixMilli() - int64(vehicle.KaTime)
