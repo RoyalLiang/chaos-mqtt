@@ -309,8 +309,8 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		var waitColor text.Colors
 		if vehicle.KaTime == 0 && vehicle.CallTime == 0 {
 			waitTime = ""
-		} else if vehicle.KaTime > 0 && vehicle.CurrentDestination.Type != "CALLIN_AREA" {
-			dt := time.Now().UnixMilli() - int64(vehicle.KaTime)
+		} else if vehicle.KaTime > 0 && vehicle.CallTime == 0 {
+			dt := (time.Now().UnixMilli() - int64(vehicle.KaTime)) / 1000
 			if 120 <= dt && dt < 300 {
 				waitColor = text.Colors{text.BgGreen}
 			} else if dt > 300 && dt < 600 {
@@ -318,7 +318,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			} else {
 				waitColor = text.Colors{text.FgRed}
 			}
-			waitTime = strconv.FormatInt(dt/1000, 10)
+			waitTime = strconv.FormatInt(dt, 10)
 		} else {
 			//waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
 			waitTime = ""
