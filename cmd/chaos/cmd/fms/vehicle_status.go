@@ -320,8 +320,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			}
 			waitTime = strconv.FormatInt(dt, 10)
 		} else {
-			//waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
-			waitTime = ""
+			waitTime = strconv.FormatInt(int64(vehicle.CallTime-vehicle.KaTime)/1000, 10)
 			waitColor = text.Colors{}
 		}
 
