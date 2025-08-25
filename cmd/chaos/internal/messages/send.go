@@ -358,7 +358,7 @@ func (r RouteRequest) String() string {
 	return string(v)
 }
 
-func GenerateRouteRequestJob(destination, lane, direction, targetDockPos string, activity, liftSize, container, quantity int64) string {
+func GenerateRouteRequestJob(vehicleID, destination, lane, direction, targetDockPos string, activity, liftSize, container, quantity int64) string {
 	var dest = ""
 	if strings.HasPrefix(destination, "PQC") {
 		dest = fmt.Sprintf("P,%s          ", destination)
@@ -372,10 +372,10 @@ func GenerateRouteRequestJob(destination, lane, direction, targetDockPos string,
 	}
 
 	routeJob := RouteRequestJobInstructionRequest{
-		APMID: constants.VehicleID,
+		APMID: vehicleID,
 		Data: RouteRequestJobInstructionRequestData{
-			APMID: constants.VehicleID, RouteDAG: make([]RouteDag, 0), Activity: activity,
-			ID: tools.GetVehicleTaskID(constants.VehicleID, dest, activity), NextLocation: dest, NextLocationLane: lane,
+			APMID: vehicleID, RouteDAG: make([]RouteDag, 0), Activity: activity,
+			ID: tools.GetVehicleTaskID(vehicleID, dest, activity), NextLocation: dest, NextLocationLane: lane,
 			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0), Timestamp: time.Now().Unix(),
 			CntrCategorys: make([]string, 0), CntrStatus: make([]string, 0), CntrWeights: make([]string, 0),
 			CntrNumbers: make([]string, 0), CntrSizes: make([]string, 0), CntrTypes: make([]string, 0),

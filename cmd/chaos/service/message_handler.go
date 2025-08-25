@@ -163,7 +163,7 @@ func (wf *Workflow) sendNewTask(vt *vehicleTask) {
 	} else {
 		vt.updateQCTask()
 	}
-	message := messages.GenerateRouteRequestJob(vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
+	message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
 	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 		fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
 		os.Exit(1)

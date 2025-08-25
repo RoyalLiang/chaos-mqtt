@@ -51,7 +51,7 @@ var RouteJobCmd = &cobra.Command{
 			d = fmt.Sprintf("Y,V,,%s,%s,%s,10,   ", dBlock, dSlot, dSlot)
 		}
 
-		if err := service.PublishAssignedTopic("route_request_job_instruction", "", messages.GenerateRouteRequestJob(d, lane, apmDirection, targetDockPos, constants.Activity, liftSize, container, quantity)); err != nil {
+		if err := service.PublishAssignedTopic("route_request_job_instruction", "", messages.GenerateRouteRequestJob(constants.VehicleID, d, lane, apmDirection, targetDockPos, constants.Activity, liftSize, container, quantity)); err != nil {
 			fmt.Println("error to publish: ", err)
 		} else {
 			fmt.Println("success to publish")

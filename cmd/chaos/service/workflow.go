@@ -60,16 +60,15 @@ type Workflow struct {
 	vehicles  map[string]*vehicleTask
 }
 
-func getDest(activity int64, dest string) (destination, taskType string) {
+func (vt *vehicleTask) updateDest(activity int64, dest string) {
 	if strings.HasPrefix(dest, "PQC") {
-		destination = fmt.Sprintf("P,%s          ", dest)
-		taskType = "QC"
+		vt.destination = fmt.Sprintf("P,%s          ", dest)
+		vt.taskType = "QC"
 	} else if activity == 1 || activity == 5 {
-		taskType = "STANDBY"
+		vt.taskType = "STANDBY"
 	} else {
-		taskType = "IYS"
+		vt.taskType = "IYS"
 	}
-	return destination, taskType
 }
 
 func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby bool) *Workflow {
@@ -80,19 +79,19 @@ func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC
 		loop:       loopNum,
 		loopCount:  1,
 		vehicles: func() map[string]*vehicleTask {
-			vehicles := make(map[string]*vehicleTask)
+			vs := make(map[string]*vehicleTask)
 			if vehicleID != "" && vehicleNum <= 0 {
 				vehicleNum = 1
 			}
 
 			var vid string
-			for i := range vehicleNum {
+			for i := 0; i < int(vehicleNum); i++ {
 				if vehicleID != "" {
 					vid = vehicleID
 				} else {
 					vid = fmt.Sprintf("APM%d", 9001+i)
 				}
-				vehicles[vid] = &vehicleTask{
+				vs[vid] = &vehicleTask{
 					activity:     activity,
 					vehicleID:    vid,
 					destination:  dest,
@@ -101,8 +100,10 @@ func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC
 					assignedLane: aLane,
 					noStandby:    noStandby,
 				}
+				vs[vid].updateDest(activity, dest)
 			}
-			return vehicles
+			fmt.Printf("生成的集卡: %s\n", vid)
+			return vs
 		}(),
 	}
 
@@ -113,9 +114,9 @@ func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC
 	return w
 }
 
-func sendLogon() {
+func sendLogon(vehicleID string) {
 	message := messages.LogonResponse{
-		APMID: constants.VehicleID,
+		APMID: vehicleID,
 		Data: messages.LogonResponseData{
 			Success: 1, TrailerSeqNumbers: []int{1}, TrailerLengths: []int{20}, TrailerUnladenWeights: []int{11},
 			TrailerTypes: strings.Split("CST", ","), TrailerPayloads: []int{200}, TrailerWidths: make([]int, 0),
@@ -201,11 +202,11 @@ func (wf *Workflow) StartWorkflow() error {
 		topics[v] = 1
 	}
 
-	sendLogon()
 	go func() {
 		time.Sleep(time.Second * 2)
 		for _, vt := range wf.vehicles {
-			message := messages.GenerateRouteRequestJob(vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
+			sendLogon(vt.vehicleID)
+			message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
 			if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 				fmt.Printf("[%s] 任务下发失败: %s, 车辆: [%s] 退出...", time.Now().Local().String(), err, vt.vehicleID)
 				continue
@@ -214,13 +215,6 @@ func (wf *Workflow) StartWorkflow() error {
 			}
 			time.Sleep(time.Millisecond * 500)
 		}
-		//message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
-		//if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-		//	fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
-		//	os.Exit(1)
-		//} else {
-		//	fmt.Printf("[%s] send message to <%s>: %s\n\n", time.Now().Local().String(), "route_request_job_instruction", message)
-		//}
 	}()
 
 	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start...          \n"))
