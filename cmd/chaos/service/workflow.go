@@ -208,7 +208,7 @@ func (wf *Workflow) StartWorkflow() error {
 			message := messages.GenerateRouteRequestJob(vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
 			if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 				fmt.Printf("[%s] 任务下发失败: %s, 车辆: [%s] 退出...", time.Now().Local().String(), err, vt.vehicleID)
-				os.Exit(1)
+				continue
 			} else {
 				fmt.Printf("[%s] route_request_job_instruction任务已下发, [%s]开始准备执行任务: [%s]\n\n", time.Now().Local().String(), vt.vehicleID, message)
 			}

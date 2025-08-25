@@ -55,6 +55,7 @@ type RouteData struct {
 	OperationalGroup        string     `json:"operational_group"`
 	CntrNumbers             []string   `json:"cntr_numbers"`
 	OffloadSequences        []string   `json:"offload_sequences"`
+	RejectionCode           string     `json:"rejection_code"`
 }
 
 type JobInstructionResponse struct {

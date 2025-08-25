@@ -80,8 +80,8 @@ func (wf *Workflow) routeJobResponseHandler(message []byte) {
 		wf.task = &data
 		return
 	}
-	fmt.Println("job_instruction == > route dag为空, 任务下发失败, 流程结束")
-	os.Exit(1)
+	fmt.Printf("[%s]: 任务下发失败: %s", data.APMID, data.Data.RejectionCode)
+	//os.Exit(1)
 }
 
 func (wf *Workflow) readyForIngressToCallInHandler(message []byte) {
