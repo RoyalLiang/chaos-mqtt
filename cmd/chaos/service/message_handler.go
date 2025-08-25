@@ -2,11 +2,12 @@ package service
 
 import (
 	"encoding/json"
-	tools "fms-awesome-tools/utils"
 	"fmt"
 	"os"
 	"strings"
 	"time"
+
+	tools "fms-awesome-tools/utils"
 
 	"fms-awesome-tools/cmd/chaos/internal"
 	"fms-awesome-tools/cmd/chaos/internal/messages"
@@ -117,11 +118,14 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 		return
 	}
 
-	if wf.activity == 1 || wf.activity == 5 {
-		time.Sleep(time.Second * 2)
-		wf.sendNewTask()
-	} else if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(wf.destination) {
-		switch wf.task.Data.Activity {
+	vt, ok := wf.vehicles[data.APMID]
+	if !ok {
+		return
+	}
+
+	if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(vt.destination) {
+		time.Sleep(time.Second * 120)
+		switch vt.activity {
 		case 2, 3, 4:
 			wf.mount()
 		case 6, 7, 8:
@@ -129,8 +133,10 @@ func (wf *Workflow) apmArrivalHandler(message []byte) {
 		default:
 			return
 		}
-		wf.sendNewTask()
 	}
+
+	time.Sleep(time.Second * 2)
+	wf.sendNewTask(vt)
 }
 
 func (wf *Workflow) pathUpdateRequestHandler(message []byte) {
@@ -141,27 +147,23 @@ func (wf *Workflow) dockPositionResponseHandler(message []byte) {
 
 }
 
-func (wf *Workflow) sendNewTask() {
+func (wf *Workflow) sendNewTask(vt *vehicleTask) {
 	if wf.loop < 0 {
-		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
-	} else if wf.loop == 0 {
-		fmt.Println(tools.CustomTitle("\n          当前流程已结束...          \n"))
-		os.Exit(1)
-	} else if wf.loopCount > wf.loop {
+		fmt.Println(tools.CustomTitle(fmt.Sprintf("\n          [%s]: 当前流程已结束, 待执行下一个流程...          \n", vt.vehicleID)))
+	} else if wf.loop == 0 || wf.loopCount > wf.loop {
 		fmt.Println(tools.CustomTitle("\n          流程已全部执行结束...          \n"))
 		os.Exit(1)
 	} else {
-		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 待执行下一个流程...          \n"))
+		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 开始执行下一个流程...          \n"))
 		wf.loopCount++
 	}
 
-	if strings.Contains(wf.destination, "PQC") {
-		wf.updateBlockTask()
+	if strings.Contains(vt.destination, "PQC") {
+		vt.updateBlockTask()
 	} else {
-		wf.updateQCTask()
+		vt.updateQCTask()
 	}
-	time.Sleep(time.Second * 3)
-	message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
+	message := messages.GenerateRouteRequestJob(vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
 	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
 		fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
 		os.Exit(1)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -29,45 +30,80 @@ var (
 	QCLanes   = []string{"2", "3", "5", "6"}
 )
 
-type Workflow struct {
-	client       *MqttClient
-	wg           sync.WaitGroup
-	task         *messages.RouteResponseJobInstruction
-	UUID         string
+type vehicleTask struct {
+	activity     int64
 	vehicleID    string
 	destination  string
 	lane         string
 	assignedQC   string
 	assignedLane string
-	activity     int64
 	taskType     string
-	autoCallIn   bool
-	loop         int64
-	loopCount    int64
+	noStandby    bool
 }
 
-func NewWorkflow(loopNum, activity int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn bool) *Workflow {
-	w := &Workflow{
-		UUID:         uuid.NewString(),
-		wg:           sync.WaitGroup{},
-		autoCallIn:   autoCallIn,
-		activity:     activity,
-		lane:         lane,
-		vehicleID:    vehicleID,
-		destination:  dest,
-		loop:         loopNum,
-		loopCount:    1,
-		assignedQC:   aQC,
-		assignedLane: aLane,
-	}
+type Workflow struct {
+	client *MqttClient
+	wg     sync.WaitGroup
+	task   *messages.RouteResponseJobInstruction
+	UUID   string
+	//vehicleID    string
+	//destination  string
+	//lane         string
+	//assignedQC   string
+	//assignedLane string
+	//activity     int64
+	//taskType     string
+	autoCallIn bool
+	//noStandby  bool
+	loop      int64
+	loopCount int64
+	vehicles  map[string]*vehicleTask
+}
 
-	if strings.HasPrefix(w.destination, "PQC") {
-		w.destination = fmt.Sprintf("P,%s          ", w.destination)
-		w.taskType = "QC"
-	} else if w.activity == 1 || w.activity == 5 {
-		w.taskType = "STANDBY"
+func getDest(activity int64, dest string) (destination, taskType string) {
+	if strings.HasPrefix(dest, "PQC") {
+		destination = fmt.Sprintf("P,%s          ", dest)
+		taskType = "QC"
+	} else if activity == 1 || activity == 5 {
+		taskType = "STANDBY"
 	} else {
-		w.taskType = "IYS"
+		taskType = "IYS"
+	}
+	return destination, taskType
+}
+
+func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby bool) *Workflow {
+	w := &Workflow{
+		UUID:       uuid.NewString(),
+		wg:         sync.WaitGroup{},
+		autoCallIn: autoCallIn,
+		loop:       loopNum,
+		loopCount:  1,
+		vehicles: func() map[string]*vehicleTask {
+			vehicles := make(map[string]*vehicleTask)
+			if vehicleID != "" && vehicleNum <= 0 {
+				vehicleNum = 1
+			}
+
+			var vid string
+			for i := range vehicleNum {
+				if vehicleID != "" {
+					vid = vehicleID
+				} else {
+					vid = fmt.Sprintf("APM%d", 9001+i)
+				}
+				vehicles[vid] = &vehicleTask{
+					activity:     activity,
+					vehicleID:    vid,
+					destination:  dest,
+					lane:         lane,
+					assignedQC:   aQC,
+					assignedLane: aLane,
+					noStandby:    noStandby,
+				}
+			}
+			return vehicles
+		}(),
 	}
 
 	if err := w.connect(); err != nil {
@@ -111,31 +147,51 @@ func choiceBlockLane() string {
 	return Lanes[li]
 }
 
-func (wf *Workflow) updateBlockTask() {
-	wf.taskType = choiceTaskType()
-	if wf.taskType == "STANDBY" {
-		wf.activity = 1
-		wf.destination = ""
-		wf.lane = ""
-	} else if wf.taskType == "IYS" {
-		wf.activity = 2
-		wf.lane = choiceBlockLane()
-		wf.destination = choiceBlockLocation()
+func binarySearch(arr []string, target string) bool {
+	sort.Strings(arr)
+	index := sort.SearchStrings(arr, target)
+	return index < len(arr) && arr[index] == target
+}
+
+func getAgainstActivity(activity int64) int64 {
+	switch activity {
+	case 2, 3, 4:
+		return 6
+	case 6, 7, 8:
+		return 2
+	default:
+		return 1
 	}
 }
 
-func (wf *Workflow) updateQCTask() {
-	if wf.assignedQC != "" {
-		wf.destination = fmt.Sprintf("P,%s          ", wf.assignedQC)
-	} else {
-		wf.destination = "P,PQC924          "
+func (vt *vehicleTask) updateBlockTask() {
+	vt.taskType = choiceTaskType()
+	if vt.taskType == "IYS" || vt.noStandby {
+		vt.activity = getAgainstActivity(vt.activity)
+		vt.lane = choiceBlockLane()
+		vt.destination = choiceBlockLocation()
+		return
 	}
-	wf.activity = 2
-	wf.taskType = "QC"
-	if wf.assignedLane != "" {
-		wf.lane = wf.assignedLane
+
+	if vt.taskType == "STANDBY" {
+		vt.activity = 1
+		vt.destination = ""
+		vt.lane = ""
+	}
+}
+
+func (vt *vehicleTask) updateQCTask() {
+	if vt.assignedQC != "" {
+		vt.destination = fmt.Sprintf("P,%s          ", vt.assignedQC)
 	} else {
-		wf.lane = choiceQCLane()
+		vt.destination = "P,PQC924          "
+	}
+	vt.taskType = "QC"
+	vt.activity = getAgainstActivity(vt.activity)
+	if vt.assignedLane != "" {
+		vt.lane = vt.assignedLane
+	} else {
+		vt.lane = choiceQCLane()
 	}
 }
 
@@ -147,14 +203,24 @@ func (wf *Workflow) StartWorkflow() error {
 
 	sendLogon()
 	go func() {
-		time.Sleep(time.Second * 3)
-		message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
-		if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-			fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
-			os.Exit(1)
-		} else {
-			fmt.Printf("[%s] send message to <%s>: %s\n\n", time.Now().Local().String(), "route_request_job_instruction", message)
+		time.Sleep(time.Second * 2)
+		for _, vt := range wf.vehicles {
+			message := messages.GenerateRouteRequestJob(vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
+			if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+				fmt.Printf("[%s] 任务下发失败: %s, 车辆: [%s] 退出...", time.Now().Local().String(), err, vt.vehicleID)
+				os.Exit(1)
+			} else {
+				fmt.Printf("[%s] route_request_job_instruction任务已下发, [%s]开始准备执行任务: [%s]\n\n", time.Now().Local().String(), vt.vehicleID, message)
+			}
+			time.Sleep(time.Millisecond * 500)
 		}
+		//message := messages.GenerateRouteRequestJob(wf.destination, wf.lane, "S", "5", wf.activity, 1, 40, 1)
+		//if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+		//	fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
+		//	os.Exit(1)
+		//} else {
+		//	fmt.Printf("[%s] send message to <%s>: %s\n\n", time.Now().Local().String(), "route_request_job_instruction", message)
+		//}
 	}()
 
 	fmt.Println(tools.CustomTitle("\n          Chaos Workflow Start...          \n"))
@@ -165,7 +231,8 @@ func (wf *Workflow) StartWorkflow() error {
 func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	data := &Message{}
 	err := json.Unmarshal(message.Payload(), data)
-	if err != nil || data.APMID != wf.vehicleID {
+	_, ok := wf.vehicles[data.APMID]
+	if err != nil || !ok {
 		return
 	}
 

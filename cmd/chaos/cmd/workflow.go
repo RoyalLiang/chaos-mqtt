@@ -17,10 +17,11 @@ var (
 	dest         string
 	lane         string
 	auto         bool
-	vehicles     []string
+	vehicles     int64
 	loopNum      int64
 	assignedQC   string
 	assignedLane string
+	noStandby    bool
 )
 
 var workflowCmd = &cobra.Command{
@@ -62,14 +63,14 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.NewWorkflow(loopNum, constants.Activity, lane, constants.VehicleID, dest, assignedQC, assignedLane, auto).StartWorkflow(); err != nil {
+	if err := service.NewWorkflow(loopNum, constants.Activity, vehicles, lane, constants.VehicleID, dest, assignedQC, assignedLane, auto, noStandby).StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
 }
 
 func init() {
-	workflowCmd.Flags().BoolVarP(&start, "start", "s", false, "start workflow")
+	workflowCmd.Flags().BoolVar(&start, "start", false, "start workflow👻")
 	workflowCmd.Flags().Int64VarP(&constants.Activity, "activity", "a", 1, "STANDBY = 1\nMOUNT = 2\nNO_YARD = 5\nOFFLOAD = 6\n")
 	workflowCmd.Flags().StringVarP(&constants.VehicleID, "truck", "v", "APM9001", "集卡号🚗")
 	workflowCmd.Flags().StringVarP(&dest, "destination", "d", "", "任务的目的地; QC: PQC921, Block: Y,V,,TB01,32,32,10, ;🔚")
@@ -77,8 +78,10 @@ func init() {
 	workflowCmd.Flags().StringVar(&assignedQC, "assigned-qc", "", "指定作业QC")
 	workflowCmd.Flags().StringVar(&assignedLane, "assigned-lane", "", "指定QC的作业车道")
 	workflowCmd.Flags().BoolVarP(&auto, "auto-callin", "", false, "自动发送call-in🔄️")
-	workflowCmd.Flags().StringSliceVarP(&vehicles, "vehicles", "", make([]string, 0), "执行workflow的集卡列表")
+	workflowCmd.Flags().BoolVar(&noStandby, "no-standby", false, "禁止Standby任务🔄️")
+	workflowCmd.Flags().Int64VarP(&vehicles, "vehicles", "", 0, "执行workflow的集卡数量 (从APM9001开始编号)")
 	workflowCmd.Flags().Int64Var(&loopNum, "loop", 0, "循环执行workflow\n-1: 无限循环\n0: 执行一次\n>0: 执行指定次数\n新任务目的地轮换指定, QC: PQC924-2, 堆场: 随机指定\n")
 	workflowCmd.MarkFlagsRequiredTogether("destination", "lane")
+	workflowCmd.MarkFlagsMutuallyExclusive("truck", "vehicles")
 	rootCmd.AddCommand(workflowCmd)
 }
