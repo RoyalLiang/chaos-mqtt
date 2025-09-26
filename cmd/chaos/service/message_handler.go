@@ -21,27 +21,27 @@ func (wf *Workflow) response(topic, message string) {
 	}
 }
 
-func (wf *Workflow) callInRequest() {
+func (wf *Workflow) callInRequest(vehicle *vehicleTask) {
 	call := &messages.CallInRequest{
-		APMID: wf.task.APMID,
+		APMID: vehicle.vehicleID,
 		Data: messages.CallInRequestData{
-			CallInMode: 0, Crane: wf.task.Data.NextLocation,
+			CallInMode: 0, Crane: vehicle.task.Data.NextLocation,
 		},
 	}
 	wf.response("call_in_request", call.String())
 }
 
-func (wf *Workflow) mount() {
+func (wf *Workflow) mount(vehicle *vehicleTask) {
 	mount := messages.MountInstruction{
-		APMID: wf.task.APMID,
+		APMID: vehicle.vehicleID,
 		Data:  messages.MountInstructionData{},
 	}
 	wf.response("mount_instruction", mount.String())
 }
 
-func (wf *Workflow) offload() {
+func (wf *Workflow) offload(vehicle *vehicleTask) {
 	offload := messages.OffloadInstruction{
-		APMID: wf.task.APMID,
+		APMID: vehicle.vehicleID,
 		Data: messages.OffloadInstructionData{
 			CntrNumber: "FFFF 0000000",
 		},
@@ -67,7 +67,7 @@ func (wf *Workflow) routeHandler(message []byte) {
 
 }
 
-func (wf *Workflow) routeJobResponseHandler(message []byte) {
+func (wf *Workflow) routeJobResponseHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToRouteResponseJobInstruction(message)
 	if len(data.Data.RouteDAG) != 0 {
 		job := &messages.JobInstruction{}
@@ -77,17 +77,16 @@ func (wf *Workflow) routeJobResponseHandler(message []byte) {
 		}
 		job.Data.RouteMandate = "Y"
 		wf.response("job_instruction", job.String())
-		wf.task = &data
+		vehicle.task = &data
 		return
 	}
 	fmt.Printf("[%s]: 任务下发失败: %s", data.APMID, data.Data.RejectionCode)
-	//os.Exit(1)
 }
 
-func (wf *Workflow) readyForIngressToCallInHandler(message []byte) {
+func (wf *Workflow) readyForIngressToCallInHandler(vehicle *vehicleTask, message []byte) {
 	ready := internal.ParseToReadyForIngressToCallIn(message)
 	d := messages.IngressToCallIn{
-		APMID: wf.task.APMID,
+		APMID: vehicle.vehicleID,
 		Data: messages.IngressToCallInData{
 			RouteDag: ready.Data.RouteDAG, RouteType: ready.Data.RouteType, LaneAvailability: ready.Data.LaneAvailability,
 			DestinationName: ready.Data.DestinationName, DestinationLane: ready.Data.DestinationLane,
@@ -96,10 +95,10 @@ func (wf *Workflow) readyForIngressToCallInHandler(message []byte) {
 	wf.response("ingress_to_call_in", d.String())
 }
 
-func (wf *Workflow) readyForMoveToQCheHandler(message []byte) {
+func (wf *Workflow) readyForMoveToQCheHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToReadyForMoveToQC(message)
 	move := &messages.MoveToQCRequest{
-		APMID: wf.task.APMID,
+		APMID: vehicle.vehicleID,
 		Data: messages.MOveToQCRequestData{
 			RouteDag: data.Data.RouteDAG,
 		},
@@ -107,36 +106,33 @@ func (wf *Workflow) readyForMoveToQCheHandler(message []byte) {
 	wf.response("move_to_qc", move.String())
 }
 
-func (wf *Workflow) apmArrivalHandler(message []byte) {
+func (wf *Workflow) apmArrivalHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToApmArrivedRequest(message)
-	if wf.task == nil {
+	if vehicle.task == nil {
 		return
 	}
 
-	if strings.HasSuffix(data.Data.Location, "Pre-Ingress") && wf.autoCallIn {
-		wf.callInRequest()
+	if (strings.HasSuffix(data.Data.Location, "Pre-Ingress") || strings.Contains(data.Data.Location, "Wait")) && wf.autoCallIn {
+		wf.callInRequest(vehicle)
 		return
 	}
 
-	vt, ok := wf.vehicles[data.APMID]
-	if !ok {
-		return
-	}
+	go func() {
+		if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(vehicle.destination) {
+			time.Sleep(time.Second * 90)
+			switch vehicle.activity {
+			case 2, 3, 4:
+				wf.mount(vehicle)
+			case 6, 7, 8:
+				wf.offload(vehicle)
+			default:
+				return
+			}
 
-	if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(vt.destination) {
-		time.Sleep(time.Second * 120)
-		switch vt.activity {
-		case 2, 3, 4:
-			wf.mount()
-		case 6, 7, 8:
-			wf.offload()
-		default:
-			return
+			time.Sleep(time.Second * 1)
+			wf.sendNewTask(vehicle)
 		}
-	}
-
-	time.Sleep(time.Second * 2)
-	wf.sendNewTask(vt)
+	}()
 }
 
 func (wf *Workflow) pathUpdateRequestHandler(message []byte) {

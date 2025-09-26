@@ -8,13 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"fms-awesome-tools/constants"
 	tools "fms-awesome-tools/utils"
 )
 
 type RouteRequestJobInstructionRequest struct {
-	APMID string                                `json:"apm_id"`
-	Data  RouteRequestJobInstructionRequestData `json:"data"`
+	APMID string                                 `json:"apm_id"`
+	Data  *RouteRequestJobInstructionRequestData `json:"data"`
 }
 
 type RouteRequestJobInstructionRequestData struct {
@@ -48,7 +47,7 @@ type RouteRequestJobInstructionRequestData struct {
 	DGGroups                []string   `json:"dg_groups"`
 	IMOClass                []string   `json:"imo_class"`
 	ReferTemperatures       []string   `json:"refer_temperatures"`
-	CntrLocationsOnAPM      []int      `json:"cntr_locations_on_apm"`
+	CntrLocationsOnAPM      []string   `json:"cntr_locations_on_apm"`
 	SourceLocations         []string   `json:"source_locations"`
 	DestLocations           []string   `json:"dest_locations"`
 	OffloadSequences        []string   `json:"offload_sequences"`
@@ -371,15 +370,15 @@ func GenerateRouteRequestJob(vehicleID, destination, lane, direction, targetDock
 		os.Exit(1)
 	}
 
-	routeJob := RouteRequestJobInstructionRequest{
+	routeJob := &RouteRequestJobInstructionRequest{
 		APMID: vehicleID,
-		Data: RouteRequestJobInstructionRequestData{
+		Data: &RouteRequestJobInstructionRequestData{
 			APMID: vehicleID, RouteDAG: make([]RouteDag, 0), Activity: activity,
 			ID: tools.GetVehicleTaskID(vehicleID, dest, activity), NextLocation: dest, NextLocationLane: lane,
 			TargetDockPosition: targetDockPos, LiftType: liftSize, OperationalTypes: make([]string, 0), Timestamp: time.Now().Unix(),
 			CntrCategorys: make([]string, 0), CntrStatus: make([]string, 0), CntrWeights: make([]string, 0),
 			CntrNumbers: make([]string, 0), CntrSizes: make([]string, 0), CntrTypes: make([]string, 0),
-			Cones: make([]string, 0), CntrLocationsOnAPM: make([]int, 0), OperationalJobSequences: make([]string, 0),
+			Cones: make([]string, 0), CntrLocationsOnAPM: make([]string, 0), OperationalJobSequences: make([]string, 0),
 			OperationalGroups: make([]string, 0), OperationalQCSequences: make([]string, 0), JobTypes: make([]string, 0),
 			UrGents: make([]string, 0), DestLocations: make([]string, 0), DGGroups: make([]string, 0),
 			DGs: make([]string, 0), ReferTemperatures: make([]string, 0), IMOClass: make([]string, 0),
@@ -389,19 +388,19 @@ func GenerateRouteRequestJob(vehicleID, destination, lane, direction, targetDock
 		},
 	}
 
-	switch constants.Activity {
+	switch activity {
 	case 2, 3, 4:
 		routeJob.Data.AssignedCntrSize = strconv.FormatInt(container, 10)
 	case 6, 7, 8:
 		if container >= 40 {
 			routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
-			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, 5)
+			routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, strconv.FormatInt(5, 10))
 			routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(container, 10))
 			routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(5, 10))
 		} else {
 			for c := range quantity {
 				routeJob.Data.CntrNumbers = append(routeJob.Data.CntrNumbers, "FFFF 0000000")
-				routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, int(2*c+1))
+				routeJob.Data.CntrLocationsOnAPM = append(routeJob.Data.CntrLocationsOnAPM, strconv.FormatInt(2*c+1, 10))
 				routeJob.Data.CntrSizes = append(routeJob.Data.CntrSizes, strconv.FormatInt(20, 10))
 				routeJob.Data.OffloadSequences = append(routeJob.Data.OffloadSequences, "0"+strconv.FormatInt(c, 10))
 			}

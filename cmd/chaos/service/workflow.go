@@ -39,25 +39,17 @@ type vehicleTask struct {
 	assignedLane string
 	taskType     string
 	noStandby    bool
+	task         *messages.RouteResponseJobInstruction
 }
 
 type Workflow struct {
-	client *MqttClient
-	wg     sync.WaitGroup
-	task   *messages.RouteResponseJobInstruction
-	UUID   string
-	//vehicleID    string
-	//destination  string
-	//lane         string
-	//assignedQC   string
-	//assignedLane string
-	//activity     int64
-	//taskType     string
+	client     *MqttClient
+	wg         sync.WaitGroup
+	UUID       string
 	autoCallIn bool
-	//noStandby  bool
-	loop      int64
-	loopCount int64
-	vehicles  map[string]*vehicleTask
+	loop       int64
+	loopCount  int64
+	vehicles   map[string]*vehicleTask
 }
 
 func (vt *vehicleTask) updateDest(activity int64, dest string) {
@@ -71,7 +63,7 @@ func (vt *vehicleTask) updateDest(activity int64, dest string) {
 	}
 }
 
-func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby bool) *Workflow {
+func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby bool) *Workflow {
 	w := &Workflow{
 		UUID:       uuid.NewString(),
 		wg:         sync.WaitGroup{},
@@ -89,7 +81,7 @@ func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC
 				if vehicleID != "" {
 					vid = vehicleID
 				} else {
-					vid = fmt.Sprintf("APM%d", 9001+i)
+					vid = fmt.Sprintf("APM%d", 9000+i+int(startNumber))
 				}
 				vs[vid] = &vehicleTask{
 					activity:     activity,
@@ -101,8 +93,9 @@ func NewWorkflow(loopNum, activity, vehicleNum int64, lane, vehicleID, dest, aQC
 					noStandby:    noStandby,
 				}
 				vs[vid].updateDest(activity, dest)
+				fmt.Printf("%s, ", vid)
 			}
-			fmt.Printf("生成的集卡: %s\n", vid)
+			fmt.Println()
 			return vs
 		}(),
 	}
@@ -167,7 +160,8 @@ func getAgainstActivity(activity int64) int64 {
 
 func (vt *vehicleTask) updateBlockTask() {
 	vt.taskType = choiceTaskType()
-	if vt.taskType == "IYS" || vt.noStandby {
+	if vt.noStandby {
+		vt.taskType = "IYS"
 		vt.activity = getAgainstActivity(vt.activity)
 		vt.lane = choiceBlockLane()
 		vt.destination = choiceBlockLocation()
@@ -206,14 +200,15 @@ func (wf *Workflow) StartWorkflow() error {
 		time.Sleep(time.Second * 2)
 		for _, vt := range wf.vehicles {
 			sendLogon(vt.vehicleID)
+			time.Sleep(time.Millisecond * 500)
 			message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
 			if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-				fmt.Printf("[%s] 任务下发失败: %s, 车辆: [%s] 退出...", time.Now().Local().String(), err, vt.vehicleID)
+				fmt.Printf("[%s] [%s] 任务下发失败 ==> [%s], 退出...", time.Now().Local().String(), vt.vehicleID, err)
 				continue
 			} else {
-				fmt.Printf("[%s] route_request_job_instruction任务已下发, [%s]开始准备执行任务: [%s]\n\n", time.Now().Local().String(), vt.vehicleID, message)
+				fmt.Printf("[%s] [%s] route_request_job_instruction ==> [%s]\n\n", time.Now().Local().String(), vt.vehicleID, message)
 			}
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Second)
 		}
 	}()
 
@@ -234,6 +229,7 @@ func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 		fmt.Printf("[%s] receive message from <%s>: %s\n\n", time.Now().Local().String(), message.Topic(), string(message.Payload()))
 	}
 
+	vehicle := wf.getVehicle(data.APMID)
 	switch message.Topic() {
 	case "heartbeat":
 		return
@@ -253,9 +249,9 @@ func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	//case "mode_change_update":
 	//	fmt.Println("mode_change_update")
 	case "route_response_job_instruction":
-		wf.routeJobResponseHandler(message.Payload())
+		wf.routeJobResponseHandler(vehicle, message.Payload())
 	case "apm_arrived_request":
-		wf.apmArrivalHandler(message.Payload())
+		wf.apmArrivalHandler(vehicle, message.Payload())
 	//case "dock_position_response":
 	//	fmt.Println("dock_position_response")
 	//case "mount_instruction_response":
@@ -267,9 +263,9 @@ func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	//case "ingress_ready_response":
 	//	fmt.Println("ingress_ready_response")
 	case "ready_for_move_to_qc":
-		wf.readyForMoveToQCheHandler(message.Payload())
+		wf.readyForMoveToQCheHandler(vehicle, message.Payload())
 	case "ready_for_ingress_to_call_in":
-		wf.readyForIngressToCallInHandler(message.Payload())
+		wf.readyForIngressToCallInHandler(vehicle, message.Payload())
 		//default:
 		//	fmt.Println("get topic: ", message.Topic(), ", but not implement, ignore")
 	}
@@ -283,6 +279,16 @@ func (wf *Workflow) connect() error {
 		return err
 	}
 	return nil
+}
+
+func (wf *Workflow) getVehicle(vehicleID string) *vehicleTask {
+	var vehicle *vehicleTask
+	for _, v := range wf.vehicles {
+		if v.vehicleID == vehicleID {
+			vehicle = v
+		}
+	}
+	return vehicle
 }
 
 func (wf *Workflow) Close() {

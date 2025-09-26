@@ -18,6 +18,7 @@ var (
 	lane         string
 	auto         bool
 	vehicles     int64
+	s            int64
 	loopNum      int64
 	assignedQC   string
 	assignedLane string
@@ -63,7 +64,7 @@ func startWorkflow() {
 		return
 	}
 
-	if err := service.NewWorkflow(loopNum, constants.Activity, vehicles, lane, constants.VehicleID, dest, assignedQC, assignedLane, auto, noStandby).StartWorkflow(); err != nil {
+	if err := service.NewWorkflow(loopNum, constants.Activity, vehicles, s, lane, constants.VehicleID, dest, assignedQC, assignedLane, auto, noStandby).StartWorkflow(); err != nil {
 		fmt.Println("failed to start workflow:", err)
 		return
 	}
@@ -80,8 +81,10 @@ func init() {
 	workflowCmd.Flags().BoolVarP(&auto, "auto-call", "", false, "自动发送call-in🔄️")
 	workflowCmd.Flags().BoolVar(&noStandby, "no-standby", false, "禁止Standby任务🔄️")
 	workflowCmd.Flags().Int64VarP(&vehicles, "vehicles", "", 0, "执行workflow的集卡数量 (从APM9001开始编号)")
+	workflowCmd.Flags().Int64Var(&s, "start-num", 0, "执行workflow的集卡起始号")
 	workflowCmd.Flags().Int64Var(&loopNum, "loop", 0, "循环执行workflow\n-1: 无限循环\n0: 执行一次\n>0: 执行指定次数\n新任务目的地轮换指定, QC: PQC924-2, 堆场: 随机指定\n")
 	workflowCmd.MarkFlagsRequiredTogether("destination", "lane")
+	workflowCmd.MarkFlagsRequiredTogether("vehicles", "start-num")
 	workflowCmd.MarkFlagsMutuallyExclusive("truck", "vehicles")
 	rootCmd.AddCommand(workflowCmd)
 }
