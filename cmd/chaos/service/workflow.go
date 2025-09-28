@@ -23,9 +23,9 @@ import (
 
 var (
 	Tasks     = []string{"IYS", "STANDBY"}
-	Blocks    = []string{"TB", "TC", "TD", "TE", "TF", "TG", "TH"}
+	Blocks    = []string{"TB", "TC", "TD", "TE", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TP"}
 	BlockNums = []string{"01", "02", "03", "04", "05"}
-	Slots     = []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
+	Slots     = []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33}
 	Lanes     = []string{"0", "11"}
 	QCLanes   = []string{"2", "3", "5", "6"}
 )
