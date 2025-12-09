@@ -12,10 +12,11 @@ var (
 )
 
 type chaosConfig struct {
-	Product *product     `json:"product"`
-	MQTT    *mqtt        `json:"mqtt"`
-	FMS     *fms         `json:"fms"`
-	Redis   *RedisConfig `json:"redis"`
+	Product *product      `json:"product"`
+	MQTT    *mqtt         `json:"mqtt"`
+	FMS     *fms          `json:"fms"`
+	Redis   *RedisConfig  `json:"redis"`
+	Logger  *LoggerConfig `json:"logger"`
 }
 
 type product struct {
@@ -23,6 +24,19 @@ type product struct {
 	Name        string `json:"name"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
+}
+
+type LoggerConfig struct {
+	Name   string `json:"name"`
+	Size   int    `json:"size"`
+	Backup int    `json:"backup"`
+	Level  string `json:"level"`
+	Dir    string `json:"dir"`
+}
+
+func (l LoggerConfig) String() string {
+	s, _ := json.Marshal(l)
+	return string(s)
 }
 
 type fms struct {
@@ -96,6 +110,13 @@ func defaultConfig() chaosConfig {
 		Address:  "",
 		User:     "",
 		Password: "",
+	}
+	config.Logger = &LoggerConfig{
+		Name:   "chaos",
+		Size:   500,
+		Backup: 10,
+		Level:  "info",
+		Dir:    "./logs",
 	}
 
 	config.FMS = &fms{
