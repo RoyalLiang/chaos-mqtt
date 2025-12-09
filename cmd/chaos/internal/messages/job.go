@@ -12,6 +12,7 @@ type RouteResponseJobInstruction struct {
 
 type RouteData struct {
 	Timestamp               int64      `json:"timestamp"`
+	Success                 int64      `json:"success"`
 	APMID                   string     `json:"apm_id"`
 	APMDirection            string     `json:"apm_direction"`
 	CntrSizes               []string   `json:"cntr_sizes"`

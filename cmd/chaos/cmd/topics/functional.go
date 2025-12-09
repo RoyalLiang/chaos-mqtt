@@ -1,6 +1,7 @@
 package topics
 
 import (
+	tools "fms-awesome-tools/utils"
 	"fmt"
 
 	"fms-awesome-tools/cmd/chaos/internal/messages"
@@ -39,7 +40,7 @@ var FunctionalCmd = &cobra.Command{
 func generateFunctionalJob() string {
 	return messages.FunctionalJob{
 		APMID: constants.VehicleID,
-		Data:  messages.FunctionalJobData{RouteDag: make([]messages.RouteDag, 0), RouteType: "G"},
+		Data:  messages.FunctionalJobData{RouteDag: make([]messages.RouteDag, 0), RouteType: "G", ID: tools.GetVehicleTaskID(constants.VehicleID, name, 0)},
 	}.String()
 }
 

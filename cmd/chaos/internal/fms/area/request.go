@@ -9,6 +9,7 @@ type ManualModeRequest struct {
 	TurnMapping map[string]string `json:"turn_cfg"`
 	EMapping    map[string]string `json:"e_mapping"`
 	Mode        int64             `json:"mode"`
+	TCAMapping  map[string]int64  `json:"tca_mapping"`
 }
 
 func (req ManualModeRequest) String() string {

@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -147,6 +148,16 @@ func GetVehicleTaskID(vehicleID, dest string, activity int64) string {
 
 	var prefix string
 	switch activity {
+	case 0:
+		if dest == "refuel" {
+			prefix = "RE"
+		} else if dest == "parking" {
+			prefix = "PA"
+		} else if dest == "maintenance" {
+			prefix = "MA"
+		} else if dest == "callback" {
+			prefix = "CB"
+		}
 	case 1, 5:
 		prefix = "ST"
 	case 2, 3, 4:
@@ -190,4 +201,12 @@ func ParseDestination(destination string) string {
 func CustomTitle(title string) string {
 	c := strings.Repeat("*", len(title))
 	return fmt.Sprintf("%s\n%s\n%s", c, title, c)
+}
+
+func GetCustomSecond(min, max float64) float64 {
+	if min > max {
+		min, max = max, min
+	}
+	duration := min + rand.Float64()*(max-min)
+	return duration
 }

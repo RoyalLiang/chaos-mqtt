@@ -22,13 +22,17 @@ func (wf *Workflow) response(topic, message string) {
 }
 
 func (wf *Workflow) callInRequest(vehicle *vehicleTask) {
-	call := &messages.CallInRequest{
-		APMID: vehicle.vehicleID,
-		Data: messages.CallInRequestData{
-			CallInMode: 0, Crane: vehicle.task.Data.NextLocation,
-		},
-	}
-	wf.response("call_in_request", call.String())
+	delay := tools.GetCustomSecond(1, 4)
+	go func() {
+		time.Sleep(time.Duration(delay) * time.Second)
+		call := &messages.CallInRequest{
+			APMID: vehicle.vehicleID,
+			Data: messages.CallInRequestData{
+				CallInMode: 0, Crane: vehicle.task.Data.NextLocation,
+			},
+		}
+		wf.response("call_in_request", call.String())
+	}()
 }
 
 func (wf *Workflow) mount(vehicle *vehicleTask) {
@@ -67,9 +71,26 @@ func (wf *Workflow) routeHandler(message []byte) {
 
 }
 
+func (wf *Workflow) sendJob(vehicle *vehicleTask) {
+	var message string
+	if vehicle.onlyStandby {
+		message = messages.GenerateRouteRequestJob(vehicle.vehicleID, vehicle.destination, vehicle.lane, "S", "5", 1, 1, 40, 1)
+	} else {
+		message = messages.GenerateRouteRequestJob(vehicle.vehicleID, vehicle.destination, vehicle.lane, "S", "5", vehicle.activity, 1, 40, 1)
+	}
+	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+		fmt.Printf("[%s] [%s] 任务下发失败 ==> [%s]", time.Now().Local().String(), vehicle.vehicleID, err)
+	} else {
+		fmt.Printf("[%s] [%s] route_request_job_instruction ==> [%s]\n\n", time.Now().Local().String(), vehicle.vehicleID, message)
+	}
+}
+
 func (wf *Workflow) routeJobResponseHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToRouteResponseJobInstruction(message)
-	if len(data.Data.RouteDAG) != 0 {
+	if data.Data.Success == 0 {
+		fmt.Printf("\x1b[41m[%s]: 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m", data.APMID, data.Data.RejectionCode)
+		go wf.sendJob(vehicle)
+	} else {
 		job := &messages.JobInstruction{}
 		if err := json.Unmarshal(message, job); err != nil {
 			fmt.Println("job_instruction解析失败...")
@@ -78,9 +99,7 @@ func (wf *Workflow) routeJobResponseHandler(vehicle *vehicleTask, message []byte
 		job.Data.RouteMandate = "Y"
 		wf.response("job_instruction", job.String())
 		vehicle.task = &data
-		return
 	}
-	fmt.Printf("[%s]: 任务下发失败: %s", data.APMID, data.Data.RejectionCode)
 }
 
 func (wf *Workflow) readyForIngressToCallInHandler(vehicle *vehicleTask, message []byte) {
@@ -117,9 +136,15 @@ func (wf *Workflow) apmArrivalHandler(vehicle *vehicleTask, message []byte) {
 		return
 	}
 
+	switch vehicle.activity {
+	case 1, 5:
+		wf.sendNewTask(vehicle)
+		return
+	}
+
 	go func() {
 		if strings.TrimSpace(data.Data.Location) == strings.TrimSpace(vehicle.destination) {
-			time.Sleep(time.Second * 90)
+			time.Sleep(time.Second * 150)
 			switch vehicle.activity {
 			case 2, 3, 4:
 				wf.mount(vehicle)
@@ -154,16 +179,25 @@ func (wf *Workflow) sendNewTask(vt *vehicleTask) {
 		wf.loopCount++
 	}
 
+	if vt.onlyStandby {
+		go func() {
+			time.Sleep(time.Second)
+			wf.sendJob(vt)
+		}()
+		return
+	}
+
 	if strings.Contains(vt.destination, "PQC") {
 		vt.updateBlockTask()
 	} else {
 		vt.updateQCTask()
 	}
-	message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
-	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-		fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
-		os.Exit(1)
-	} else {
-		fmt.Printf("[%s] send message to <%s>: %s\n", time.Now().Local().String(), "route_request_job_instruction", message)
-	}
+	wf.sendJob(vt)
+	//message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
+	//if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
+	//	fmt.Printf("[%s] 任务下发失败: %s, 程序退出...", time.Now().Local().String(), err)
+	//	os.Exit(1)
+	//} else {
+	//	fmt.Printf("[%s] send message to <%s>: %s\n", time.Now().Local().String(), "route_request_job_instruction", message)
+	//}
 }

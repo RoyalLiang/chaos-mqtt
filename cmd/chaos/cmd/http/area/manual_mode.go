@@ -13,13 +13,14 @@ import (
 )
 
 var (
-	vesselID string
-	ingress  int64
-	egress   int64
-	qcs      []string
-	turns    []string
-	eMapping []string
-	reset    bool
+	vesselID   string
+	ingress    int64
+	egress     int64
+	qcs        []string
+	turns      []string
+	eMapping   []string
+	reset      bool
+	tcaMapping []string
 )
 
 var ManualModeCmd = &cobra.Command{
@@ -64,6 +65,7 @@ func manualRequest() {
 	qcLaneMap := make(map[string]int64)
 	ingressTurns := make(map[string]string)
 	egressTurns := make(map[string]string)
+	allocate_tca := make(map[string]int64)
 	if len(qcs) > 0 {
 		for _, item := range qcs {
 			parts := strings.Split(item, "=")
@@ -88,6 +90,13 @@ func manualRequest() {
 		egressTurns = split(eMapping)
 	}
 
+	if len(tcaMapping) > 0 {
+		tmp := split(tcaMapping)
+		for k, v := range tmp {
+			allocate_tca[k], _ = strconv.ParseInt(v, 10, 64)
+		}
+	}
+
 	body := area.ManualModeRequest{
 		Ingress:     ingress,
 		Egress:      egress,
@@ -95,6 +104,7 @@ func manualRequest() {
 		TurnMapping: ingressTurns,
 		EMapping:    egressTurns,
 		Mode:        1,
+		TCAMapping:  allocate_tca,
 	}
 	sendRequest(fmt.Sprintf(fms.ManualModeURL, vesselID), []byte(body.String()))
 }
@@ -118,4 +128,5 @@ func init() {
 	ManualModeCmd.Flags().StringSliceVarP(&qcs, "qc-config", "c", []string{}, "批量设置数据，格式: QC1=2🌉")
 	ManualModeCmd.Flags().StringSliceVarP(&turns, "turn-mapping", "t", []string{}, "设置ingress不同车道的转向方式\n格式: 2=left🌌\n可选方向: left, right, ''\n")
 	ManualModeCmd.Flags().StringSliceVarP(&eMapping, "egress-mapping", "o", []string{}, "设置egress不同车道的转向方式\n格式: 2=left🌌\n可选方向: left, right, ''\n")
+	ManualModeCmd.Flags().StringSliceVar(&tcaMapping, "tca-mapping", []string{}, "设置岸桥的DCA数量\n格式: PQCXXX=X🌌\n")
 }

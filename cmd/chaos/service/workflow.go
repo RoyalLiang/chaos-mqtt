@@ -23,8 +23,8 @@ import (
 
 var (
 	Tasks     = []string{"IYS", "STANDBY"}
-	Blocks    = []string{"TB", "TC", "TD", "TE", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TP"}
-	BlockNums = []string{"01", "02", "03", "04", "05"}
+	Blocks    = []string{"TB", "TC", "TD", "TE", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TP", "TQ", "TR", "TU", "TS", "TT"}
+	BlockNums = []string{"01", "02", "03", "04"}
 	Slots     = []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33}
 	Lanes     = []string{"0", "11"}
 	QCLanes   = []string{"2", "3", "5", "6"}
@@ -39,6 +39,7 @@ type vehicleTask struct {
 	assignedLane string
 	taskType     string
 	noStandby    bool
+	onlyStandby  bool
 	task         *messages.RouteResponseJobInstruction
 }
 
@@ -63,7 +64,7 @@ func (vt *vehicleTask) updateDest(activity int64, dest string) {
 	}
 }
 
-func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby bool) *Workflow {
+func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby, onlyStandby bool) *Workflow {
 	w := &Workflow{
 		UUID:       uuid.NewString(),
 		wg:         sync.WaitGroup{},
@@ -91,6 +92,7 @@ func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicle
 					assignedQC:   aQC,
 					assignedLane: aLane,
 					noStandby:    noStandby,
+					onlyStandby:  onlyStandby,
 				}
 				vs[vid].updateDest(activity, dest)
 				fmt.Printf("%s, ", vid)
@@ -131,12 +133,25 @@ func choiceQCLane() string {
 
 func choiceBlockLocation() string {
 	bi := rand.IntN(len(Blocks))
-	bni := rand.IntN(len(BlockNums))
+	slots := BlockNums
+	switch Blocks[bi] {
+	case "TB", "TD", "TG", "TJ":
+		slots = []string{"01", "02", "03", "04", "05", "06", "07"}
+	case "TS", "TR", "TT":
+		slots = []string{"01", "02", "03"}
+	case "TN", "TP":
+		slots = []string{"02", "03", "04"}
+	}
+	bni := rand.IntN(len(slots))
 	si := rand.IntN(len(Slots))
-	return fmt.Sprintf("Y,V,,%s%s,%02d,%02d,10,  ", Blocks[bi], BlockNums[bni], Slots[si], Slots[si]+1)
+	return fmt.Sprintf("Y,V,,%s%s,%02d,%02d,10,  ", Blocks[bi], slots[bni], Slots[si], Slots[si]+1)
 }
 
-func choiceBlockLane() string {
+func choiceBlockLane(dest string) string {
+	if strings.Contains(dest, "TU01") || strings.Contains(dest, "TN01") || strings.Contains(dest, "TP01") {
+		return "11"
+	}
+
 	li := rand.IntN(len(Lanes))
 	return Lanes[li]
 }
@@ -163,8 +178,8 @@ func (vt *vehicleTask) updateBlockTask() {
 	if vt.noStandby {
 		vt.taskType = "IYS"
 		vt.activity = getAgainstActivity(vt.activity)
-		vt.lane = choiceBlockLane()
 		vt.destination = choiceBlockLocation()
+		vt.lane = choiceBlockLane(vt.destination)
 		return
 	}
 
@@ -201,13 +216,7 @@ func (wf *Workflow) StartWorkflow() error {
 		for _, vt := range wf.vehicles {
 			sendLogon(vt.vehicleID)
 			time.Sleep(time.Millisecond * 500)
-			message := messages.GenerateRouteRequestJob(vt.vehicleID, vt.destination, vt.lane, "S", "5", vt.activity, 1, 40, 1)
-			if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-				fmt.Printf("[%s] [%s] 任务下发失败 ==> [%s], 退出...", time.Now().Local().String(), vt.vehicleID, err)
-				continue
-			} else {
-				fmt.Printf("[%s] [%s] route_request_job_instruction ==> [%s]\n\n", time.Now().Local().String(), vt.vehicleID, message)
-			}
+			wf.sendJob(vt)
 			time.Sleep(time.Second)
 		}
 	}()

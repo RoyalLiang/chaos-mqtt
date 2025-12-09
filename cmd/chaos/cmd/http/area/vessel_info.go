@@ -28,7 +28,7 @@ var (
 	t      = table.NewWriter()
 	header = table.Row{
 		"Vessel ID", "D", "Berth", "Ingress", "Egress", "QC", "WM", "Locked", "Occupy", "QC Queue", "CA", "Work lane", "CA Status",
-		"CA Capacity", "Ca Queue",
+		"CA Capacity", "Ca Queue", "TCA Info", "TCA Seq",
 	}
 )
 
@@ -102,9 +102,10 @@ func printVesselsForever() {
 				return
 			}
 			vesselInfo := &fms.VesselInfo{}
-			if err = json.Unmarshal([]byte(msg.Payload), vesselInfo); err == nil {
-				manager.addVessel(*vesselInfo)
+			if err = json.Unmarshal([]byte(msg.Payload), vesselInfo); err != nil {
+				cobra.CheckErr(err)
 			}
+			manager.addVessel(*vesselInfo)
 		case <-ticker.C:
 			fmt.Print("\033[u\033[J")
 			printVessels(manager.getVessels())
@@ -125,6 +126,14 @@ func getAssignedCraneCaData(crane string, cas []fms.VesselCAInfo) []fms.VesselCA
 	return res
 }
 
+func getAssignedQCTCAInfo(crane string, tcaMapping map[string]fms.TCAMapping) string {
+	mapping, ok := tcaMapping[crane]
+	if ok && mapping.Capacity > 0 {
+		return fmt.Sprintf("%d/%s", mapping.Capacity, strings.Join(mapping.Vehicles, ","))
+	}
+	return "-/-"
+}
+
 func printVessels(vessels fms.VesselsInfo) {
 	t.ResetRows()
 	//rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
@@ -133,10 +142,11 @@ func printVessels(vessels fms.VesselsInfo) {
 			rows := make([]table.Row, 0)
 			cas := getAssignedCraneCaData(crane.Name, vs.CAs)
 			for _, ca := range cas {
+				tcaInfo := getAssignedQCTCAInfo(ca.Crane, vs.TCAMapping)
 				row := table.Row{
 					ca.VesselId, vs.VesselInfo.Direction, vs.Wms(), vs.Ingress.WharfMarkEnd, vs.Egress.WharfMarkEnd, crane.Name, crane.WharfMark, getLockedStatus(crane.Locked),
 					crane.VehicleID, strings.Join(vs.CAArrives, ","), ca.Name, ca.GetWorkLane(),
-					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","),
+					getLockedStatus(ca.Locked), ca.Capacity, strings.Join(ca.Vehicles, ","), tcaInfo, vs.TCACallSeq,
 				}
 				rows = append(rows, row)
 			}
@@ -145,15 +155,12 @@ func printVessels(vessels fms.VesselsInfo) {
 	}
 
 	t.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true},
-		{Number: 4, AutoMerge: true}, {Number: 5, AutoMerge: true}, {Number: 6, AutoMerge: true},
-		{Number: 7, AutoMerge: true}, {Number: 8, AutoMerge: true},
+		{Number: 1, AutoMerge: true}, {Number: 2, AutoMerge: true}, {Number: 3, AutoMerge: true}, {Number: 4, AutoMerge: true},
+		{Number: 5, AutoMerge: true}, {Number: 6, AutoMerge: true}, {Number: 7, AutoMerge: true}, {Number: 8, AutoMerge: true},
+		{Number: 12, AutoMerge: true}, {Number: 17, AutoMerge: true},
 	})
 
-	//t.SetStyle(table.StyleLight)
-	//t.Style().Options.SeparateRows = true
-	//t.Style().Options.SeparateColumns = true
-	fmt.Print(t.Render())
+	fmt.Println(t.Render())
 }
 
 func getVessels() *fms.GetVesselsResponse {

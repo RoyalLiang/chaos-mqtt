@@ -305,7 +305,7 @@ func (m IngressToCallIn) String() string {
 }
 
 type FunctionalJobData struct {
-	Id           string     `json:"id"`
+	ID           string     `json:"id"`
 	Timestamp    int64      `json:"timestamp"`
 	MapVersion   string     `json:"map_version"`
 	RouteDag     []RouteDag `json:"route_dag"`

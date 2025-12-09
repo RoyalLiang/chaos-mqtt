@@ -53,7 +53,7 @@ var VehicleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		header := table.Row{
 			"ID", "Vehicle ID", "Task Type", "Job Type", "Lift", "Cones", "ISO", "Start Time", "Destination",
-			"Lane", "Curr Destination", "WTA/s", "Arrived", "Call Status", "Mode", "Ready", "Manual",
+			"Lane", "Curr Destination", "WTA/s", "QCHT/s", "Arrived", "Call Status", "Mode", "Ready", "Manual",
 		}
 		vehicleTable.AppendHeader(header)
 
@@ -306,8 +306,9 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 		}
 
 		waitTime := ""
+		qcTime := ""
 		var waitColor text.Colors
-		if vehicle.KaTime == 0 && vehicle.CallTime == 0 {
+		if vehicle.KaTime == 0 || vehicle.CallTime == 0 {
 			waitTime = ""
 		} else if vehicle.KaTime > 0 && vehicle.CallTime == 0 {
 			dt := (time.Now().UnixMilli() - int64(vehicle.KaTime)) / 1000
@@ -324,12 +325,24 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			waitColor = text.Colors{}
 		}
 
+		if vehicle.Arrived && vehicle.CurrentDestination.Type == "CRANE_AREA" {
+			dt := time.Now().UnixMilli()
+
+			layout := "2006-01-02 15:04:05"
+			t, err := time.Parse(layout, vehicle.AT)
+			if err == nil {
+				qcTime = strconv.FormatInt((dt-t.UnixMilli())/1000, 10)
+			} else {
+				fmt.Println(err.Error())
+			}
+		}
+
 		row := table.Row{
 			index + 1, vehicle.ID, vehicle.Destination.Type, job, vehicle.TaskInfo.LiftType, cons, vehicle.TaskInfo.ContainerSize,
-			st, vehicle.Destination.Name, lane, dname, waitTime, arrived, called, vehicle.Mode, ready, manual,
+			st, vehicle.Destination.Name, lane, dname, waitTime, qcTime, arrived, called, vehicle.Mode, ready, manual,
 		}
-		vehicleTable.AppendRow(row)
 
+		vehicleTable.AppendRow(row)
 		vehicleTable.SetRowPainter(func(row table.Row) text.Colors {
 			if row[14].(string) == "MA" {
 				return text.Colors{text.FgRed}

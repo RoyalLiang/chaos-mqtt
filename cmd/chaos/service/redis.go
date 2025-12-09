@@ -29,8 +29,6 @@ func Subscribe(ctx context.Context, channel string, msgChan chan *redis.Message)
 	}
 
 	sub := rc.Subscribe(ctx, channel)
-	//defer sub.Close()
-
 	go func() {
 		for {
 			msg, err := sub.ReceiveMessage(ctx)

@@ -55,6 +55,12 @@ func (c Coordinate) String() string {
 	return string(v)
 }
 
+type TCAMapping struct {
+	Crane    string   `json:"crane"`
+	Capacity int64    `json:"capacity"`
+	Vehicles []string `json:"vehicles"`
+}
+
 type VesselInfo struct {
 	MaxWf      int                    `json:"max_wf"`
 	MinWf      int                    `json:"min_wf"`
@@ -65,6 +71,8 @@ type VesselInfo struct {
 	Cranes     []VesselCraneInfo      `json:"cranes"`
 	Ingress    VesselGressInfo        `json:"ingress"`
 	Egress     VesselGressInfo        `json:"egress"`
+	TCAMapping map[string]TCAMapping  `json:"tcas"`
+	TCACallSeq string                 `json:"tca_call_seq"`
 }
 
 type VesselsInfo []VesselInfo
@@ -176,6 +184,7 @@ type VehiclesResponseData struct {
 	VesselID           string                 `json:"vessel_id"`
 	CanGoCallIn        bool                   `json:"can_go_call_in"`
 	Arrived            bool                   `json:"arrived"`
+	AT                 string                 `json:"at"`
 	Destination        VehicleDestination     `json:"destination"`
 	CurrentDestination VehicleCurrDestination `json:"current_destination"`
 	LastDestination    VehicleCurrDestination `json:"last_destination"`
