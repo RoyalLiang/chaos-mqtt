@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fms-awesome-tools/pkg/logger"
 	"fmt"
 	"os"
 	"strings"
@@ -15,9 +16,9 @@ import (
 
 func (wf *Workflow) response(topic, message string) {
 	if err := wf.client.Publish(topic, message); err != nil {
-		fmt.Printf("[%s] send message to <%s> failed: %s\n", time.Now().Local().String(), topic, err.Error())
+		logger.Infof("send to topic [%s] message failed: %s", topic, err.Error())
 	} else {
-		fmt.Printf("[%s] send message to <%s>: %s\n\n", time.Now().Local().String(), topic, message)
+		logger.Infof("send to topic [%s] message, data ==> %s", topic, message)
 	}
 }
 
@@ -79,21 +80,21 @@ func (wf *Workflow) sendJob(vehicle *vehicleTask) {
 		message = messages.GenerateRouteRequestJob(vehicle.vehicleID, vehicle.destination, vehicle.lane, "S", "5", vehicle.activity, 1, 40, 1)
 	}
 	if err := PublishAssignedTopic("route_request_job_instruction", "", message); err != nil {
-		fmt.Printf("[%s] [%s] 任务下发失败 ==> [%s]", time.Now().Local().String(), vehicle.vehicleID, err)
+		logger.Warnf("\x1b[41m[%s] 任务下发失败， 失败原因: %s \x1b[0m", vehicle.vehicleID, err)
 	} else {
-		fmt.Printf("[%s] [%s] route_request_job_instruction ==> [%s]\n\n", time.Now().Local().String(), vehicle.vehicleID, message)
+		logger.Infof("send to topic [ %s ] message, data ==> %s", "route_request_job_instruction", message)
 	}
 }
 
 func (wf *Workflow) routeJobResponseHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToRouteResponseJobInstruction(message)
 	if data.Data.Success == 0 {
-		fmt.Printf("\x1b[41m[%s]: 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m", data.APMID, data.Data.RejectionCode)
+		logger.Warnf("\x1b[41m[%s] 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m", data.APMID, data.Data.RejectionCode)
 		go wf.sendJob(vehicle)
 	} else {
 		job := &messages.JobInstruction{}
 		if err := json.Unmarshal(message, job); err != nil {
-			fmt.Println("job_instruction解析失败...")
+			logger.Warn("job_instruction解析失败, 流程退出...")
 			os.Exit(1)
 		}
 		job.Data.RouteMandate = "Y"
@@ -172,7 +173,7 @@ func (wf *Workflow) sendNewTask(vt *vehicleTask) {
 	if wf.loop < 0 {
 		fmt.Println(tools.CustomTitle(fmt.Sprintf("\n          [%s]: 当前流程已结束, 待执行下一个流程...          \n", vt.vehicleID)))
 	} else if wf.loop == 0 || wf.loopCount > wf.loop {
-		fmt.Println(tools.CustomTitle("\n          流程已全部执行结束...          \n"))
+		fmt.Println(tools.CustomTitle("\n          流程已全部执行结束, 程序退出...          \n"))
 		os.Exit(1)
 	} else {
 		fmt.Println(tools.CustomTitle("\n          当前流程已结束, 开始执行下一个流程...          \n"))

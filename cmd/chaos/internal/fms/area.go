@@ -33,6 +33,11 @@ type GetVesselsResponse struct {
 	Data   Vessels `json:"data"`
 }
 
+func (vr *GetVesselsResponse) String() string {
+	v, _ := json.Marshal(vr)
+	return string(v)
+}
+
 type Vessels struct {
 	Names  []string     `json:"names"`
 	Values []VesselInfo `json:"values"`

@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fms-awesome-tools/pkg/logger"
 	"fmt"
 	"math/rand/v2"
 	"os"
@@ -235,7 +236,7 @@ func (wf *Workflow) messageHandler(client mqtt.Client, message mqtt.Message) {
 	}
 
 	if message.Topic() != "heartbeat" {
-		fmt.Printf("[%s] receive message from <%s>: %s\n\n", time.Now().Local().String(), message.Topic(), string(message.Payload()))
+		logger.Infof("receive topic [ %s ] message, data ==> %s", message.Topic(), string(message.Payload()))
 	}
 
 	vehicle := wf.getVehicle(data.APMID)

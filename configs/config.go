@@ -12,12 +12,14 @@ const (
 
 var (
 	ConfigDir string
+	Root      string
 )
 
 func writeDefaultConfig() error {
 	config := defaultConfig()
 	vp.Set("product", config.Product)
 	vp.Set("mqtt", config.MQTT)
+	vp.Set("logger", config.Logger)
 	return vp.WriteConfig()
 }
 
@@ -30,7 +32,7 @@ func checkConfig(path string) {
 			fmt.Println("配置文件创建失败: ", err)
 			os.Exit(1)
 		}
-		if _, err := os.Create(path); err != nil {
+		if _, err = os.Create(path); err != nil {
 			fmt.Println("配置文件创建失败: ", err)
 			os.Exit(1)
 		}
@@ -68,5 +70,6 @@ func init() {
 		fmt.Println("获取用户目录失败, ", err)
 		os.Exit(1)
 	}
-	ConfigDir = filepath.Join(path, ".chaos", "config")
+	Root = filepath.Join(path, ".chaos")
+	ConfigDir = filepath.Join(Root, "config")
 }

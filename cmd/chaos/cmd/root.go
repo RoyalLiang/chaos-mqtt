@@ -3,6 +3,8 @@ package cmd
 import (
 	"fms-awesome-tools/configs"
 	tools "fms-awesome-tools/utils"
+	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -30,4 +32,9 @@ func Execute() error {
 
 func init() {
 	configs.Init()
+	if configs.Chaos.Logger == nil {
+		fmt.Println("logger not initialized, exit...")
+		os.Exit(1)
+	}
+	tools.InitialLogger(configs.Root, *configs.Chaos.Logger)
 }

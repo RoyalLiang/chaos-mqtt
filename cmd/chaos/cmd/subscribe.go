@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"fms-awesome-tools/cmd/chaos/service"
+
 	"github.com/spf13/cobra"
 
-	"fms-awesome-tools/cmd/chaos/service"
 	tools "fms-awesome-tools/utils"
 )
 
-var name string
+var (
+	name       string
+	serverType string
+)
 
 var subCmd = &cobra.Command{
 	Use:   "subscribe",
@@ -17,12 +21,17 @@ var subCmd = &cobra.Command{
 		if name == "" {
 			_ = cmd.Help()
 		} else {
-			service.StartSubscribe(name)
+			if serverType == "mqtt" {
+				service.StartSubscribe(name)
+			} else if serverType == "redis" {
+				service.StartRedisSubscribe(name)
+			}
 		}
 	},
 }
 
 func init() {
 	subCmd.Flags().StringVarP(&name, "topic", "t", "", "topic名称🔠")
+	subCmd.Flags().StringVar(&serverType, "type", "mqtt", "订阅类型，mqtt/redis")
 	rootCmd.AddCommand(subCmd)
 }

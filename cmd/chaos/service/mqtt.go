@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fms-awesome-tools/pkg/logger"
 	"fmt"
 	"os"
 
@@ -82,7 +83,7 @@ func (mc *MqttClient) Publish(topic string, message interface{}) error {
 
 func (mc *MqttClient) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) {
 	if token := mc.client.Subscribe(topic, qos, callback); token.Wait() && token.Error() != nil {
-		fmt.Println("subscribe error: ", token.Error())
+		logger.Errorf("subscribe error: %s", token.Error())
 		//os.Exit(1)
 	}
 	<-mc.exit
@@ -90,7 +91,7 @@ func (mc *MqttClient) Subscribe(topic string, qos byte, callback mqtt.MessageHan
 
 func (mc *MqttClient) SubscribeMultiple(topics map[string]byte, callback mqtt.MessageHandler) {
 	if token := mc.client.SubscribeMultiple(topics, callback); token.Wait() && token.Error() != nil {
-		fmt.Println("multiple subscribe error: ", token.Error())
+		logger.Errorf("multiple subscribe error: %s", token.Error())
 		os.Exit(1)
 	}
 	<-mc.exit

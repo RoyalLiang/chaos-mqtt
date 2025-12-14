@@ -3,6 +3,7 @@ package area
 import (
 	"context"
 	"encoding/json"
+	"fms-awesome-tools/pkg/logger"
 	"fmt"
 	"os"
 	"os/signal"
@@ -12,11 +13,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-
 	"fms-awesome-tools/cmd/chaos/internal/fms"
 	"fms-awesome-tools/cmd/chaos/service"
 	"fms-awesome-tools/configs"
+
+	"github.com/redis/go-redis/v9"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
@@ -172,15 +173,16 @@ func getVessels() *fms.GetVesselsResponse {
 
 	resp, err := fms.Get(url)
 	if err != nil {
-		fmt.Println("获取船舶信息失败: ", err.Error())
+		logger.Warnf("获取船舶信息失败: %s", err.Error())
 		return nil
 	}
 
 	vesselInfo := &fms.GetVesselsResponse{}
 	if err := json.Unmarshal(resp, vesselInfo); err != nil {
-		fmt.Println("解析船舶信息失败: ", err.Error())
+		logger.Warnf("解析船舶信息失败: %s", err.Error())
 		return nil
 	}
+	logger.Infof("船舶信息获取成功: %s", vesselInfo.String())
 	return vesselInfo
 }
 

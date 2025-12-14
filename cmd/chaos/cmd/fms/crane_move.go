@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 	"strconv"
 	"time"
 
@@ -48,7 +47,7 @@ var CraneMoveCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if moveCrane == "" && moveTime == 0 && assigned == 0 {
 			_ = cmd.Help()
-			os.Exit(1)
+			return
 		}
 
 		if moveTime < 0 {

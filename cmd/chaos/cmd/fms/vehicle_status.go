@@ -97,6 +97,9 @@ type VehicleManager struct {
 }
 
 func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
+	vm.Lock()
+	defer vm.Unlock()
+
 	if vehicleID != "" && vehicle.ID != vehicleID {
 		return
 	}
@@ -106,21 +109,18 @@ func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 	}
 
 	if vehicleFilter != "" && vehicle.Destination.Type != vehicleFilter {
-		if _, ok := vm.vehicles[vehicleID]; ok {
-			delete(vm.vehicles, vehicleID)
+		if _, ok := vm.vehicles[vehicle.ID]; ok {
+			delete(vm.vehicles, vehicle.ID)
 		}
 		return
 	}
 
 	if exclude != "" && vehicle.Mode != exclude {
-		if _, ok := vm.vehicles[vehicleID]; ok {
-			delete(vm.vehicles, vehicleID)
+		if _, ok := vm.vehicles[vehicle.ID]; ok {
+			delete(vm.vehicles, vehicle.ID)
 		}
 		return
 	}
-
-	vm.Lock()
-	defer vm.Unlock()
 	vm.vehicles[vehicle.ID] = vehicle
 }
 
@@ -150,8 +150,8 @@ func subs() {
 
 	var (
 		ctx          = context.Background()
-		msgChan      = make(chan *redis.Message, 100)
-		batchTimeout = time.Second * 2
+		msgChan      = make(chan *redis.Message, 999)
+		batchTimeout = time.Second * 3
 		manager      = &VehicleManager{
 			vehicles: make(map[string]*fms.VehiclesResponseData),
 		}
@@ -329,11 +329,12 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 			dt := time.Now().UnixMilli()
 
 			layout := "2006-01-02 15:04:05"
-			t, err := time.Parse(layout, vehicle.AT)
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			t, err := time.ParseInLocation(layout, vehicle.AT, loc)
 			if err == nil {
 				qcTime = strconv.FormatInt((dt-t.UnixMilli())/1000, 10)
 			} else {
-				fmt.Println(err.Error())
+				fmt.Println("time err: ", err.Error())
 			}
 		}
 

@@ -116,7 +116,7 @@ func defaultConfig() chaosConfig {
 		Size:   500,
 		Backup: 10,
 		Level:  "info",
-		Dir:    "./logs",
+		Dir:    "logs",
 	}
 
 	config.FMS = &fms{

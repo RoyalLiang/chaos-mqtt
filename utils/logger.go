@@ -40,7 +40,7 @@ func InitialLogger(root string, cfg configs.LoggerConfig) {
 	var f string
 	//file := viper.GetString("product.uuid") + ".log"
 	if cfg.Dir != "" {
-		f = filepath.Join(root, cfg.Dir, cfg.Name+".log")
+		f = filepath.Join(cfg.Dir, cfg.Name+".log")
 	} else {
 		f = filepath.Join(root, "logs", cfg.Name+".log")
 	}
@@ -75,8 +75,4 @@ func InitialLogger(root string, cfg configs.LoggerConfig) {
 	}()
 
 	defer logger.Sync()
-}
-
-func init() {
-	InitialLogger(configs.ConfigDir, *configs.Chaos.Logger)
 }
