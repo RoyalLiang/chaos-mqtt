@@ -42,7 +42,7 @@ var (
 	vehicleReset  bool
 	vehicleTable  = table.NewWriter()
 	redisClient   *redis.Client
-	vehicleFilter string
+	vehicleFilter []string
 	exclude       string
 	withQtruck    bool
 )
@@ -79,11 +79,7 @@ var VehicleCmd = &cobra.Command{
 			return
 		}
 
-		var err error
-		redisClient, err = service.NewRedisClient()
-		if err != nil {
-			cobra.CheckErr(err)
-		}
+		ensureRedisClient()
 
 		if exclude != "" && (exclude != "MA" && exclude != "TN" && exclude != "OP") {
 			cobra.CheckErr("--exclude 选项错误")
@@ -99,28 +95,6 @@ type VehicleManager struct {
 func (vm *VehicleManager) Add(vehicle *fms.VehiclesResponseData) {
 	vm.Lock()
 	defer vm.Unlock()
-
-	if vehicleID != "" && vehicle.ID != vehicleID {
-		return
-	}
-
-	if !withQtruck && strings.HasPrefix(vehicle.ID, "AT") {
-		return
-	}
-
-	if vehicleFilter != "" && vehicle.Destination.Type != vehicleFilter {
-		if _, ok := vm.vehicles[vehicle.ID]; ok {
-			delete(vm.vehicles, vehicle.ID)
-		}
-		return
-	}
-
-	if exclude != "" && vehicle.Mode != exclude {
-		if _, ok := vm.vehicles[vehicle.ID]; ok {
-			delete(vm.vehicles, vehicle.ID)
-		}
-		return
-	}
 	vm.vehicles[vehicle.ID] = vehicle
 }
 
@@ -129,11 +103,48 @@ func (vm *VehicleManager) GetSorted() fms.Vehicles {
 	defer vm.Unlock()
 
 	vehicles := make(fms.Vehicles, 0, len(vm.vehicles))
-	for _, v := range vm.vehicles {
-		vehicles = append(vehicles, *v)
+	for _, vehicle := range vm.vehicles {
+		if vehicleID != "" && vehicle.ID != vehicleID {
+			continue
+		}
+
+		if !withQtruck && strings.HasPrefix(vehicle.ID, "AT") {
+			continue
+		}
+
+		if exclude != "" && vehicle.Mode == exclude {
+			continue
+		}
+
+		if len(vehicleFilter) > 0 {
+			matched := false
+			for _, filter := range vehicleFilter {
+				if vehicle.Destination.Type == filter {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				continue
+			}
+		}
+
+		vehicles = append(vehicles, *vehicle)
 	}
 	sort.Sort(vehicles)
 	return vehicles
+}
+
+func ensureRedisClient() {
+	if redisClient != nil {
+		return
+	}
+
+	var err error
+	redisClient, err = service.NewRedisClient()
+	if err != nil {
+		cobra.CheckErr(err)
+	}
 }
 
 func resetVehicle() {
@@ -147,6 +158,7 @@ func resetVehicle() {
 }
 
 func subs() {
+	ensureRedisClient()
 
 	var (
 		ctx          = context.Background()
@@ -363,7 +375,7 @@ func printVehicles(ctx context.Context, vehicles fms.Vehicles) {
 func init() {
 	VehicleCmd.Flags().BoolVarP(&k, "keepalive", "k", false, "自动刷新🔄️(1/2s)")
 	VehicleCmd.Flags().StringVarP(&vehicleID, "vehicle", "v", "", "集卡号🚗")
-	VehicleCmd.Flags().StringVarP(&vehicleFilter, "filter", "f", "", "指定的作业类型"+taskTypes)
+	VehicleCmd.Flags().StringSliceVarP(&vehicleFilter, "filter", "f", make([]string, 0), "指定的作业类型"+taskTypes)
 	VehicleCmd.Flags().StringVarP(&exclude, "exclude", "e", "", "过滤指定模式的集卡"+vehicleModes)
 	VehicleCmd.Flags().BoolVar(&vehicleReset, "reset", false, "重置集卡⭕")
 	VehicleCmd.Flags().BoolVar(&withQtruck, "with-qtruck", false, "同时显示Qtruck🚗")

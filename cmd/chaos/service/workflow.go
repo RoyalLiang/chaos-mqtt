@@ -41,6 +41,7 @@ type vehicleTask struct {
 	taskType     string
 	noStandby    bool
 	onlyStandby  bool
+	callP        float64
 	task         *messages.RouteResponseJobInstruction
 }
 
@@ -51,6 +52,7 @@ type Workflow struct {
 	autoCallIn bool
 	loop       int64
 	loopCount  int64
+	callP      float64
 	vehicles   map[string]*vehicleTask
 }
 
@@ -65,13 +67,14 @@ func (vt *vehicleTask) updateDest(activity int64, dest string) {
 	}
 }
 
-func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby, onlyStandby bool) *Workflow {
+func NewWorkflow(loopNum, activity, vehicleNum, startNumber int64, lane, vehicleID, dest, aQC, aLane string, autoCallIn, noStandby, onlyStandby bool, callP float64) *Workflow {
 	w := &Workflow{
 		UUID:       uuid.NewString(),
 		wg:         sync.WaitGroup{},
 		autoCallIn: autoCallIn,
 		loop:       loopNum,
 		loopCount:  1,
+		callP:      callP,
 		vehicles: func() map[string]*vehicleTask {
 			vs := make(map[string]*vehicleTask)
 			if vehicleID != "" && vehicleNum <= 0 {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fms-awesome-tools/pkg/logger"
 	"fmt"
+	"math/rand/v2"
 	"os"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ func (wf *Workflow) callInRequest(vehicle *vehicleTask) {
 			},
 		}
 		wf.response("call_in_request", call.String())
+		fmt.Printf("[%s] call to ca...\n", vehicle.vehicleID)
 	}()
 }
 
@@ -42,6 +44,7 @@ func (wf *Workflow) mount(vehicle *vehicleTask) {
 		Data:  messages.MountInstructionData{},
 	}
 	wf.response("mount_instruction", mount.String())
+	fmt.Printf("[%s] mount the container...\n", vehicle.vehicleID)
 }
 
 func (wf *Workflow) offload(vehicle *vehicleTask) {
@@ -52,6 +55,7 @@ func (wf *Workflow) offload(vehicle *vehicleTask) {
 		},
 	}
 	wf.response("offload_instruction", offload.String())
+	fmt.Printf("[%s] offload the container...\n", vehicle.vehicleID)
 }
 
 func (wf *Workflow) logonHandler(message []byte) {
@@ -89,7 +93,8 @@ func (wf *Workflow) sendJob(vehicle *vehicleTask) {
 func (wf *Workflow) routeJobResponseHandler(vehicle *vehicleTask, message []byte) {
 	data := internal.ParseToRouteResponseJobInstruction(message)
 	if data.Data.Success == 0 {
-		logger.Warnf("\x1b[41m[%s] 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m", data.APMID, data.Data.RejectionCode)
+		logger.Warnf("\x1b[41m[%s] 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m\n", data.APMID, data.Data.RejectionCode)
+		fmt.Printf("\x1b[41m[%s] 任务下发失败, 尝试重发， 失败原因: %s \x1b[0m\n", data.APMID, data.Data.RejectionCode)
 		go wf.sendJob(vehicle)
 	} else {
 		job := &messages.JobInstruction{}
@@ -132,8 +137,13 @@ func (wf *Workflow) apmArrivalHandler(vehicle *vehicleTask, message []byte) {
 		return
 	}
 
+	fmt.Printf("[%s] arrived %s\n", vehicle.vehicleID, data.Data.Location)
 	if (strings.HasSuffix(data.Data.Location, "Pre-Ingress") || strings.Contains(data.Data.Location, "Wait")) && wf.autoCallIn {
-		wf.callInRequest(vehicle)
+		p := rand.Float64() * 100
+		if p <= wf.callP {
+			wf.callInRequest(vehicle)
+		}
+		fmt.Printf("[%s] call-percentage: %v, seed: %v, auto-call: %v\n", data.APMID, wf.callP, p, wf.autoCallIn)
 		return
 	}
 
